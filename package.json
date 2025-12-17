@@ -11,13 +11,19 @@
     "Other"
   ],
   "activationEvents": [
+    "onView:watchapi.collections",
     "onView:watchapi.activity",
     "onCommand:watchapi.newRequest",
     "onCommand:watchapi.activity.clear",
     "onCommand:watchapi.activity.open",
     "onCommand:watchapi.activity.delete",
     "onCommand:watchapi.activity.filter",
-    "onCommand:watchapi.activity.seed"
+    "onCommand:watchapi.activity.seed",
+    "onCommand:watchapi.collections.create",
+    "onCommand:watchapi.collections.addEndpoint",
+    "onCommand:watchapi.collections.openEndpoint",
+    "onCommand:watchapi.collections.deleteCollection",
+    "onCommand:watchapi.collections.deleteEndpoint"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -25,6 +31,30 @@
       {
         "command": "watchapi-client.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "watchapi.collections.create",
+        "title": "WatchAPI: New Collection",
+        "icon": "$(add)"
+      },
+      {
+        "command": "watchapi.collections.addEndpoint",
+        "title": "WatchAPI: New Endpoint",
+        "icon": "$(add)"
+      },
+      {
+        "command": "watchapi.collections.openEndpoint",
+        "title": ""
+      },
+      {
+        "command": "watchapi.collections.deleteCollection",
+        "title": "WatchAPI: Delete Collection",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "watchapi.collections.deleteEndpoint",
+        "title": "WatchAPI: Delete Endpoint",
+        "icon": "$(trash)"
       },
       {
         "command": "watchapi.newRequest",
@@ -71,6 +101,14 @@
     "views": {
       "watchapi": [
         {
+          "id": "watchapi.collections",
+          "name": "Collections"
+        },
+        {
+          "id": "watchapi.environments",
+          "name": "Environments"
+        },
+        {
           "id": "watchapi.activity",
           "name": "Activity"
         }
@@ -85,6 +123,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "watchapi.collections.create",
+          "when": "view == watchapi.collections",
+          "group": "navigation"
+        },
         {
           "command": "watchapi.newRequest",
           "when": "view == watchapi.activity",
@@ -102,6 +145,21 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "watchapi.collections.addEndpoint",
+          "when": "view == watchapi.collections && viewItem == collectionItem",
+          "group": "inline"
+        },
+        {
+          "command": "watchapi.collections.deleteCollection",
+          "when": "view == watchapi.collections && viewItem == collectionItem",
+          "group": "inline"
+        },
+        {
+          "command": "watchapi.collections.deleteEndpoint",
+          "when": "view == watchapi.collections && viewItem == endpointItem",
+          "group": "inline"
+        },
         {
           "command": "watchapi.activity.open",
           "when": "view == watchapi.activity && viewItem == activityItem",
