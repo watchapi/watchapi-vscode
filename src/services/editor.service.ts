@@ -56,6 +56,7 @@ export async function openVirtualHttpFile(
 export async function openSavedHttpFile(
   content: string,
   filename = "request.http",
+  options?: { preserveFocus?: boolean },
 ) {
   const workspace = vscode.workspace.workspaceFolders?.[0];
   if (!workspace) {
@@ -76,14 +77,22 @@ export async function openSavedHttpFile(
 
   let doc = await vscode.workspace.openTextDocument(uri);
   doc = await vscode.languages.setTextDocumentLanguage(doc, "http");
-  await vscode.window.showTextDocument(doc, { preview: false });
+  await vscode.window.showTextDocument(doc, {
+    preview: false,
+    preserveFocus: options?.preserveFocus,
+  });
 
   return doc;
 }
 
 export function inferHttpFilename(input: { name?: string; method?: string; url?: string }) {
-  const base =
-    input.name?.trim() ||
+  const base = [
+    input.method?.trim(),
+    input.name?.trim(),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim() ||
     [input.method?.trim(), input.url?.trim()].filter(Boolean).join(" ") ||
     "request";
   return toHttpFilename(base);

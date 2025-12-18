@@ -12,19 +12,14 @@
   ],
   "activationEvents": [
     "onView:watchapi.collections",
-    "onView:watchapi.activity",
     "onCommand:watchapi.newRequest",
     "onCommand:watchapi.auth.login",
-    "onCommand:watchapi.activity.clear",
-    "onCommand:watchapi.activity.open",
-    "onCommand:watchapi.activity.delete",
-    "onCommand:watchapi.activity.filter",
-    "onCommand:watchapi.activity.seed",
     "onCommand:watchapi.collections.create",
     "onCommand:watchapi.collections.addEndpoint",
     "onCommand:watchapi.collections.openEndpoint",
     "onCommand:watchapi.collections.deleteCollection",
     "onCommand:watchapi.collections.deleteEndpoint",
+    "onCommand:watchapi.collections.deleteSelected",
     "onCommand:watchapi.collections.renameCollection",
     "onCommand:watchapi.collections.refresh"
   ],
@@ -85,45 +80,19 @@
       },
       {
         "command": "watchapi.collections.deleteCollection",
-        "title": "WatchAPI: Delete Collection",
-        "icon": "$(trash)"
+        "title": "WatchAPI: Delete Collection"
       },
       {
         "command": "watchapi.collections.deleteEndpoint",
-        "title": "WatchAPI: Delete Endpoint",
-        "icon": "$(trash)"
+        "title": "WatchAPI: Delete Endpoint"
       },
       {
-        "command": "watchapi.newRequest",
-        "title": "WatchAPI: New Request",
-        "icon": "$(add)"
-      },
-      {
-        "command": "watchapi.activity.clear",
-        "title": "WatchAPI: Clear Activity",
-        "icon": "$(clear-all)"
-      },
-      {
-        "command": "watchapi.activity.open",
-        "title": "WatchAPI: Open Activity Item"
-      },
-      {
-        "command": "watchapi.activity.delete",
-        "title": "WatchAPI: Delete Activity Item",
-        "icon": "$(trash)"
-      },
-      {
-        "command": "watchapi.activity.filter",
-        "title": "WatchAPI: Filter Activity",
-        "icon": "$(filter)"
+        "command": "watchapi.collections.deleteSelected",
+        "title": "WatchAPI: Delete Selected"
       },
       {
         "command": "watchapi.openSettings",
         "title": "WatchAPI: Open Settings"
-      },
-      {
-        "command": "watchapi.activity.seed",
-        "title": "WatchAPI: Add Sample Activity"
       }
     ],
     "viewsContainers": {
@@ -131,7 +100,7 @@
         {
           "id": "watchapi",
           "title": "WatchAPI Client",
-          "icon": "assets/activity-icon.png"
+          "icon": "assets/watchapi-icon.png"
         }
       ]
     },
@@ -139,17 +108,10 @@
       "watchapi": [
         {
           "id": "watchapi.collections",
-          "name": "Collections"
+          "name": ""
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "watchapi.activity",
-        "contents": "No activity yet.\n\n[New Request](command:watchapi.newRequest)\n\n[Add sample activity](command:watchapi.activity.seed)",
-        "when": "watchapi:hasActivity == false"
-      }
-    ],
     "menus": {
       "view/title": [
         {
@@ -164,17 +126,7 @@
         },
         {
           "command": "watchapi.newRequest",
-          "when": "view == watchapi.activity",
-          "group": "navigation"
-        },
-        {
-          "command": "watchapi.activity.filter",
-          "when": "view == watchapi.activity",
-          "group": "navigation"
-        },
-        {
-          "command": "watchapi.activity.clear",
-          "when": "view == watchapi.activity",
+          "when": "view == watchapi.collections",
           "group": "navigation"
         }
       ],
@@ -192,25 +144,27 @@
         {
           "command": "watchapi.collections.deleteCollection",
           "when": "view == watchapi.collections && viewItem == collectionItem",
-          "group": "inline"
+          "group": "3_delete"
         },
         {
           "command": "watchapi.collections.deleteEndpoint",
           "when": "view == watchapi.collections && viewItem == endpointItem",
-          "group": "inline"
-        },
-        {
-          "command": "watchapi.activity.open",
-          "when": "view == watchapi.activity && viewItem == activityItem",
-          "group": "inline"
-        },
-        {
-          "command": "watchapi.activity.delete",
-          "when": "view == watchapi.activity && viewItem == activityItem",
-          "group": "inline"
+          "group": "3_delete"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "watchapi.collections.deleteSelected",
+        "key": "delete",
+        "when": "focusedView == watchapi.collections && listFocus"
+      },
+      {
+        "command": "watchapi.collections.deleteSelected",
+        "key": "backspace",
+        "when": "focusedView == watchapi.collections && listFocus"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",

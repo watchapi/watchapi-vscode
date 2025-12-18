@@ -7,7 +7,7 @@ export class CollectionTreeItem extends vscode.TreeItem {
 
     this.id = collection.id;
     this.contextValue = "collectionItem";
-    // this.iconPath = new vscode.ThemeIcon("server");
+    this.iconPath = new vscode.ThemeIcon("layers");
     this.description =
       collection.endpoints.length > 0
         ? `${collection.endpoints.length} endpoint${

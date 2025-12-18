@@ -16,8 +16,10 @@ export function buildRequestDocument(
     }
   }
 
+  const nameSuffix = request.name?.trim() ? ` - ${request.name.trim()}` : "";
+
   return [
-    `### ${request.method} ${safePathname(request.url)} - ${request.name}`,
+    `### ${request.method} ${safePathname(request.url)}${nameSuffix}`,
     ``,
     `${request.method} ${request.url}`,
     ``,
