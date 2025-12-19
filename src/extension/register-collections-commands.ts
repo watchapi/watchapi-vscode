@@ -5,14 +5,14 @@ import { CollectionTreeItem } from "../providers/collection-tree-item";
 import { EndpointTreeItem } from "../providers/endpoint-tree-item";
 import {
   inferHttpFilename,
-  openSavedHttpFile,
+  openWatchapiHttpFile,
 } from "../services/editor.service";
 import { buildRequestDocument } from "../documents/request-document";
-import { RequestLinkStore } from "../storage/request-link-store";
 import { confirmDelete } from "../ui/confirm-delete";
 import { inferEndpointName } from "../utils/infer-endpoint-name";
 import { promptForRequest } from "../ui/prompt-for-request";
 import { CollectionsProvider } from "../providers/collections-provider";
+import { VirtualRequestFileSystemProvider } from "../providers/virtual-request-file-system";
 
 type CollectionsService = {
   createCollection: (name: string) => Promise<void>;
@@ -32,12 +32,11 @@ export function registerCollectionsCommands(
   deps: {
     collectionsService: CollectionsService;
     collectionsProvider: CollectionsProvider;
-    requestLinks: RequestLinkStore;
     treeView: vscode.TreeView<vscode.TreeItem>;
+    virtualFs: VirtualRequestFileSystemProvider;
   },
 ) {
-  const { collectionsService, collectionsProvider, requestLinks, treeView } =
-    deps;
+  const { collectionsService, collectionsProvider, treeView, virtualFs } = deps;
 
   context.subscriptions.push(
     vscode.commands.registerCommand("watchapi.collections.create", async () => {
@@ -137,18 +136,17 @@ export function registerCollectionsCommands(
         }
 
         const content = buildRequestDocument(endpoint);
-        const doc = await openSavedHttpFile(
+        await openWatchapiHttpFile({
           content,
-          inferHttpFilename({
+          filename: inferHttpFilename({
             name: endpoint.name,
             method: endpoint.method,
             url: endpoint.url,
           }),
-          { preserveFocus: true },
-        );
-        if (doc) {
-          await requestLinks.linkEndpoint(doc.uri, endpoint.id);
-        }
+          endpointId: endpoint.id,
+          preserveFocus: true,
+          provider: virtualFs,
+        });
       },
     ),
   );

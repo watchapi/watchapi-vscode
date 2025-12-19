@@ -3,6 +3,10 @@ import { CollectionsProvider } from "../providers/collections-provider";
 import { ensureGuestLogin } from "../services/auth.service";
 import { CoreApiService } from "../services/core-api.service";
 import { RequestLinkStore } from "../storage/request-link-store";
+import {
+  VirtualRequestFileSystemProvider,
+  WATCHAPI_SCHEME,
+} from "../providers/virtual-request-file-system";
 import { registerAuthCommands } from "./register-auth-commands";
 import { registerCollectionsCommands } from "./register-collections-commands";
 import { registerCollectionsTreeView } from "./register-collections-tree-view";
@@ -18,14 +22,21 @@ export function activate(context: vscode.ExtensionContext) {
   const coreApi = new CoreApiService(context);
   const collectionsProvider = new CollectionsProvider(coreApi);
   const requestLinks = new RequestLinkStore(context);
+  const virtualFs = new VirtualRequestFileSystemProvider(coreApi, requestLinks);
+
+  context.subscriptions.push(
+    vscode.workspace.registerFileSystemProvider(WATCHAPI_SCHEME, virtualFs, {
+      isCaseSensitive: true,
+    }),
+  );
 
   registerHttpClientReminder(context);
   const treeView = registerCollectionsTreeView(context, collectionsProvider);
   registerCollectionsCommands(context, {
     collectionsProvider,
     collectionsService: coreApi,
-    requestLinks,
     treeView,
+    virtualFs,
   });
   registerHttpSyncOnSave(context, { coreApi, requestLinks });
   registerSettingsCommands(context);

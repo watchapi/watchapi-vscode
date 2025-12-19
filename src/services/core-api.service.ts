@@ -146,4 +146,19 @@ export class CoreApiService {
       ? lastError
       : new Error("Failed to update endpoint httpContent");
   }
+
+  async findEndpointById(
+    endpointId: string,
+  ): Promise<CollectionEndpoint | undefined> {
+    const collections = await this.pullCollections();
+    for (const collection of collections) {
+      const match = collection.endpoints.find(
+        (endpoint) => endpoint.id === endpointId,
+      );
+      if (match) {
+        return match;
+      }
+    }
+    return undefined;
+  }
 }

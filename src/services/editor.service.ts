@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { VirtualRequestFileSystemProvider } from "../providers/virtual-request-file-system";
 
 function sanitizeFilenamePart(input: string) {
   return input
@@ -53,33 +54,30 @@ export async function openVirtualHttpFile(
   return doc;
 }
 
-export async function openSavedHttpFile(
-  content: string,
-  filename = "request.http",
-  options?: { preserveFocus?: boolean },
-) {
-  const workspace = vscode.workspace.workspaceFolders?.[0];
-  if (!workspace) {
-    vscode.window.showErrorMessage("Open a workspace to save requests");
-    return;
-  }
+export async function openWatchapiHttpFile(input: {
+  content: string;
+  filename?: string;
+  endpointId: string;
+  provider: VirtualRequestFileSystemProvider;
+  preserveFocus?: boolean;
+}) {
+  const filename = toHttpFilename(input.filename ?? "request.http");
+  const uri = input.provider.toUri({
+    endpointId: input.endpointId,
+    filename,
+  });
 
-  const uri = vscode.Uri.joinPath(workspace.uri, toHttpFilename(filename));
-
-  const exists = await vscode.workspace.fs.stat(uri).then(
-    () => true,
-    () => false,
+  const normalizedUri = await input.provider.upsertFile(
+    uri,
+    input.content,
+    input.endpointId,
   );
 
-  if (!exists) {
-    await vscode.workspace.fs.writeFile(uri, Buffer.from(content, "utf8"));
-  }
-
-  let doc = await vscode.workspace.openTextDocument(uri);
+  let doc = await vscode.workspace.openTextDocument(normalizedUri);
   doc = await vscode.languages.setTextDocumentLanguage(doc, "http");
   await vscode.window.showTextDocument(doc, {
     preview: false,
-    preserveFocus: options?.preserveFocus,
+    preserveFocus: input.preserveFocus,
   });
 
   return doc;

@@ -4,6 +4,8 @@ WatchAPI Client is a REST client for testing and managing API endpoints directly
 
 It lets you organize endpoints into collections, send HTTP requests, and work with APIs without leaving your editor.
 
+![WatchAPI](./assets/screenshot-preview.png "WatchAPI Client")
+
 ## Features
 
 - Create and manage API collections

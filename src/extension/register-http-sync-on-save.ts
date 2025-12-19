@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { CoreApiService } from "../services/core-api.service";
 import { RequestLinkStore } from "../storage/request-link-store";
 import { extractEndpointIdFromHttpDocument } from "../utils/watchapi-request-metadata";
+import { WATCHAPI_SCHEME } from "../providers/virtual-request-file-system";
 
 export function registerHttpSyncOnSave(
   context: vscode.ExtensionContext,
@@ -11,6 +12,10 @@ export function registerHttpSyncOnSave(
 
   context.subscriptions.push(
     vscode.workspace.onDidSaveTextDocument(async (doc) => {
+      if (doc.uri.scheme === WATCHAPI_SCHEME) {
+        return;
+      }
+
       const looksLikeHttp =
         doc.languageId === "http" ||
         doc.uri.path.toLowerCase().endsWith(".http") ||
@@ -47,4 +52,3 @@ export function registerHttpSyncOnSave(
     }),
   );
 }
-
