@@ -3,7 +3,8 @@
   "publisher": "WatchAPI",
   "displayName": "WatchAPI Client",
   "description": "REST client for testing and managing API endpoints from code",
-  "version": "0.0.1",
+  "version": "0.0.6",
+  "icon": "assets/marketplace-logo.png",
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -36,13 +37,16 @@
     "onCommand:watchapi.httpClient.promptInstall"
   ],
   "main": "./dist/extension.js",
+  "repository": {
+    "url": "https://github.com/watchapi/watchapi"
+  },
   "contributes": {
     "configuration": {
       "title": "WatchAPI Client",
       "properties": {
         "watchapi.apiUrl": {
           "type": "string",
-          "default": "http://localhost:3000",
+          "default": "https://watchapi.dev",
           "description": "Base URL for the WatchAPI server (tRPC endpoint is /api/trpc)."
         },
         "watchapi.apiToken": {
@@ -208,12 +212,13 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "pnpm run package",
+    "vscode:package": "pnpm run package",
+    "vscode:publish": "pnpm exec vsce publish --no-dependencies",
+    "package": "pnpm exec vsce package --no-dependencies",
     "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",

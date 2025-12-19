@@ -61,7 +61,7 @@ export class CoreApiService {
 
   private async createAuthedClient() {
     const installId = await getOrCreateInstallId(this.context);
-    const tokens = await ensureGuestLogin(this.context);
+    const tokens = await ensureGuestLogin(this.context, { installId });
     return createApiClientFromConfig({
       installId,
       apiToken: tokens.accessToken,

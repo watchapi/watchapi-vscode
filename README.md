@@ -1,76 +1,38 @@
-# watchapi-client README
+# WatchAPI Client
 
-This is the README for your extension "watchapi-client". After writing up a brief description, we recommend including the following sections.
+WatchAPI Client is a REST client for testing and managing API endpoints directly from VS Code.
+
+It lets you organize endpoints into collections, send HTTP requests, and work with APIs without leaving your editor.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Create and manage API collections
+- Send HTTP requests (GET, POST, PUT, DELETE)
+- View responses inside VS Code
+- Designed to work with WatchAPI workflows
 
-For example if there is an image subfolder under your extension project workspace:
+## Quick Started
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Install the extension
+2. Open the WatchAPI activity view
+3. Create a collection and add endpoints
+4. Send requests and inspect responses
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Privacy stuff
 
-## Requirements
+To provide cloud-synced collections, the extension automatically creates a temporary guest account.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- A guest account is created on first use
+- API collections and endpoints are stored securely in the WatchAPI cloud
+- Guest accounts are retained for up to 30 days
+- No personal information is collected beyond technical identifiers needed to operate the service
 
-## Extension Settings
+You can review the full Privacy Policy at https://watchapi.dev/privacy
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Need help?
 
-This extension contributes the following settings:
-
-- `watchapi.apiUrl`: Base URL for the WatchAPI server (tRPC endpoint is `/api/trpc`).
-- `watchapi.apiToken`: Bearer token for authenticated requests.
-- `watchapi.organizationId`: Optional org ID header (`x-organization-id`).
-
-Internally the extension exposes a small untyped tRPC client wrapper at `src/core/api-client.ts` that you can use from extension code.
-
-## Commands
-
-- `WatchAPI: Login` (`watchapi.auth.login`): Upgrades the auto-created guest account to a real user by calling `auth.upgradeGuest`, then stores tokens in VS Code Secret Storage.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Something broken? [Open an issue](https://github.com/watchapi/watchapi-client/issues/new) or check out [WatchAPI](https://watchapi.dev).
 
 ---
 
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Built by developers who prefer working with APIs directly from their editor.
