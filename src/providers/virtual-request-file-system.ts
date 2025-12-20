@@ -157,8 +157,9 @@ export class VirtualRequestFileSystemProvider
       throw vscode.FileSystemError.FileNotFound(uri);
     }
 
+    const content = await buildRequestDocument(endpoint);
     const file: VirtualRequestFile = {
-      content: Buffer.from(buildRequestDocument(endpoint), "utf8"),
+      content: Buffer.from(content, "utf8"),
       mtime: Date.now(),
       endpointId,
     };

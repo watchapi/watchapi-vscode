@@ -4,6 +4,13 @@ import { CoreApiService } from "../services/core-api.service";
 import { CollectionTreeItem } from "./collection-tree-item";
 import { EndpointTreeItem } from "./endpoint-tree-item";
 
+type TreeItemCache = {
+  collections: Map<string, CollectionTreeItem>;
+  endpointsByCollection: Map<string, EndpointTreeItem[]>;
+  endpointsById: Map<string, EndpointTreeItem>;
+  parentByEndpointId: Map<string, CollectionTreeItem>;
+};
+
 export class CollectionsProvider
   implements vscode.TreeDataProvider<vscode.TreeItem>
 {
@@ -13,10 +20,12 @@ export class CollectionsProvider
   private collections: Collection[] | null = null;
   private loading: Promise<void> | null = null;
   private lastError: unknown = null;
+  private treeItems: TreeItemCache | null = null;
 
   constructor(private readonly service: CoreApiService) {}
 
   refresh() {
+    this.treeItems = null;
     this._onDidChangeTreeData.fire();
   }
 
@@ -30,17 +39,7 @@ export class CollectionsProvider
   }
 
   getChildren(element?: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem[]> {
-    if (!element) {
-      return this.getRootChildren();
-    }
-
-    if (element instanceof CollectionTreeItem) {
-      return element.collection.endpoints.map(
-        (endpoint) => new EndpointTreeItem(element.collection, endpoint),
-      );
-    }
-
-    return [];
+    return this.getChildrenInternal(element);
   }
 
   private async getRootChildren(): Promise<vscode.TreeItem[]> {
@@ -60,9 +59,45 @@ export class CollectionsProvider
       return [item];
     }
 
-    return (this.collections ?? []).map(
-      (collection) => new CollectionTreeItem(collection),
-    );
+    const items = this.ensureTreeItems();
+    return Array.from(items.collections.values());
+  }
+
+  private getChildrenInternal(
+    element?: vscode.TreeItem,
+  ): vscode.ProviderResult<vscode.TreeItem[]> {
+    if (!element) {
+      return this.getRootChildren();
+    }
+
+    if (element instanceof CollectionTreeItem) {
+      const items = this.ensureTreeItems();
+      return (
+        items.endpointsByCollection.get(element.collection.id) ?? []
+      );
+    }
+
+    return [];
+  }
+
+  async findEndpointItem(endpointId: string) {
+    await this.ensureLoaded();
+    if (this.lastError) {
+      return undefined;
+    }
+
+    const items = this.ensureTreeItems();
+    const endpoint = items.endpointsById.get(endpointId);
+    if (!endpoint) {
+      return undefined;
+    }
+
+    const parent = items.parentByEndpointId.get(endpointId);
+    if (!parent) {
+      return undefined;
+    }
+
+    return { endpoint, collection: parent };
   }
 
   private async ensureLoaded() {
@@ -81,14 +116,51 @@ export class CollectionsProvider
       try {
         this.lastError = null;
         this.collections = await this.service.pullCollections();
+        this.treeItems = null;
       } catch (error) {
         this.lastError = error;
         this.collections = [];
+        this.treeItems = null;
       } finally {
         this.loading = null;
       }
     })();
 
     return this.loading;
+  }
+
+  private ensureTreeItems(): TreeItemCache {
+    if (this.treeItems) {
+      return this.treeItems;
+    }
+
+    const collections = this.collections ?? [];
+    const collectionsMap = new Map<string, CollectionTreeItem>();
+    const endpointsByCollection = new Map<string, EndpointTreeItem[]>();
+    const endpointsById = new Map<string, EndpointTreeItem>();
+    const parentByEndpointId = new Map<string, CollectionTreeItem>();
+
+    for (const collection of collections) {
+      const collectionItem = new CollectionTreeItem(collection);
+      collectionsMap.set(collection.id, collectionItem);
+
+      const endpointItems = collection.endpoints.map((endpoint) => {
+        const item = new EndpointTreeItem(collection, endpoint);
+        endpointsById.set(endpoint.id, item);
+        parentByEndpointId.set(endpoint.id, collectionItem);
+        return item;
+      });
+
+      endpointsByCollection.set(collection.id, endpointItems);
+    }
+
+    this.treeItems = {
+      collections: collectionsMap,
+      endpointsByCollection,
+      endpointsById,
+      parentByEndpointId,
+    };
+
+    return this.treeItems;
   }
 }

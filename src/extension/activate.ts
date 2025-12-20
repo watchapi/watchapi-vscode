@@ -9,6 +9,7 @@ import {
 } from "../providers/virtual-request-file-system";
 import { registerAuthCommands } from "./register-auth-commands";
 import { registerCollectionsCommands } from "./register-collections-commands";
+import { registerCollectionsSelectionSync } from "./register-collections-selection-sync";
 import { registerCollectionsTreeView } from "./register-collections-tree-view";
 import { registerFrameworkUploads } from "./register-framework-uploads";
 import { registerHttpClientReminder } from "./register-http-client-reminder";
@@ -33,6 +34,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerHttpClientReminder(context);
   const treeView = registerCollectionsTreeView(context, collectionsProvider);
+  registerCollectionsSelectionSync(context, {
+    collectionsProvider,
+    requestLinks,
+    treeView,
+  });
   registerCollectionsCommands(context, {
     collectionsProvider,
     collectionsService: coreApi,

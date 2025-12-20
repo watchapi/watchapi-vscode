@@ -135,7 +135,7 @@ export function registerCollectionsCommands(
           return;
         }
 
-        const content = buildRequestDocument(endpoint);
+        const content = await buildRequestDocument(endpoint);
         await openWatchapiHttpFile({
           content,
           filename: inferHttpFilename({
@@ -246,13 +246,16 @@ export function registerCollectionsCommands(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("watchapi.collections.refresh", async () => {
-      try {
-        await collectionsProvider.pullAndRefresh();
-      } catch (error) {
-        console.error(error);
-      }
-    }),
+    vscode.commands.registerCommand(
+      "watchapi.collections.refresh",
+      async () => {
+        try {
+          await collectionsProvider.pullAndRefresh();
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    ),
   );
 
   context.subscriptions.push(
@@ -261,7 +264,7 @@ export function registerCollectionsCommands(
         [
           {
             label: "Login",
-            description: "Open https://watchapi.dev/login",
+            description: "Open WatchAPI login (keep your guest session)",
             command: "watchapi.auth.openWebLogin",
           },
         ],

@@ -3,6 +3,7 @@ import { Collection, CollectionEndpoint } from "../models/collection";
 import { HttpMethod } from "../models/request";
 import { ensureGuestLogin, getOrCreateInstallId } from "./auth.service";
 import { createApiClientFromConfig } from "./trpc.service";
+import { parseHttpRequestDocument } from "../utils/parse-http-request";
 
 type TrpcCollection = {
   id: string;
@@ -113,6 +114,22 @@ export class CoreApiService {
 
   async updateEndpointHttpContent(input: { id: string; httpContent: string }) {
     const client = await this.createAuthedClient();
+    const parsed = parseHttpRequestDocument(input.httpContent);
+
+    const payload: Record<string, unknown> = {
+      id: input.id,
+      httpContent: input.httpContent,
+    };
+
+    if (parsed) {
+      payload.method = parsed.method;
+      payload.url = parsed.url;
+      payload.headers =
+        parsed.headers && Object.keys(parsed.headers).length > 0
+          ? parsed.headers
+          : {};
+      payload.body = parsed.body ?? "";
+    }
 
     const candidates = [
       "apiEndpoint.update",
@@ -124,7 +141,7 @@ export class CoreApiService {
     let lastError: unknown = null;
     for (const path of candidates) {
       try {
-        await client.mutation(path, input);
+        await client.mutation(path, payload);
         return;
       } catch (error) {
         lastError = error;

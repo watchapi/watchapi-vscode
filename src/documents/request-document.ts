@@ -1,8 +1,9 @@
 import { RequestLike } from "../models/request";
+import { loadRestClientEnvVariables } from "../utils/rest-client-env";
 
-export function buildRequestDocument(
+export async function buildRequestDocument(
   request: RequestLike & { name?: string },
-): string {
+): Promise<string> {
   if (request.httpContent?.trim()) {
     const content = request.httpContent.trimEnd() + "\n";
     return content;
@@ -16,12 +17,20 @@ export function buildRequestDocument(
     }
   }
 
+  const envLines = await loadRestClientEnvVariables("local");
   const nameSuffix = request.name?.trim() ? ` - ${request.name.trim()}` : "";
 
-  return [
+  const lines: string[] = [];
+  if (envLines.length) {
+    lines.push(...envLines, "");
+  }
+
+  lines.push(
     `### ${request.method} ${safePathname(request.url)}${nameSuffix}`,
     ``,
     `${request.method} ${request.url}`,
     ``,
-  ].join("\n");
+  );
+
+  return lines.join("\n");
 }

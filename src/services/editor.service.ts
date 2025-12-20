@@ -69,12 +69,7 @@ export async function openWatchapiHttpFile(input: {
     endpointId: input.endpointId,
     filename,
   });
-
-  const normalizedUri = await input.provider.upsertFile(
-    uri,
-    input.content,
-    input.endpointId,
-  );
+  const normalizedUri = await input.provider.upsertFile(uri, input.content, input.endpointId);
 
   let doc = await vscode.workspace.openTextDocument(normalizedUri);
   doc = await vscode.languages.setTextDocumentLanguage(doc, "http");
@@ -86,12 +81,18 @@ export async function openWatchapiHttpFile(input: {
   return doc;
 }
 
-export function inferHttpFilename(input: { name?: string; method?: string; url?: string }) {
+export function inferHttpFilename(input: {
+  name?: string;
+  method?: string;
+  url?: string;
+}) {
   const method = input.method?.trim();
   const name = input.name?.trim();
 
   if (name) {
-    const methodPattern = method ? new RegExp(`^${method}\\b[:\\s-]*`, "i") : null;
+    const methodPattern = method
+      ? new RegExp(`^${method}\\b[:\\s-]*`, "i")
+      : null;
     const startsWithMethod = Boolean(methodPattern?.test(name));
     const nameWithoutMethod = methodPattern
       ? name.replace(methodPattern, "").trim()
