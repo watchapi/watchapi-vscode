@@ -282,13 +282,54 @@ function analyzeHandler(handler: Node): HandlerAnalysis {
 	const usesDb = DB_PATTERNS.test(handlerText);
 	const hasErrorHandling = ERROR_PATTERNS.test(handlerText);
 	const hasValidation = VALIDATION_PATTERNS.test(handlerText);
+	const headers = extractHeaders(handlerText);
 
 	return {
 		handlerLines,
 		usesDb,
 		hasErrorHandling,
 		hasValidation,
+		headers,
 	};
+}
+
+/**
+ * Extract deterministic headers from handler code
+ */
+function extractHeaders(handlerText: string): Record<string, string> {
+	const headers: Record<string, string> = {};
+
+	// Pattern 1: NextResponse.json(..., { headers: { 'Content-Type': 'application/json' } })
+	// Pattern 2: new Response(..., { headers: { 'Content-Type': 'application/json' } })
+	const nextResponsePattern = /headers:\s*\{([^}]+)\}/g;
+	let match;
+	while ((match = nextResponsePattern.exec(handlerText)) !== null) {
+		const headersBlock = match[1];
+		// Extract key-value pairs like 'Content-Type': 'application/json'
+		const headerPairs = headersBlock.matchAll(/['"]([^'"]+)['"]\s*:\s*['"]([^'"]+)['"]/g);
+		for (const pair of headerPairs) {
+			headers[pair[1]] = pair[2];
+		}
+	}
+
+	// Pattern 3: res.setHeader('Content-Type', 'application/json') - Pages Router
+	const setHeaderPattern = /res\.setHeader\(['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\)/g;
+	while ((match = setHeaderPattern.exec(handlerText)) !== null) {
+		headers[match[1]] = match[2];
+	}
+
+	// Pattern 4: headers().set('Content-Type', 'application/json') - App Router
+	const headerSetPattern = /headers\(\)\.set\(['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\)/g;
+	while ((match = headerSetPattern.exec(handlerText)) !== null) {
+		headers[match[1]] = match[2];
+	}
+
+	// Default Content-Type if JSON response detected
+	if (!headers['Content-Type'] && /NextResponse\.json|Response\.json|res\.json/.test(handlerText)) {
+		headers['Content-Type'] = 'application/json';
+	}
+
+	return headers;
 }
 
 /**
@@ -309,6 +350,7 @@ function convertToRoutes(
 			method: handler.method,
 			filePath: path.join(rootDir, handler.file),
 			type,
+			headers: Object.keys(handler.headers).length > 0 ? handler.headers : undefined,
 		};
 	});
 }

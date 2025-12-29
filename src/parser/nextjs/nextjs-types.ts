@@ -26,6 +26,7 @@ export interface NextJsRouteHandler {
 	usesDb: boolean;
 	hasErrorHandling: boolean;
 	hasValidation: boolean;
+	headers: Record<string, string>;
 }
 
 /**
@@ -61,6 +62,7 @@ export interface HandlerAnalysis {
 	usesDb: boolean;
 	hasErrorHandling: boolean;
 	hasValidation: boolean;
+	headers: Record<string, string>;
 }
 
 /**

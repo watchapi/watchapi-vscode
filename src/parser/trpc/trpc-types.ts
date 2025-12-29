@@ -21,6 +21,8 @@ export interface TrpcProcedureNode {
 	usesDb: boolean;
 	hasErrorHandling: boolean;
 	hasSideEffects: boolean;
+	headers: Record<string, string>;
+	bodyExample?: string;
 }
 
 /**
@@ -63,4 +65,5 @@ export interface ResolverAnalysis {
 	usesDb: boolean;
 	hasErrorHandling: boolean;
 	hasSideEffects: boolean;
+	headers: Record<string, string>;
 }
