@@ -1,7 +1,7 @@
 {
   "name": "watchapi-client",
-  "displayName": "WatchAPI",
-  "description": "Manage and sync API endpoints directly from VS Code to WatchAPI cloud",
+  "displayName": "WatchAPI Client",
+  "description": "Bulk upload and organize REST API endpoints from Next.js and tRPC projects",
   "version": "0.1.2",
   "icon": "assets/marketplace-logo.png",
   "publisher": "watchapi",
@@ -9,7 +9,6 @@
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other",
     "Testing",
     "Programming Languages"
   ],
@@ -19,8 +18,10 @@
     "http",
     "api-testing",
     "rest-client",
-    "openapi",
-    "developer-tools"
+    "developer-tools",
+    "trpc",
+    "nextjs",
+    "api-client"
   ],
   "preview": true,
   "repository": {
@@ -100,13 +101,18 @@
         "icon": "$(account)"
       },
       {
+        "command": "watchapi.openSettings",
+        "title": "Settings",
+        "icon": "$(gear)"
+      },
+      {
         "command": "watchapi.logout",
         "title": "Logout",
         "icon": "$(sign-out)"
       },
       {
         "command": "watchapi.switchOrganization",
-        "title": "WatchAPI: Select Organization",
+        "title": "WatchAPI: Switch Organization",
         "icon": "$(organization)"
       },
       {
@@ -124,7 +130,11 @@
     "viewsWelcome": [
       {
         "view": "watchapi.collections",
-        "contents": "No collections yet.\n\n[$(arrow-down) Import from Code](command:watchapi.uploadEndpoints)",
+        "contents": "No collections yet.\n\n"
+      },
+      {
+        "view": "watchapi.collections",
+        "contents": "[$(arrow-down) Import from Code](command:watchapi.uploadEndpoints)",
         "when": "watchapi.canUpload"
       },
       {
@@ -145,14 +155,19 @@
           "group": "menu@1"
         },
         {
+          "command": "watchapi.openSettings",
+          "when": "view == watchapi.collections",
+          "group": "menu@2"
+        },
+        {
           "command": "watchapi.logout",
           "when": "view == watchapi.collections && watchapi.loggedIn",
-          "group": "menu@1"
+          "group": "menu@3"
         },
         {
           "command": "watchapi.switchOrganization",
           "when": "view == watchapi.collections && watchapi.loggedIn",
-          "group": "menu@2"
+          "group": "menu@4"
         },
         {
           "command": "watchapi.addCollection",
@@ -161,7 +176,7 @@
         },
         {
           "command": "watchapi.uploadEndpoints",
-          "when": "view == watchapi.collections",
+          "when": "view == watchapi.collections && watchapi.canUpload",
           "group": "navigation@2"
         },
         {
@@ -173,7 +188,7 @@
       "view/item/context": [
         {
           "command": "watchapi.deleteCollection",
-          "when": "view == watchapi.collections && viewItem == collection",
+          "when": "view == watchapi.collections && (viewItem == collection || !viewItem)",
           "group": "navigation@99"
         },
         {
@@ -183,7 +198,7 @@
         },
         {
           "command": "watchapi.deleteEndpoint",
-          "when": "view == watchapi.collections && viewItem == endpoint",
+          "when": "view == watchapi.collections && (viewItem == endpoint || !viewItem)",
           "group": "navigation@99"
         }
       ]
@@ -219,6 +234,12 @@
           "default": "https://watchapi.com",
           "markdownDescription": "WatchAPI dashboard URL for opening in browser.",
           "order": 2
+        },
+        "watchapi.includeAuthorizationHeader": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Automatically add an empty `Authorization` header to new endpoints. Useful for APIs that require authentication.",
+          "order": 3
         }
       }
     }
