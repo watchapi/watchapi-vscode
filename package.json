@@ -25,7 +25,7 @@
   ],
   "preview": true,
   "repository": {
-    "url": "https://github.com/watchapi/watchapi-client"
+    "url": "https://github.com/watchapi/watchapi-client-support"
   },
   "activationEvents": [
     "onStartupFinished"
