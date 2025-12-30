@@ -1,42 +1,46 @@
 # WatchAPI Client
 
-WatchAPI Client is a REST client for testing and managing API endpoints directly from VS Code.
-It lets you organize endpoints into collections, send HTTP requests, and work with APIs without leaving your editor.
+WatchAPI Client is an API client for organizing, and testing REST and tRPC endpoints.
 
-![WatchAPI](./assets/screenshot-preview.png "WatchAPI Client")
+It extracts endpoints directly from Next.js or tRPC codebase, structures them into collections, and lets execute requests and inspect responses - without context switches.
+
+![WatchAPI](./assets/screenshot-preview-2.png "WatchAPI Client")
+
+> Built on the official [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) for request syntax and execution.
 
 ## Features
 
-- **Local-First**: Works completely offline - all data stored locally in VS Code
-- **Collections Management**: Create and organize API endpoints into collections
-- **HTTP Requests**: Send requests with full support for GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS methods
-- **Response Viewer**: View and inspect API responses directly in VS Code
-- **Optional Cloud Sync**: Login to sync collections across devices and collaborate with teams
-- **Organization Support**: Switch between multiple organizations when logged in
-- **Bulk Operations**: Upload multiple endpoints at once
-- **Dashboard Integration**: Quick access to your WatchAPI dashboard (when logged in)
+- **Endpoint Collections**: Automatically group and organize discovered endpoints
+- **HTTP Method Support**: Execute GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS requests
+- **Response Inspection**: Inspect status codes, headers, and response bodies inline
+- **Bulk Import**: Sync multiple endpoints from Next.js and tRPC projects in one pass
+- **Local-First by Default**: All data stored locally in VS Code
+- **Optional Cloud Sync**: Sync collections across devices and collaborate with teams
+- **Multi-Organization Support**: Switch between organizations when logged in
+- **Dashboard Access**: Open related endpoints in the WatchAPI dashboard (when logged in)
 
 ## Quick Start
 
 1. Install the extension
 2. Open the WatchAPI activity view in VS Code
-3. Create a collection and add endpoints
-4. Send requests and inspect responses
-5. **(Optional)** Login to sync your data across devices or collaborate with teams
+3. Sync or create a collection
+4. Execute requests and inspect responses
+5. **(Optional)** Sign in to enable sync and collaboration
 
 ## Privacy & Security
 
-- **Local-First Storage**: All collections and endpoints are stored locally in VS Code by default
-- **Optional Cloud Sync**: Login only if you want to sync data across devices or collaborate with teams
-- **No Tracking**: We don't collect analytics or usage data from the VS Code extension
-- **Your Data, Your Control**: Data stays on your machine unless you explicitly choose to sync it
+- **Local-First**: Collections and endpoints remain on your machine by default
+- **Opt-In Sync**: Cloud sync is enabled only when you explicitly sign in
+- **No Telemetry**: No usage tracking or analytics collected from the extension
+- **Full Control**: Your data stays local unless you choose otherwise
 
-You can review the full Privacy Policy at https://watchapi.dev/privacy
+Privacy Policy: [https://watchapi.dev/privacy](https://watchapi.dev/privacy)
 
 ## Need Help?
 
-Something broken? [Open an issue](https://github.com/watchapi/watchapi-client/issues/new) or check out [WatchAPI](https://watchapi.dev).
+Found a bug or missing feature?
+Open an issue on [GitHub](https://github.com/watchapi/watchapi-client/issues/new) or visit [https://watchapi.dev](https://watchapi.dev)
 
 ---
 
-Built by developers who prefer working with APIs directly from their editor.
+Built by developers who want API management and control **where they write code**.

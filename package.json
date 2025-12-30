@@ -2,7 +2,7 @@
   "name": "watchapi-client",
   "displayName": "WatchAPI Client",
   "description": "Bulk upload and organize REST API endpoints from Next.js and tRPC projects",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "icon": "assets/marketplace-logo.png",
   "publisher": "watchapi",
   "engines": {
@@ -10,18 +10,21 @@
   },
   "categories": [
     "Testing",
-    "Programming Languages"
+    "Programming Languages",
+    "Other"
   ],
   "keywords": [
-    "api",
-    "rest",
-    "http",
+    "nextjs",
+    "trpc",
+    "api-client",
     "api-testing",
     "rest-client",
+    "http",
+    "backend",
+    "fullstack",
+    "typescript",
     "developer-tools",
-    "trpc",
-    "nextjs",
-    "api-client"
+    "vscode"
   ],
   "preview": true,
   "repository": {
