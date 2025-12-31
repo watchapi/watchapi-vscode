@@ -136,7 +136,7 @@ export interface ParsedRoute {
 	path: string;
 	method: HttpMethod;
 	filePath: string;
-	type: 'nextjs-app' | 'nextjs-page' | 'trpc';
+	type: 'nextjs-app' | 'nextjs-page' | 'trpc' | 'nestjs';
 	headers?: Record<string, string>;
 	body?: string;
 }

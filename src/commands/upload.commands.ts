@@ -11,6 +11,8 @@ import {
 	parseTRPCRouters,
 	hasNextJs,
 	hasTRPC,
+	parseNestJsRoutes,
+	hasNestJs,
 } from "@/parser";
 import type { UploadModal } from "@/ui";
 import type { CollectionsTreeProvider } from "@/collections";
@@ -30,14 +32,15 @@ export function registerUploadCommands(
 					errorMessagePrefix: "Upload failed",
 				},
 				async () => {
-					const [hasNext, hasTrpc] = await Promise.all([
+					const [hasNext, hasTrpc, hasNest] = await Promise.all([
 						hasNextJs(),
 						hasTRPC(),
+						hasNestJs(),
 					]);
 
-					if (!hasNext && !hasTrpc) {
+					if (!hasNext && !hasTrpc && !hasNest) {
 						vscode.window.showWarningMessage(
-							"No supported project type detected. This feature requires Next.js or tRPC.",
+							"No supported project type detected. This feature requires Next.js, tRPC, or NestJS.",
 						);
 						return;
 					}
@@ -49,11 +52,12 @@ export function registerUploadCommands(
 							title: "Detecting API routes...",
 						},
 						async () => {
-							const [nextRoutes, trpcRoutes] = await Promise.all([
+							const [nextRoutes, trpcRoutes, nestRoutes] = await Promise.all([
 								hasNext ? parseAllNextJsRoutes() : [],
 								hasTrpc ? parseTRPCRouters() : [],
+								hasNest ? parseNestJsRoutes() : [],
 							]);
-							return [...nextRoutes, ...trpcRoutes];
+							return [...nextRoutes, ...trpcRoutes, ...nestRoutes];
 						},
 					);
 

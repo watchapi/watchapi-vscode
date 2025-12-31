@@ -58,6 +58,7 @@ export const FILE_PATTERNS = {
   NEXTJS_PAGE_ROUTES: "**/pages/api/**/*.{ts,js}",
   TRPC_ROUTERS: "**/*.router.{ts,js}",
   TRPC_SERVER: "**/server/trpc.{ts,js}",
+  NESTJS_CONTROLLERS: "**/*.controller.{ts,js}",
 } as const;
 
 // HTTP Methods

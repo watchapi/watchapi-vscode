@@ -46,6 +46,7 @@ export class CollectionsTreeProvider
   constructor(
     collectionsService: CollectionsService,
     endpointsService: EndpointsService,
+    private readonly context: vscode.ExtensionContext,
   ) {
     this.collectionsService = collectionsService;
     this.endpointsService = endpointsService;
@@ -157,11 +158,14 @@ export class CollectionsTreeProvider
     );
 
     item.id = `endpoint-${endpoint.id}`;
-    item.description = endpoint.method;
+
     item.contextValue = "endpoint";
 
     // Set icon based on HTTP method
-    item.iconPath = this.getMethodIcon(endpoint.method);
+    item.iconPath = CollectionsTreeProvider.getMethodIconPath(
+      this.context,
+      endpoint.method,
+    );
 
     // Add tooltip
     item.tooltip = new vscode.MarkdownString();
@@ -182,39 +186,26 @@ export class CollectionsTreeProvider
     return item;
   }
 
-  /**
-   * Get icon for HTTP method
-   */
-  private getMethodIcon(method: string): vscode.ThemeIcon {
-    switch (method.toLowerCase()) {
-      case "get":
-        return new vscode.ThemeIcon(
-          "debug-breakpoint-unverified",
-          new vscode.ThemeColor("charts.green"),
-        );
-      case "post":
-        return new vscode.ThemeIcon(
-          "debug-breakpoint-unverified",
-          new vscode.ThemeColor("charts.yellow"),
-        );
-      case "put":
-        return new vscode.ThemeIcon(
-          "debug-breakpoint-unverified",
-          new vscode.ThemeColor("charts.blue"),
-        );
-      case "patch":
-        return new vscode.ThemeIcon(
-          "debug-breakpoint-unverified",
-          new vscode.ThemeColor("charts.purple"),
-        );
-      case "delete":
-        return new vscode.ThemeIcon(
-          "debug-breakpoint-unverified",
-          new vscode.ThemeColor("charts.red"),
-        );
-      default:
-        return new vscode.ThemeIcon("file");
-    }
+  static getMethodIconPath(
+    context: vscode.ExtensionContext,
+    method: string,
+  ): vscode.IconPath {
+    const icon = method.toLowerCase();
+
+    return {
+      light: vscode.Uri.joinPath(
+        context.extensionUri,
+        "assets",
+        "http",
+        `${icon}.svg`,
+      ),
+      dark: vscode.Uri.joinPath(
+        context.extensionUri,
+        "assets",
+        "http",
+        `${icon}.svg`,
+      ),
+    };
   }
 
   /**

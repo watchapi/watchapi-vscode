@@ -13,6 +13,7 @@ import type {
   CreateApiEndpointInput,
 } from "@/shared/types";
 import { humanizeRouteName } from "@/endpoints/endpoints.editor";
+import { CollectionsTreeProvider } from "@/collections";
 
 export class UploadModal {
   private collectionsService: CollectionsService;
@@ -21,6 +22,7 @@ export class UploadModal {
   constructor(
     collectionsService: CollectionsService,
     endpointsService: EndpointsService,
+    private readonly context: vscode.ExtensionContext,
   ) {
     this.collectionsService = collectionsService;
     this.endpointsService = endpointsService;
@@ -89,16 +91,20 @@ export class UploadModal {
     }
 
     const items: RouteQuickPickItem[] = routes.map((route) => ({
-      label: `$(symbol-method) ${route.name}`,
-      description: route.method,
+      label: route.name,
+
       detail: route.filePath,
+      iconPath: CollectionsTreeProvider.getMethodIconPath(
+        this.context,
+        route.method,
+      ),
       route,
       picked: true, // Select all by default
     }));
 
     const selected = await vscode.window.showQuickPick(items, {
-      title: "Select endpoints to upload",
-      placeHolder: "Choose which endpoints to upload to WatchAPI",
+      title: "Select endpoints to import",
+      placeHolder: "Choose which endpoints to import",
       canPickMany: true,
     });
 
@@ -175,25 +181,44 @@ export class UploadModal {
   }
 
   /**
-   * Extract route prefix (e.g., /api/users -> users)
+   * Extract route prefix (e.g., /v1/auth/login -> Auth, /api/users -> Users)
+   * Skips version prefixes (v1, v2, etc.) and extracts the domain name
    */
   private extractRoutePrefix(path: string): string {
     const normalizedPath = path.replace("{{domain}}", "");
 
     if (normalizedPath.startsWith("/api/trpc/")) {
       const trpcPath = normalizedPath.slice("/api/trpc/".length);
-
       const [router] = trpcPath.split(".");
-
-      return router || "default";
+      return this.capitalizeDomain(router || "default");
     }
 
     const parts = normalizedPath.split("/").filter(Boolean);
 
-    if (parts.length >= 2 && parts[0] === "api") {
-      return parts[1];
+    // Skip common prefixes like 'api'
+    let startIndex = 0;
+    if (parts.length > 0 && parts[0] === "api") {
+      startIndex = 1;
     }
 
-    return parts[0] || "default";
+    // Skip version prefixes (v1, v2, etc.)
+    if (parts.length > startIndex && /^v\d+$/i.test(parts[startIndex])) {
+      startIndex++;
+    }
+
+    // Extract domain (next segment after version/api prefix)
+    const domain = parts[startIndex] || "default";
+    return this.capitalizeDomain(domain);
+  }
+
+  /**
+   * Capitalize domain name for collection display
+   * E.g., auth -> Auth, users -> Users, api-keys -> Api Keys
+   */
+  private capitalizeDomain(domain: string): string {
+    return domain
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
 }
