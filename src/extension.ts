@@ -4,7 +4,7 @@
  */
 
 import * as vscode from "vscode";
-import { logger, LogLevel, HTTP_CLIENT } from "@/shared";
+import { logger, LogLevel } from "@/shared";
 import { getConfig } from "@/shared/config";
 import { AuthService } from "@/auth";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/collections";
 import { EndpointsService } from "@/endpoints";
 import { CacheService, SyncService } from "@/sync";
-import { StatusBarManager, UploadModal } from "@/ui";
+import { StatusBarManager, UploadModal, WarningService } from "@/ui";
 import { hasNextJs, hasTRPC, hasNestJs } from "@/parser";
 import { EndpointsFileSystemProvider } from "./endpoints/endpoints.fs";
 import { openEndpointEditor } from "./endpoints/endpoints.editor";
@@ -68,6 +68,7 @@ export async function activate(
 
     // Initialize UI components
     const statusBar = new StatusBarManager();
+    const warningService = new WarningService();
     const uploadModal = new UploadModal(
       collectionsService,
       endpointsService,
@@ -142,6 +143,7 @@ export async function activate(
       syncService,
       treeProvider,
       uploadModal,
+      warningService,
     );
 
     // Set up event listeners
@@ -156,7 +158,7 @@ export async function activate(
     await authService.initialize();
 
     // Check for HTTP Client extension
-    await checkHttpClientExtension();
+    await WarningService.checkRestClientExtension();
 
     // Check for supported project types
     await checkProjectType();
@@ -192,6 +194,7 @@ function registerCommands(
   syncService: SyncService,
   treeProvider: CollectionsTreeProvider,
   uploadModal: UploadModal,
+  warningService: WarningService,
 ): void {
   // Register all command modules
   registerAuthCommands(context, authService, syncService, treeProvider);
@@ -207,6 +210,13 @@ function registerCommands(
   registerSyncCommands(context, syncService, treeProvider);
   registerNavigationCommands(context);
   registerUploadCommands(context, uploadModal, treeProvider);
+
+  // Warning command
+  context.subscriptions.push(
+    vscode.commands.registerCommand("watchapi.warning", async () => {
+      await warningService.showRestClientWarning();
+    }),
+  );
 
   // Show status command (kept here as it's a simple placeholder)
   context.subscriptions.push(
@@ -283,37 +293,6 @@ function setupEventListeners(
   syncService.onDidChangeState((state) => {
     statusBar.updateSyncState(state);
   });
-}
-
-/**
- * Check if HTTP Client extension is installed and enabled
- */
-async function checkHttpClientExtension() {
-  const extension = vscode.extensions.getExtension(HTTP_CLIENT.EXTENSION_ID);
-
-  // Not installed
-  if (!extension) {
-    logger.warn("HTTP Client extension not installed");
-
-    const action = await vscode.window.showWarningMessage(
-      `The ${HTTP_CLIENT.NAME} extension is recommended for better .http file editing experience.`,
-      "Install Extension",
-    );
-
-    if (action === "Install Extension") {
-      await vscode.commands.executeCommand(
-        "workbench.extensions.installExtension",
-        HTTP_CLIENT.EXTENSION_ID,
-      );
-    }
-
-    return;
-  }
-
-  // Installed but disabled (or not yet activated)
-
-  // Installed and enabled
-  logger.info("HTTP Client extension is installed and enabled");
 }
 
 /**

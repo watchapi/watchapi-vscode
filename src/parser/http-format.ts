@@ -165,7 +165,6 @@ export function constructHttpFile(
 
     // Add endpoint name as comment
     parts.push(`### ${endpoint.method} ${endpoint.url} - ${endpoint.name}`);
-    parts.push("");
 
     // Add request line
     let requestLine = `${endpoint.method} ${endpoint.url}`;

@@ -21,6 +21,7 @@ export const COMMANDS = {
   UPLOAD_ENDPOINTS: "watchapi.uploadEndpoints",
   MORE_MENU: "watchapi.moreMenu",
   SWITCH_ORGANIZATION: "watchapi.switchOrganization",
+  WARNING: "watchapi.warning",
 } as const;
 
 // View IDs
@@ -46,8 +47,8 @@ export const SYNC_CONFIG = {
   RETRY_DELAY: 1000, // 1 second
 } as const;
 
-// HTTP Client Extension
-export const HTTP_CLIENT = {
+// REST Client Extension
+export const REST_CLIENT = {
   EXTENSION_ID: "humao.rest-client",
   NAME: "REST Client",
 } as const;

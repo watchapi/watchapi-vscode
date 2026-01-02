@@ -4,8 +4,9 @@
  */
 
 import * as vscode from "vscode";
-import { COMMANDS } from "@/shared/constants";
+import { COMMANDS } from "@/shared";
 import { wrapCommandWithRefresh } from "./command-wrapper";
+import { WarningService } from "@/ui";
 import type { SyncService } from "@/sync";
 import type { CollectionsTreeProvider } from "@/collections";
 
@@ -27,6 +28,9 @@ export function registerSyncCommands(
 				},
 				async () => {
 					await syncService.sync();
+
+					// Re-check REST Client extension status
+					await WarningService.checkRestClientExtension();
 				},
 				() => treeProvider.refresh(),
 			),
