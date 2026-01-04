@@ -4,7 +4,7 @@
  */
 
 import * as vscode from "vscode";
-import { ENV_FILE_NAME, logger, ENV_KEYS } from "@/shared";
+import { ENV_FILE_NAME, logger } from "@/shared";
 
 /**
  * Check if environment file exists in the workspace

@@ -29,7 +29,7 @@ export function humanizeRouteName(route: {
   path: string;
   method: string;
 }): string {
-  const cleanPath = route.path.replace("{{domain}}", "").trim();
+  const cleanPath = route.path.replace("{{baseUrl}}", "").trim();
 
   // ---- tRPC handling -------------------------------------------------
   if (cleanPath.startsWith("/api/trpc")) {

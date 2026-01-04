@@ -7,11 +7,7 @@ import * as vscode from "vscode";
 import { CollectionsService } from "@/collections/collections.service";
 import { EndpointsService } from "@/endpoints/endpoints.service";
 import { logger } from "@/shared/logger";
-import type {
-  ParsedRoute,
-  Collection,
-  CreateApiEndpointInput,
-} from "@/shared/types";
+import type { ParsedRoute } from "@/shared/types";
 import { humanizeRouteName } from "@/endpoints/endpoints.editor";
 import { CollectionsTreeProvider } from "@/collections";
 
@@ -76,7 +72,7 @@ export class UploadModal {
   private applyDomainPrefix(routes: ParsedRoute[]): ParsedRoute[] {
     return routes.map((route) => ({
       ...route,
-      path: `{{domain}}${route.path}`,
+      path: `{{baseUrl}}${route.path}`,
     }));
   }
 
@@ -132,7 +128,7 @@ export class UploadModal {
       },
       async (progress) => {
         for (const [groupName, routes] of groups) {
-          let collection =
+          const collection =
             existingCollections.find((c) => c.name === groupName) ??
             (await this.collectionsService.create({
               name: groupName,
@@ -185,7 +181,7 @@ export class UploadModal {
    * Skips version prefixes (v1, v2, etc.) and extracts the domain name
    */
   private extractRoutePrefix(path: string): string {
-    const normalizedPath = path.replace("{{domain}}", "");
+    const normalizedPath = path.replace("{{baseUrl}}", "");
 
     if (normalizedPath.startsWith("/api/trpc/")) {
       const trpcPath = normalizedPath.slice("/api/trpc/".length);

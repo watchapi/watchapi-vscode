@@ -5,6 +5,8 @@
 export const EXTENSION_ID = "watchapi-client";
 export const EXTENSION_NAME = "WatchAPI";
 
+export const ENV_FILE_NAME = "rest-client.env.json";
+
 // Command IDs (must match package.json)
 export const COMMANDS = {
   REFRESH: "watchapi.refresh",

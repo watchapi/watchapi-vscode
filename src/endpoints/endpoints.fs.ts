@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { EndpointsService } from "@/endpoints/endpoints.service";
 import { constructHttpFile, parseHttpFile } from "@/parser";
+import { ENV_FILE_NAME } from "@/shared";
 
 export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
   private readonly emitter = new vscode.EventEmitter<
@@ -38,10 +39,7 @@ export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) return {};
 
-    const envUri = vscode.Uri.joinPath(
-      workspaceFolder.uri,
-      "rest-client.env.json",
-    );
+    const envUri = vscode.Uri.joinPath(workspaceFolder.uri, ENV_FILE_NAME);
 
     try {
       const bytes = await vscode.workspace.fs.readFile(envUri);
