@@ -1,29 +1,31 @@
 # WatchAPI Client
 
-WatchAPI Client is an API client for organizing, and testing REST and tRPC endpoints.
+WatchAPI Client is an API client for organizing and testing REST and NestJS endpoints.
 
-It extracts endpoints directly from Next.js or tRPC codebase, structures them into collections, and lets execute requests and inspect responses - without context switches.
+It extracts endpoints directly from a Next.js or NestJS codebase, structures them into collections, and lets you execute requests and inspect responses — without context switching.
 
-![WatchAPI](./assets/screenshot-preview-2.png "WatchAPI Client")
+![WatchAPI](./assets/screenshot-import.png "Import APIs from Next.js or NestJS")
 
-> Built on the official [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) for request syntax and execution.
+> Bulk import API endpoints directly from your Next.js or NestJS codebase
 
 ## Features
 
 - **Endpoint Collections**: Automatically group and organize discovered endpoints
 - **HTTP Method Support**: Execute GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS requests
 - **Response Inspection**: Inspect status codes, headers, and response bodies inline
-- **Bulk Import**: Sync multiple endpoints from Next.js and tRPC projects in one pass
+- **Bulk Import**: Sync endpoints from Next.js, NestJS, and tRPC projects in one click
 - **Local-First by Default**: All data stored locally in VS Code
 - **Optional Cloud Sync**: Sync collections across devices and collaborate with teams
 - **Multi-Organization Support**: Switch between organizations when logged in
 - **Dashboard Access**: Open related endpoints in the WatchAPI dashboard (when logged in)
 
+![WatchAPI](./assets/screenshot-endpoint.png "Execute and inspect API requests inside VS Code")
+
 ## Quick Start
 
 1. Install the extension
 2. Open the WatchAPI activity view in VS Code
-3. Sync or create a collection
+3. Import or create a collection
 4. Execute requests and inspect responses
 5. **(Optional)** Sign in to enable sync and collaboration
 

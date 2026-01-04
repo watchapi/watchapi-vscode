@@ -38,8 +38,10 @@ export const searchCollectionsSchema = z.object({
 
 // API Endpoint schemas
 export const createApiEndpointSchema = z.object({
+	externalId: z.string().trim().optional(),
 	name: z.string().trim().min(1, 'Endpoint name is required'),
-	url: z.string().trim(),
+	pathTemplate: z.string().trim().min(1, 'Path template is required'),
+	requestPath: z.string().trim().min(1, 'Request path is required'),
 	method: HttpMethod.default('GET'),
 	headers: z.record(z.string(), z.string()).optional(),
 	body: z.string().trim().optional(),
@@ -59,8 +61,10 @@ export const createApiEndpointSchema = z.object({
 });
 
 export const updateApiEndpointSchema = z.object({
+	externalId: z.string().trim().optional(),
 	name: z.string().trim().min(1, 'Endpoint name cannot be empty').optional(),
-	url: z.string().trim().optional(),
+	pathTemplate: z.string().trim().optional(),
+	requestPath: z.string().trim().optional(),
 	method: HttpMethod.optional(),
 	headers: z.record(z.string(), z.string()).optional(),
 	body: z.string().trim().optional(),

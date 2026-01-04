@@ -82,7 +82,8 @@ export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
 
       await this.endpointsService.update(endpointId, {
         name: parsed.name,
-        url: parsed.url,
+        pathTemplate: parsed.pathTemplate,
+        requestPath: parsed.requestPath,
         method: parsed.method,
         headers: parsed.headers,
         body: parsed.body,

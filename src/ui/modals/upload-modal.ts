@@ -55,14 +55,8 @@ export class UploadModal {
       // Step 2: Group collections
       const groups = this.groupRoutesByPrefix(routesWithDomain);
 
-      // Step 3: Upload collections
+      // Step 3: Pull endpoints (override mechanism)
       await this.uploadGroupedEndpoints(groups);
-
-      vscode.window.showInformationMessage(
-        `Successfully uploaded ${selectedRoutes.length} endpoint(s)`,
-      );
-
-      logger.info(`Uploaded ${selectedRoutes.length} endpoints`);
     } catch (error) {
       logger.error("Upload failed", error);
       vscode.window.showErrorMessage(`Upload failed: ${error}`);
@@ -112,22 +106,29 @@ export class UploadModal {
   ): Promise<void> {
     const existingCollections = await this.collectionsService.getAll();
 
-    // total endpoints count (for progress)
+    // Get workspace root for generating externalId
+    const workspaceRoot =
+      vscode.workspace.workspaceFolders?.[0]?.uri.fsPath || "";
+
     const total = Array.from(groups.values()).reduce(
       (sum, routes) => sum + routes.length,
       0,
     );
 
     let processed = 0;
+    let created = 0;
+    let updated = 0;
+    let deactivated = 0;
 
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "Uploading endpoints to WatchAPI",
+        title: "Pulling endpoints from source",
         cancellable: false,
       },
       async (progress) => {
         for (const [groupName, routes] of groups) {
+          // 1. Find or create collection
           const collection =
             existingCollections.find((c) => c.name === groupName) ??
             (await this.collectionsService.create({
@@ -135,27 +136,94 @@ export class UploadModal {
               description: `Auto-generated from ${groupName} routes`,
             }));
 
+          // 2. Load existing endpoints
+          const existingEndpoints =
+            await this.endpointsService.getByCollectionId(collection.id);
+
+          // 3. Index existing endpoints by externalId
+          const existingByExternalId = new Map(
+            existingEndpoints
+              .filter((e) => e.externalId)
+              .map((e) => [e.externalId!, e]),
+          );
+
+          // 4. Track which externalIds exist in source
+          const sourceExternalIds = new Set<string>();
+
+          // 5. Process incoming routes
           for (const route of routes) {
-            await this.endpointsService.create({
-              name: route.name,
-              url: route.path,
-              method: route.method,
-              headers: route.headers,
-              body: route.body,
-              collectionId: collection.id,
-              isActive: false,
-            });
+            const externalId = this.endpointsService.generateExternalId(
+              route,
+              workspaceRoot,
+            );
+            sourceExternalIds.add(externalId);
+
+            const match = existingByExternalId.get(externalId);
+
+            if (match) {
+              // UPDATE — only code-owned fields
+              await this.endpointsService.update(match.id, {
+                pathTemplate: route.path,
+                method: route.method,
+                name: route.name,
+                headers: route.headers,
+                body: route.body,
+              });
+
+              updated++;
+            } else {
+              // CREATE — initialize requestPath from template
+              await this.endpointsService.create({
+                externalId,
+                name: route.name,
+                pathTemplate: route.path,
+                requestPath: route.path,
+                method: route.method,
+                headers: route.headers,
+                body: route.body,
+                collectionId: collection.id,
+                isActive: false, // new endpoints start inactive
+              });
+
+              created++;
+            }
 
             processed++;
-
             progress.report({
               message: `${processed}/${total} ${route.method} ${route.path}`,
               increment: (1 / total) * 100,
             });
           }
+
+          // 6. Deactivate endpoints whose source disappeared
+          for (const endpoint of existingEndpoints) {
+            if (
+              endpoint.externalId &&
+              !sourceExternalIds.has(endpoint.externalId)
+            ) {
+              await this.endpointsService.update(endpoint.id, {
+                isActive: false,
+              });
+              deactivated++;
+            }
+          }
         }
+
+        logger.info(
+          `Pull complete: ${created} created, ${updated} updated, ${deactivated} deactivated`,
+        );
       },
     );
+
+    // Final summary
+    const parts = [];
+    if (created > 0) parts.push(`${created} created`);
+    if (updated > 0) parts.push(`${updated} updated`);
+    if (deactivated > 0) parts.push(`${deactivated} deactivated`);
+
+    const summary = parts.length > 0 ? parts.join(", ") : "No changes needed";
+
+    vscode.window.showInformationMessage(`Pull complete: ${summary}`);
   }
 
   /**

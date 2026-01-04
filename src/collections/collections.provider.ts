@@ -171,7 +171,8 @@ export class CollectionsTreeProvider
     item.tooltip = new vscode.MarkdownString();
     item.tooltip.appendMarkdown(`**${endpoint.name}**\n\n`);
     item.tooltip.appendMarkdown(`Method: \`${endpoint.method}\`\n\n`);
-    item.tooltip.appendMarkdown(`URL: \`${endpoint.url}\`\n\n`);
+    item.tooltip.appendMarkdown(`Template: \`${endpoint.pathTemplate}\`\n\n`);
+    item.tooltip.appendMarkdown(`Request: \`${endpoint.requestPath}\`\n\n`);
     item.tooltip.appendMarkdown(
       `Status: ${endpoint.isActive ? "🟢 Active" : "🔴 Inactive"}`,
     );

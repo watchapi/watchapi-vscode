@@ -3,169 +3,175 @@
  * These types should match the backend schemas from README
  */
 
-import { HttpMethod } from './constants';
+import { HttpMethod } from "./constants";
 
 // User & Auth types
 export interface User {
-	id: string;
-	email: string;
-	name?: string;
-	organizationId?: string;
+  id: string;
+  email: string;
+  name?: string;
+  organizationId?: string;
 }
 
 export interface AuthTokens {
-	accessToken: string;
-	refreshToken?: string;
+  accessToken: string;
+  refreshToken?: string;
 }
 
 // Organization types
 export interface Organization {
-	id: string;
-	name: string;
-	slug: string;
-	description?: string;
-	plan: 'FREE' | 'PRO' | 'ENTERPRISE';
-	role?: 'OWNER' | 'ADMIN' | 'MEMBER';
-	status?: 'ACTIVE' | 'PENDING';
-	joinedAt?: string;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  plan: "FREE" | "PRO" | "ENTERPRISE";
+  role?: "OWNER" | "ADMIN" | "MEMBER";
+  status?: "ACTIVE" | "PENDING";
+  joinedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserOrganization extends Organization {
-	role: 'OWNER' | 'ADMIN' | 'MEMBER';
-	status: 'ACTIVE' | 'PENDING';
-	joinedAt: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+  status: "ACTIVE" | "PENDING";
+  joinedAt: string;
 }
 
 // Collection types
 export interface Collection {
-	id: string;
-	name: string;
-	description?: string;
-	organizationId?: string;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  name: string;
+  description?: string;
+  organizationId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateCollectionInput {
-	name: string;
-	description?: string;
+  name: string;
+  description?: string;
 }
 
 export interface UpdateCollectionInput {
-	name?: string;
-	description?: string;
+  name?: string;
+  description?: string;
 }
 
 // API Endpoint types
 export interface ApiEndpoint {
-	id: string;
-	name: string;
-	url: string;
-	method: HttpMethod;
-	headers?: Record<string, string>;
-	body?: string;
-	expectedStatus: number;
-	timeout: number;
-	interval: number;
-	collectionId?: string;
-	isActive: boolean;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  externalId?: string; // Stable identifier from source (file path + handler)
+  name: string;
+  pathTemplate: string; // Route pattern from source (e.g., "/api/users/:id")
+  requestPath: string; // Actual request URL (e.g., "/api/users/123")
+  method: HttpMethod;
+  headers?: Record<string, string>;
+  body?: string;
+  expectedStatus: number;
+  timeout: number;
+  interval: number;
+  collectionId?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateApiEndpointInput {
-	name: string;
-	url: string;
-	method: HttpMethod;
-	headers?: Record<string, string>;
-	body?: string;
-	expectedStatus?: number;
-	timeout?: number;
-	interval?: number;
-	collectionId?: string;
-	isActive?: boolean;
+  externalId?: string; // Stable identifier from source (file path + handler)
+  name: string;
+  pathTemplate: string; // Route pattern from source
+  requestPath: string; // Actual request URL
+  method: HttpMethod;
+  headers?: Record<string, string>;
+  body?: string;
+  expectedStatus?: number;
+  timeout?: number;
+  interval?: number;
+  collectionId?: string;
+  isActive?: boolean;
 }
 
 export interface UpdateApiEndpointInput {
-	name?: string;
-	url?: string;
-	method?: HttpMethod;
-	headers?: Record<string, string>;
-	body?: string;
-	expectedStatus?: number;
-	timeout?: number;
-	interval?: number;
-	isActive?: boolean;
+  name?: string;
+  pathTemplate?: string; // Route pattern from source
+  requestPath?: string; // Actual request URL
+  method?: HttpMethod;
+  headers?: Record<string, string>;
+  body?: string;
+  expectedStatus?: number;
+  timeout?: number;
+  interval?: number;
+  isActive?: boolean;
 }
 
 // Environment types
 export interface EnvironmentVariable {
-	key: string;
-	value: string;
-	description?: string;
-	enabled: boolean;
+  key: string;
+  value: string;
+  description?: string;
+  enabled: boolean;
 }
 
 export interface Environment {
-	id: string;
-	name: string;
-	variables: EnvironmentVariable[];
-	isDefault: boolean;
-	createdAt: string;
-	updatedAt: string;
+  id: string;
+  name: string;
+  variables: EnvironmentVariable[];
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateEnvironmentInput {
-	name: string;
-	variables?: EnvironmentVariable[];
-	isDefault?: boolean;
+  name: string;
+  variables?: EnvironmentVariable[];
+  isDefault?: boolean;
 }
 
 export interface UpdateEnvironmentInput {
-	id: string;
-	name?: string;
-	variables?: EnvironmentVariable[];
-	isDefault?: boolean;
+  id: string;
+  name?: string;
+  variables?: EnvironmentVariable[];
+  isDefault?: boolean;
 }
 
 // Parsed route types (for Next.js/tRPC detection)
 export interface ParsedRoute {
-	name: string;
-	path: string;
-	method: HttpMethod;
-	filePath: string;
-	type: 'nextjs-app' | 'nextjs-page' | 'trpc' | 'nestjs';
-	headers?: Record<string, string>;
-	body?: string;
+  name: string;
+  path: string;
+  method: HttpMethod;
+  filePath: string;
+  handlerName?: string; // For generating stable externalId
+  type: "nextjs-app" | "nextjs-page" | "trpc" | "nestjs";
+  headers?: Record<string, string>;
+  body?: string;
 }
 
 // Cache types
 export interface CacheEntry<T> {
-	data: T;
-	timestamp: number;
-	ttl: number;
+  data: T;
+  timestamp: number;
+  ttl: number;
 }
 
 // Sync state
 export interface SyncState {
-	isSyncing: boolean;
-	lastSyncTime?: number;
-	error?: string;
+  isSyncing: boolean;
+  lastSyncTime?: number;
+  error?: string;
 }
 
 // Tree item types for VS Code TreeView
 export interface CollectionTreeItem {
-	type: 'collection';
-	collection: Collection;
-	endpoints: ApiEndpoint[];
+  type: "collection";
+  collection: Collection;
+  endpoints: ApiEndpoint[];
 }
 
 export interface EndpointTreeItem {
-	type: 'endpoint';
-	endpoint: ApiEndpoint;
-	collection?: Collection;
+  type: "endpoint";
+  endpoint: ApiEndpoint;
+  collection?: Collection;
 }
 
 export type TreeItem = CollectionTreeItem | EndpointTreeItem;

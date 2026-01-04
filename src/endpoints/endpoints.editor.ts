@@ -9,7 +9,7 @@ export async function openEndpointEditor(endpoint: ApiEndpoint): Promise<void> {
   logger.debug("Opening endpoint editor", {
     endpointId: endpoint.id,
     method: endpoint.method,
-    path: endpoint.url,
+    path: endpoint.requestPath,
   });
   try {
     const uri = vscode.Uri.parse(`watchapi:/endpoints/${endpoint.id}.http`);

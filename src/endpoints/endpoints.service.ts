@@ -14,6 +14,7 @@ import type {
   ApiEndpoint,
   CreateApiEndpointInput,
   UpdateApiEndpointInput,
+  ParsedRoute,
 } from "@/shared/types";
 import { humanizeRouteName } from "./endpoints.editor";
 
@@ -96,6 +97,26 @@ export class EndpointsService {
   }
 
   /**
+   * Generate stable external ID for pulling endpoints from source
+   * Format: filePath#handlerName or filePath#METHOD
+   *
+   * Examples:
+   * - With handler: "src/server/user.ts#user.getById"
+   * - Without handler: "src/app/api/users/route.ts#GET"
+   */
+  generateExternalId(route: ParsedRoute, workspaceRoot: string): string {
+    const relativePath = route.filePath.replace(workspaceRoot, "");
+
+    if (route.handlerName) {
+      return `${relativePath}#${route.handlerName}`;
+    }
+
+    // Include HTTP method to differentiate multiple methods in same file (Next.js)
+    // e.g., route.ts with GET, POST, DELETE → unique IDs per method
+    return `${relativePath}#${route.method}`;
+  }
+
+  /**
    * Get all endpoints for a specific collection
    */
   async getByCollectionId(collectionId: string): Promise<ApiEndpoint[]> {
@@ -145,8 +166,12 @@ export class EndpointsService {
         throw new ValidationError("Endpoint name is required");
       }
 
-      if (!input.url || input.url.trim().length === 0) {
-        throw new ValidationError("Endpoint URL is required");
+      if (!input.pathTemplate || input.pathTemplate.trim().length === 0) {
+        throw new ValidationError("Endpoint path template is required");
+      }
+
+      if (!input.requestPath || input.requestPath.trim().length === 0) {
+        throw new ValidationError("Endpoint request path is required");
       }
 
       const isCloud = await this.isCloudMode();
@@ -320,7 +345,7 @@ export class EndpointsService {
       return undefined;
     }
 
-    // 2️⃣ Ask for URL
+    // 2️⃣ Ask for endpoint path
     const url = await this.promptEndpointUrl();
     if (!url) {
       return undefined;
@@ -333,10 +358,13 @@ export class EndpointsService {
       return undefined;
     }
 
+    // Use same URL for both pathTemplate and requestPath initially
+    // User can customize requestPath later in .http file
     return await this.create({
       name,
       method,
-      url,
+      pathTemplate: url,
+      requestPath: url,
       collectionId,
     });
   }
@@ -377,7 +405,7 @@ export class EndpointsService {
     const endpoints = await this.getAll();
 
     return endpoints.map((e) => ({
-      label: `${e.method.toUpperCase()} ${e.url}`,
+      label: `${e.method.toUpperCase()} ${e.requestPath}`,
       description: e.method,
       detail: e.name,
       endpoint: e,

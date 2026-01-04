@@ -25,7 +25,7 @@ export function parseHttpFile(
 
     const lines = content.split("\n");
     let method: HttpMethod = "GET";
-    let url = "";
+    let requestPath = "";
     let name = "";
     const headers: Record<string, string> = {};
     let body = "";
@@ -83,7 +83,7 @@ export function parseHttpFile(
       ) {
         const parts = line.split(/\s+/);
         method = parts[0].toUpperCase() as HttpMethod;
-        url = parts[1] || "";
+        requestPath = parts[1] || "";
         inHeaders = true;
         continue;
       }
@@ -106,7 +106,7 @@ export function parseHttpFile(
     // Generate name if not found in comments
     if (!name) {
       name = humanizeRouteName({
-        path: url,
+        path: requestPath,
         method,
       });
     }
@@ -114,7 +114,8 @@ export function parseHttpFile(
     const endpoint: Partial<CreateApiEndpointInput> = {
       name,
       method,
-      url,
+      pathTemplate: requestPath, // When parsing .http file, use the URL as template initially
+      requestPath,
       headers: Object.keys(headers).length > 0 ? headers : undefined,
       body: body.trim() || undefined,
     };
@@ -166,8 +167,8 @@ export function constructHttpFile(
     // Add endpoint name as comment
     parts.push(`### ${endpoint.name}`);
 
-    // Add request line
-    const requestLine = `${endpoint.method} ${endpoint.url}`;
+    // Add request line (use requestPath - the actual URL to call)
+    const requestLine = `${endpoint.method} ${endpoint.requestPath}`;
     parts.push(requestLine);
 
     // Prepare headers - include Authorization if setting enabled and not already present
