@@ -1,23 +1,41 @@
-# WatchAPI Client
+# WatchAPI — API Client for Next.js & NestJS
 
-WatchAPI Client is an API client for organizing and testing REST and NestJS endpoints.
+WatchAPI lets you run and test your Next.js, NestJS, and tRPC APIs directly from your codebase - without Postman, manual setup, or context switching.
 
-It extracts endpoints directly from a Next.js or NestJS codebase, structures them into collections, and lets you execute requests and inspect responses — without context switching.
+> One click → all your API routes become executable requests.
 
-![WatchAPI](./assets/screenshot-import.png "Import APIs from Next.js or NestJS")
+## ![WatchAPI](./assets/screenshot-import.png "Import APIs from Next.js or NestJS")
 
-> Bulk import API endpoints directly from your Next.js or NestJS codebase
+## Why WatchAPI
 
-## Features
+If you work with modern backend frameworks, you already have:
 
-- **Endpoint Collections**: Automatically group and organize discovered endpoints
-- **HTTP Method Support**: Execute GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS requests
-- **Response Inspection**: Inspect status codes, headers, and response bodies inline
-- **Bulk Import**: Sync endpoints from Next.js, NestJS, and tRPC projects in one click
-- **Local-First by Default**: All data stored locally in VS Code
-- **Optional Cloud Sync**: Sync collections across devices and collaborate with teams
-- **Multi-Organization Support**: Switch between organizations when logged in
-- **Dashboard Access**: Open related endpoints in the WatchAPI dashboard (when logged in)
+- Defined routes
+- Typed handlers
+- Local servers running
+
+But to test APIs you still:
+
+- Recreate requests manually
+- Keep external tools in sync
+- Switch context constantly
+
+**WatchAPI removes that layer.**<br>
+Your code is the source of truth.
+
+## What It Does
+
+- Bulk Import From Code<br>
+  Automatically extract API endpoints from:
+  - Next.js (App Router & Pages)
+  - NestJS controllers
+  - tRPC routers
+- Executable Collections<br>
+  Endpoints are grouped into collections you can run instantly.
+- Inline Response Inspection<br>
+  Inspect status codes, headers, and response bodies without leaving VS Code.
+- Full HTTP Support<br>
+  GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS.
 
 ![WatchAPI](./assets/screenshot-endpoint.png "Execute and inspect API requests inside VS Code")
 
@@ -29,19 +47,22 @@ It extracts endpoints directly from a Next.js or NestJS codebase, structures the
 4. Execute requests and inspect responses
 5. **(Optional)** Sign in to enable sync and collaboration
 
-## Privacy & Security
+## Local-First by Design
 
-- **Local-First**: Collections and endpoints remain on your machine by default
-- **Opt-In Sync**: Cloud sync is enabled only when you explicitly sign in
-- **No Telemetry**: No usage tracking or analytics collected from the extension
-- **Full Control**: Your data stays local unless you choose otherwise
+- **Local by default**: <br>
+  All collections and data stay on your machine.
+- **Opt-in sync**: <br>
+  Cloud sync is enabled only when you explicitly sign in.
+- **No telemetry**: <br>
+  The extension does not collect usage analytics.
 
-Privacy Policy: [https://watchapi.dev/privacy](https://watchapi.dev/privacy)
+Privacy Policy: <br>
+[https://watchapi.dev/privacy](https://watchapi.dev/privacy)
 
-## Need Help?
+## Need Help or Feedback?
 
-Found a bug or missing feature?
-Open an issue on [GitHub](https://github.com/watchapi/watchapi-client-support/issues/new) or visit [https://watchapi.dev](https://watchapi.dev)
+- Report issues: https://github.com/watchapi/watchapi-client-support/issues/new
+- Documentation: https://docs.watchapi.dev
 
 ---
 
