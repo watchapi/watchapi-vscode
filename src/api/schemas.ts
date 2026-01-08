@@ -43,6 +43,12 @@ export const createApiEndpointSchema = z.object({
 	pathTemplate: z.string().trim().min(1, 'Path template is required'),
 	requestPath: z.string().trim().min(1, 'Request path is required'),
 	method: HttpMethod.default('GET'),
+	// Layered schema pattern
+	bodySchema: z.string().trim().optional(),
+	bodyOverrides: z.string().trim().optional(),
+	headersSchema: z.record(z.string(), z.string()).optional(),
+	headersOverrides: z.record(z.string(), z.string()).optional(),
+	// Legacy fields (kept for backwards compatibility)
 	headers: z.record(z.string(), z.string()).optional(),
 	body: z.string().trim().optional(),
 	expectedStatus: z.number().int().min(100).max(599).default(200),
@@ -66,6 +72,12 @@ export const updateApiEndpointSchema = z.object({
 	pathTemplate: z.string().trim().optional(),
 	requestPath: z.string().trim().optional(),
 	method: HttpMethod.optional(),
+	// Layered schema pattern
+	bodySchema: z.string().trim().optional(),
+	bodyOverrides: z.string().trim().optional(),
+	headersSchema: z.record(z.string(), z.string()).optional(),
+	headersOverrides: z.record(z.string(), z.string()).optional(),
+	// Legacy fields (kept for backwards compatibility)
 	headers: z.record(z.string(), z.string()).optional(),
 	body: z.string().trim().optional(),
 	expectedStatus: z.number().int().min(100).max(599).optional(),
