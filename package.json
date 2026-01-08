@@ -32,9 +32,15 @@
     "openapi",
     "typescript"
   ],
+  "license": "MIT",
   "repository": {
-    "url": "https://github.com/watchapi/watchapi-client-support"
+    "type": "git",
+    "url": "https://github.com/watchapi/watchapi-client"
   },
+  "bugs": {
+    "url": "https://github.com/watchapi/watchapi-client/issues"
+  },
+  "homepage": "https://github.com/watchapi/watchapi-client#readme",
   "activationEvents": [
     "onStartupFinished"
   ],
