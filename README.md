@@ -1,8 +1,8 @@
 # WatchAPI - REST Client & API Testing
 
 [![CI](https://github.com/watchapi/watchapi-vscode/actions/workflows/ci.yml/badge.svg)](https://github.com/watchapi/watchapi-vscode/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/visual-studio-marketplace/v/watchapi.watchapi-client?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=watchapi.watchapi-client)
-[![Downloads](https://img.shields.io/visual-studio-marketplace/d/watchapi.watchapi-client)](https://marketplace.visualstudio.com/items?itemName=watchapi.watchapi-client)
+[![Open VSX Version](https://img.shields.io/open-vsx/v/watchapi/watchapi-client)](https://open-vsx.org/extension/watchapi/watchapi-client)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/watchapi/watchapi-client)](https://open-vsx.org/extension/watchapi/watchapi-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **An API client that reads your code.** Auto-import endpoints from Next.js, NestJS & tRPC. Test and monitor without leaving VS Code.
