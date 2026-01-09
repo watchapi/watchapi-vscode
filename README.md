@@ -7,7 +7,7 @@
 
 **An API client that reads your code.** Auto-import endpoints from Next.js, NestJS & tRPC. Test and monitor without leaving VS Code.
 
-![WatchAPI](./assets/screenshot-endpoint.png "Execute and inspect API requests inside VS Code")
+![WatchAPI](./assets/readme/pull-from-code.gif "Import APIs from Next.js or NestJS")
 
 ## Why WatchAPI?
 
@@ -30,7 +30,7 @@
 - **NestJS** - Controllers and decorators
 - **tRPC** - Router definitions
 
-![WatchAPI](./assets/screenshot-import.png "Import APIs from Next.js or NestJS")
+![WatchAPI](./assets/readme/execute-request.gif "Execute and inspect API requests inside VS Code")
 
 **Full REST Client**
 
