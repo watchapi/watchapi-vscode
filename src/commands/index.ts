@@ -9,3 +9,4 @@ export { registerOrganizationCommands } from "./organization.commands";
 export { registerSyncCommands } from "./sync.commands";
 export { registerNavigationCommands } from "./navigation.commands";
 export { registerUploadCommands } from "./upload.commands";
+export { registerHttpCommands } from "./http.commands";

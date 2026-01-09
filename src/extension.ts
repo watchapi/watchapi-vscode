@@ -28,7 +28,13 @@ import {
   registerOrganizationCommands,
   registerSyncCommands,
   registerUploadCommands,
+  registerHttpCommands,
 } from "@/commands";
+import {
+  HttpExecutorService,
+  ResponseViewerPanel,
+  HttpCodeLensProvider,
+} from "@/http";
 
 /**
  * Extension activation
@@ -81,6 +87,19 @@ export async function activate(
       vscode.workspace.registerFileSystemProvider("watchapi", fsProvider, {
         isCaseSensitive: true,
       }),
+    );
+
+    // Initialize HTTP services
+    const httpExecutor = new HttpExecutorService();
+    const responseViewer = new ResponseViewerPanel(context);
+
+    // Register CodeLens provider for .http files
+    const codeLensProvider = new HttpCodeLensProvider();
+    context.subscriptions.push(
+      vscode.languages.registerCodeLensProvider(
+        { scheme: "watchapi", pattern: "**/*.http" },
+        codeLensProvider,
+      ),
     );
 
     // Initialize tree provider
@@ -145,6 +164,8 @@ export async function activate(
       syncService,
       treeProvider,
       uploadModal,
+      httpExecutor,
+      responseViewer,
     );
 
     // Set up event listeners
@@ -192,6 +213,8 @@ function registerCommands(
   syncService: SyncService,
   treeProvider: CollectionsTreeProvider,
   uploadModal: UploadModal,
+  httpExecutor: HttpExecutorService,
+  responseViewer: ResponseViewerPanel,
 ): void {
   // Register all command modules
   registerAuthCommands(context, authService, syncService, treeProvider);
@@ -207,6 +230,12 @@ function registerCommands(
   registerSyncCommands(context, syncService, treeProvider);
   registerNavigationCommands(context);
   registerUploadCommands(context, uploadModal, treeProvider);
+  registerHttpCommands(
+    context,
+    endpointsService,
+    httpExecutor,
+    responseViewer,
+  );
 
   // Show status command (kept here as it's a simple placeholder)
   context.subscriptions.push(
