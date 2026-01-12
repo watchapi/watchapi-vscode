@@ -1,0 +1,805 @@
+# The configurations that used for the recording, feel free to edit them
+config:
+
+  # Specify a command to be executed
+  # like `/bin/bash -l`, `ls`, or any other commands
+  # the default is bash for Linux
+  # or powershell.exe for Windows
+  command: bash -l
+  
+  # Specify the current working directory path
+  # the default is the current working directory path
+  cwd: /Users/user/Projects/watchapi
+  
+  # Export additional ENV variables
+  env:
+    recording: true
+  
+  # Explicitly set the number of columns
+  # or use `auto` to take the current
+  # number of columns of your shell
+  cols: 79
+  
+  # Explicitly set the number of rows
+  # or use `auto` to take the current
+  # number of rows of your shell
+  rows: 21
+  
+  # Amount of times to repeat GIF
+  # If value is -1, play once
+  # If value is 0, loop indefinitely
+  # If value is a positive number, loop n times
+  repeat: 0
+  
+  # Quality
+  # 1 - 100
+  quality: 100
+  
+  # Delay between frames in ms
+  # If the value is `auto` use the actual recording delays
+  frameDelay: auto
+  
+  # Maximum delay between frames in ms
+  # Ignored if the `frameDelay` isn't set to `auto`
+  # Set to `auto` to prevent limiting the max idle time
+  maxIdleTime: 2000
+  
+  # The surrounding frame box
+  # The `type` can be null, window, floating, or solid`
+  # To hide the title use the value null
+  # Don't forget to add a backgroundColor style with a null as type
+  frameBox:
+    type: floating
+    title: WatchAPI - CLI
+    style:
+      border: 0px black solid
+      # boxShadow: none
+      # margin: 0px
+  
+  # Add a watermark image to the rendered gif
+  # You need to specify an absolute path for
+  # the image on your machine or a URL, and you can also
+  # add your own CSS styles
+  watermark:
+    imagePath: null
+    style:
+      position: absolute
+      right: 15px
+      bottom: 15px
+      width: 100px
+      opacity: 0.9
+  
+  # Cursor style can be one of
+  # `block`, `underline`, or `bar`
+  cursorStyle: block
+  
+  # Font family
+  # You can use any font that is installed on your machine
+  # in CSS-like syntax
+  fontFamily: "Monaco, Lucida Console, Ubuntu Mono, Monospace"
+  
+  # The size of the font
+  fontSize: 12
+  
+  # The height of lines
+  lineHeight: 1
+  
+  # The spacing between letters
+  letterSpacing: 0
+  
+  # Theme
+  theme:
+    background: "transparent"
+    foreground: "#afafaf"
+    cursor: "#c7c7c7"
+    black: "#232628"
+    red: "#fc4384"
+    green: "#b3e33b"
+    yellow: "#ffa727"
+    blue: "#75dff2"
+    magenta: "#ae89fe"
+    cyan: "#708387"
+    white: "#d5d5d0"
+    brightBlack: "#626566"
+    brightRed: "#ff7fac"
+    brightGreen: "#c8ed71"
+    brightYellow: "#ebdf86"
+    brightBlue: "#75dff2"
+    brightMagenta: "#ae89fe"
+    brightCyan: "#b1c6ca"
+    brightWhite: "#f9f9f4"
+  
+# Records, feel free to edit them
+records:
+  - delay: 188
+    content: "\r\n\r\n\e[?1034h$ "
+  - delay: 762
+    content: 'n'
+  - delay: 110
+    content: p
+  - delay: 160
+    content: x
+  - delay: 353
+    content: ' '
+  - delay: 599
+    content: '@'
+  - delay: 460
+    content: w
+  - delay: 180
+    content: a
+  - delay: 251
+    content: t
+  - delay: 261
+    content: c
+  - delay: 247
+    content: h
+  - delay: 370
+    content: a
+  - delay: 149
+    content: p
+  - delay: 143
+    content: i
+  - delay: 939
+    content: /
+  - delay: 433
+    content: c
+  - delay: 197
+    content: l
+  - delay: 233
+    content: i
+  - delay: 396
+    content: ' '
+  - delay: 1016
+    content: l
+  - delay: 263
+    content: o
+  - delay: 683
+    content: g
+  - delay: 129
+    content: i
+  - delay: 157
+    content: 'n'
+  - delay: 230
+    content: ' '
+  - delay: 204
+    content: '-'
+  - delay: 278
+    content: '-'
+  - delay: 483
+    content: a
+  - delay: 114
+    content: p
+  - delay: 118
+    content: i
+  - delay: 545
+    content: '-'
+  - delay: 431
+    content: t
+  - delay: 155
+    content: o
+  - delay: 377
+    content: k
+  - delay: 160
+    content: e
+  - delay: 136
+    content: 'n'
+  - delay: 217
+    content: ' '
+  - delay: 353
+    content: "wai_7c6ra49bd554fa24a93fd0ee4cb0dcab30d35dd3a83ace9"
+  - delay: 7
+    content: 7c019f94e976c01aa1
+  - delay: 908
+    content: "\r\n"
+  - delay: 299
+    content: "\e[1G\e[0K⠙"
+  - delay: 79
+    content: "\e[1G\e[0K⠹"
+  - delay: 79
+    content: "\e[1G\e[0K⠸"
+  - delay: 81
+    content: "\e[1G\e[0K⠼"
+  - delay: 80
+    content: "\e[1G\e[0K⠴"
+  - delay: 80
+    content: "\e[1G\e[0K⠦"
+  - delay: 80
+    content: "\e[1G\e[0K⠧"
+  - delay: 79
+    content: "\e[1G\e[0K⠇"
+  - delay: 79
+    content: "\e[1G\e[0K⠏"
+  - delay: 81
+    content: "\e[1G\e[0K⠋"
+  - delay: 80
+    content: "\e[1G\e[0K⠙"
+  - delay: 79
+    content: "\e[1G\e[0K⠹"
+  - delay: 81
+    content: "\e[1G\e[0K⠸"
+  - delay: 93
+    content: "\e[1G\e[0K⠼"
+  - delay: 81
+    content: "\e[1G\e[0K⠴"
+  - delay: 81
+    content: "\e[1G\e[0K⠦"
+  - delay: 82
+    content: "\e[1G\e[0K⠧"
+  - delay: 81
+    content: "\e[1G\e[0K⠇"
+  - delay: 82
+    content: "\e[1G\e[0K⠏"
+  - delay: 80
+    content: "\e[1G\e[0K⠋"
+  - delay: 81
+    content: "\e[1G\e[0K⠙"
+  - delay: 80
+    content: "\e[1G\e[0K⠹"
+  - delay: 81
+    content: "\e[1G\e[0K⠸"
+  - delay: 81
+    content: "\e[1G\e[0K⠼"
+  - delay: 81
+    content: "\e[1G\e[0K⠴"
+  - delay: 81
+    content: "\e[1G\e[0K⠦"
+  - delay: 82
+    content: "\e[1G\e[0K⠧"
+  - delay: 81
+    content: "\e[1G\e[0K⠇"
+  - delay: 81
+    content: "\e[1G\e[0K⠏"
+  - delay: 82
+    content: "\e[1G\e[0K⠋"
+  - delay: 80
+    content: "\e[1G\e[0K⠙"
+  - delay: 81
+    content: "\e[1G\e[0K⠹"
+  - delay: 81
+    content: "\e[1G\e[0K⠸"
+  - delay: 78
+    content: "\e[1G\e[0K⠼"
+  - delay: 90
+    content: "\e[1G\e[0K⠴"
+  - delay: 97
+    content: "\e[1G\e[0K⠦"
+  - delay: 79
+    content: "\e[1G\e[0K⠧"
+  - delay: 92
+    content: "\e[1G\e[0K⠇"
+  - delay: 85
+    content: "\e[1G\e[0K⠏"
+  - delay: 83
+    content: "\e[1G\e[0K⠋"
+  - delay: 81
+    content: "\e[1G\e[0K⠙"
+  - delay: 95
+    content: "\e[1G\e[0K⠹"
+  - delay: 87
+    content: "\e[1G\e[0K⠸"
+  - delay: 53
+    content: "\e[1G\e[0K\e[1G\e[0JNeed to install the following packages:\r\n@watchapi/cli@0.2.11\r\nOk to proceed? (y) \e[20G"
+  - delay: 1193
+    content: 'y'
+  - delay: 373
+    content: "\r\r\n\r\n\e[1G\e[0K⠙"
+  - delay: 81
+    content: "\e[1G\e[0K⠹"
+  - delay: 82
+    content: "\e[1G\e[0K⠸"
+  - delay: 83
+    content: "\e[1G\e[0K⠼"
+  - delay: 81
+    content: "\e[1G\e[0K⠴"
+  - delay: 81
+    content: "\e[1G\e[0K⠦"
+  - delay: 81
+    content: "\e[1G\e[0K⠧"
+  - delay: 37
+    content: "\e[1G\e[0K"
+  - delay: 758
+    content: "\e[32mLogin successful.\e[39m\r\nCredentials saved to /Users/user/.watchapi/config.json. They will be used when flags or env vars are missing.\r\nAPI URL: https://watchapi.dev\r\n"
+  - delay: 6
+    content: "\e[1G\e[0K⠙\e[1G\e[0K"
+  - delay: 12
+    content: '$ '
+  - delay: 783
+    content: 'n'
+  - delay: 120
+    content: p
+  - delay: 192
+    content: x
+  - delay: 447
+    content: ' '
+  - delay: 616
+    content: '@'
+  - delay: 327
+    content: w
+  - delay: 249
+    content: a
+  - delay: 206
+    content: t
+  - delay: 281
+    content: c
+  - delay: 198
+    content: h
+  - delay: 436
+    content: a
+  - delay: 143
+    content: p
+  - delay: 142
+    content: i
+  - delay: 450
+    content: /
+  - delay: 749
+    content: c
+  - delay: 143
+    content: l
+  - delay: 110
+    content: i
+  - delay: 163
+    content: ' '
+  - delay: 359
+    content: s
+  - delay: 122
+    content: 'y'
+  - delay: 226
+    content: 'n'
+  - delay: 243
+    content: c
+  - delay: 242
+    content: "\r\n"
+  - delay: 299
+    content: "\e[1G\e[0K⠙"
+  - delay: 80
+    content: "\e[1G\e[0K⠹"
+  - delay: 80
+    content: "\e[1G\e[0K⠸"
+  - delay: 80
+    content: "\e[1G\e[0K⠼"
+  - delay: 79
+    content: "\e[1G\e[0K⠴"
+  - delay: 81
+    content: "\e[1G\e[0K⠦"
+  - delay: 80
+    content: "\e[1G\e[0K⠧"
+  - delay: 80
+    content: "\e[1G\e[0K⠇"
+  - delay: 80
+    content: "\e[1G\e[0K⠏"
+  - delay: 80
+    content: "\e[1G\e[0K⠋"
+  - delay: 79
+    content: "\e[1G\e[0K⠙"
+  - delay: 80
+    content: "\e[1G\e[0K⠹"
+  - delay: 80
+    content: "\e[1G\e[0K⠸"
+  - delay: 81
+    content: "\e[1G\e[0K⠼"
+  - delay: 80
+    content: "\e[1G\e[0K⠴"
+  - delay: 90
+    content: "\e[1G\e[0K⠦"
+  - delay: 82
+    content: "\e[1G\e[0K⠧"
+  - delay: 82
+    content: "\e[1G\e[0K⠇"
+  - delay: 107
+    content: "\e[1G\e[0K⠏"
+  - delay: 86
+    content: "\e[1G\e[0K⠋"
+  - delay: 82
+    content: "\e[1G\e[0K⠙"
+  - delay: 79
+    content: "\e[1G\e[0K⠹"
+  - delay: 97
+    content: "\e[1G\e[0K⠸"
+  - delay: 80
+    content: "\e[1G\e[0K⠼"
+  - delay: 62
+    content: "\e[1G\e[0K"
+  - delay: 274
+    content: "\e[?25l\e[1G\e[1G\e[36m⠋\e[39m Discovering APIs..."
+  - delay: 2102
+    content: "\e[1G\e[0K\e[?25h\e[32m✔\e[39m Found 73 APIs from trpc\r\n\e[?25l\e[1G\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 79
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 79
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 85
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 79
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠴\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠦\e[39m Syncing APIs with monitoring platform..."
+  - delay: 80
+    content: "\e[1G\e[0K\e[36m⠧\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠇\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠏\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 79
+    content: "\e[1G\e[0K\e[36m⠋\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠙\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠹\e[39m Syncing APIs with monitoring platform..."
+  - delay: 82
+    content: "\e[1G\e[0K\e[36m⠸\e[39m Syncing APIs with monitoring platform..."
+  - delay: 81
+    content: "\e[1G\e[0K\e[36m⠼\e[39m Syncing APIs with monitoring platform..."
+  - delay: 39
+    content: "\e[1G\e[0K\e[?25h\e[32m✔\e[39m Sync completed (created: 73, updated: 0, unchanged: 0, deactivated: 0 [active state untouched])\r\nSynced 73 endpoint(s) across 0 collection(s) for target trpc (created: 73, updated: 0, unchanged: 0, deactivated: 0; active state unchanged)\r\n"
+  - delay: 41
+    content: "\e[?25h"
+  - delay: 5
+    content: "\e[1G\e[0K⠙\e[1G\e[0K"
+  - delay: 5
+    content: '$ '
+  - delay: 8827
+    content: "logout\r\n"

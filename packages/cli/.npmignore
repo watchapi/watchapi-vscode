@@ -1,0 +1,7 @@
+src/
+tsconfig.json
+tsup.config.ts
+*.md
+.env
+.env.*
+node_modules/
