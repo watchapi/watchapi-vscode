@@ -21,7 +21,10 @@ const routePathCache = new Map<string, RouteDetectionResult>();
  */
 export function isAppRouterFile(filePath: string): boolean {
 	const normalized = filePath.replace(/\\/g, '/');
-	return normalized.includes('/app/') && normalized.endsWith('/route.ts') || normalized.endsWith('/route.js');
+	return (
+		normalized.includes('/app/') &&
+		(normalized.endsWith('/route.ts') || normalized.endsWith('/route.js'))
+	);
 }
 
 /**
@@ -37,8 +40,10 @@ export function isPagesRouterFile(filePath: string): boolean {
  * This checks for tRPC-specific imports and handler functions
  */
 export function isTRPCHandler(sourceFile: SourceFile): boolean {
-	const text = sourceFile.getText();
+	return isTRPCHandlerContent(sourceFile.getText());
+}
 
+export function isTRPCHandlerContent(text: string): boolean {
 	// Check for tRPC imports
 	const hasTRPCImport = /@trpc\/server|fetchRequestHandler|createNextApiHandler/.test(text);
 	if (!hasTRPCImport) {

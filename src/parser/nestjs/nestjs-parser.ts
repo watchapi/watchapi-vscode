@@ -21,6 +21,11 @@ import { logger } from "@/shared/logger";
 import { FILE_PATTERNS } from "@/shared/constants";
 import type { ParsedRoute } from "@/shared/types";
 import type { HttpMethod } from "@/shared/constants";
+import {
+  createDebugLogger,
+  findTsConfig,
+  hasWorkspaceDependency,
+} from "../shared/parser-utils";
 
 import {
   NESTJS_BODY_DECORATOR,
@@ -36,32 +41,14 @@ import type { DebugLogger, NestJsRouteHandler } from "./nestjs-types";
  */
 export async function hasNestJs(): Promise<boolean> {
   try {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) {
-      return false;
+    const hasNest = await hasWorkspaceDependency([
+      "@nestjs/core",
+      "@nestjs/common",
+    ]);
+    if (hasNest) {
+      logger.info("Detected NestJS project");
     }
-
-    for (const folder of workspaceFolders) {
-      const packageJsonUri = vscode.Uri.joinPath(folder.uri, "package.json");
-      try {
-        const content = await vscode.workspace.fs.readFile(packageJsonUri);
-        const packageJson = JSON.parse(content.toString());
-
-        if (
-          packageJson.dependencies?.["@nestjs/core"] ||
-          packageJson.devDependencies?.["@nestjs/core"] ||
-          packageJson.dependencies?.["@nestjs/common"] ||
-          packageJson.devDependencies?.["@nestjs/common"]
-        ) {
-          logger.info("Detected NestJS project");
-          return true;
-        }
-      } catch {
-        // Continue to next workspace folder
-      }
-    }
-
-    return false;
+    return hasNest;
   } catch (error) {
     logger.error("Failed to detect NestJS", error);
     return false;
@@ -81,7 +68,7 @@ export async function parseNestJsRoutes(): Promise<ParsedRoute[]> {
     }
 
     const rootDir = workspaceFolders[0].uri.fsPath;
-    const debug = createDebugLogger(true);
+    const debug = createDebugLogger("nestjs:parser", true);
 
     const tsconfigPath = await findTsConfig(rootDir);
     const project = tsconfigPath
@@ -133,17 +120,6 @@ export async function parseNestJsRoutes(): Promise<ParsedRoute[]> {
   } catch (error) {
     logger.error("Failed to parse NestJS routes with AST", error);
     return [];
-  }
-}
-
-async function findTsConfig(rootDir: string): Promise<string | null> {
-  const tsconfigPath = path.join(rootDir, "tsconfig.json");
-  try {
-    const uri = vscode.Uri.file(tsconfigPath);
-    await vscode.workspace.fs.stat(uri);
-    return tsconfigPath;
-  } catch {
-    return null;
   }
 }
 
@@ -661,15 +637,6 @@ function convertToRoutes(
     query: handler.queryParams,
     body: handler.bodyExample,
   }));
-}
-
-function createDebugLogger(verbose?: boolean): DebugLogger {
-  return (message: string) => {
-    if (!verbose) {
-      return;
-    }
-    logger.debug(`[nestjs:parser] ${message}`);
-  };
 }
 
 function extractMethodVersions(method: MethodDeclaration): string[] {

@@ -17,6 +17,7 @@ import {
 	isAppRouterFile,
 	isPagesRouterFile,
 	isTRPCHandler,
+	isTRPCHandlerContent,
 	extractRoutePath,
 	collectHttpMethodHandlers,
 	detectExportedMethods,
@@ -27,37 +28,22 @@ import {
 	normalizeRoutePath,
 } from './nextjs-detection';
 import type { NextJsRouteHandler, DebugLogger, HandlerAnalysis } from './nextjs-types';
+import {
+	createDebugLogger,
+	findTsConfig,
+	hasWorkspaceDependency,
+} from '../shared/parser-utils';
 
 /**
  * Detect if current workspace has Next.js
  */
 export async function hasNextJs(): Promise<boolean> {
 	try {
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (!workspaceFolders) {
-			return false;
+		const hasNext = await hasWorkspaceDependency(["next"]);
+		if (hasNext) {
+			logger.info('Detected Next.js project');
 		}
-
-		// Check for package.json with next dependency
-		for (const folder of workspaceFolders) {
-			const packageJsonUri = vscode.Uri.joinPath(folder.uri, 'package.json');
-			try {
-				const content = await vscode.workspace.fs.readFile(packageJsonUri);
-				const packageJson = JSON.parse(content.toString());
-
-				if (
-					packageJson.dependencies?.next ||
-					packageJson.devDependencies?.next
-				) {
-					logger.info('Detected Next.js project');
-					return true;
-				}
-			} catch {
-				// Continue to next workspace folder
-			}
-		}
-
-		return false;
+		return hasNext;
 	} catch (error) {
 		logger.error('Failed to detect Next.js', error);
 		return false;
@@ -77,7 +63,7 @@ export async function parseAllNextJsRoutes(): Promise<ParsedRoute[]> {
 		}
 
 		const rootDir = workspaceFolders[0].uri.fsPath;
-		const debug = createDebugLogger(true); // Enable debug logging
+		const debug = createDebugLogger("nextjs:parser", true); // Enable debug logging
 
 		// Find tsconfig.json
 		const tsconfigPath = await findTsConfig(rootDir);
@@ -155,17 +141,6 @@ export async function parseAllNextJsRoutes(): Promise<ParsedRoute[]> {
 /**
  * Find tsconfig.json in workspace
  */
-async function findTsConfig(rootDir: string): Promise<string | null> {
-	const tsconfigPath = path.join(rootDir, 'tsconfig.json');
-	try {
-		const uri = vscode.Uri.file(tsconfigPath);
-		await vscode.workspace.fs.stat(uri);
-		return tsconfigPath;
-	} catch {
-		return null;
-	}
-}
-
 /**
  * Parse App Router route file
  */
@@ -422,18 +397,6 @@ function convertToRoutes(
 }
 
 /**
- * Create debug logger
- */
-function createDebugLogger(verbose?: boolean): DebugLogger {
-	return (message: string) => {
-		if (!verbose) {
-			return;
-		}
-		logger.debug(`[nextjs:parser] ${message}`);
-	};
-}
-
-/**
  * Fallback to basic parsing without AST
  */
 async function parseAllNextJsRoutesBasic(): Promise<ParsedRoute[]> {
@@ -475,15 +438,6 @@ export async function parseAppRoutes(): Promise<ParsedRoute[]> {
 /**
  * Check if file content contains tRPC handler patterns
  */
-function isTRPCHandlerContent(text: string): boolean {
-	const hasTRPCImport = /@trpc\/server|fetchRequestHandler|createNextApiHandler/.test(text);
-	if (!hasTRPCImport) {
-		return false;
-	}
-	const hasTRPCHandler = /fetchRequestHandler|createNextApiHandler/.test(text);
-	return hasTRPCHandler;
-}
-
 /**
  * Parse a single App Router route file (basic mode)
  */
