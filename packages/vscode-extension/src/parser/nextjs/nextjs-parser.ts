@@ -5,7 +5,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Node, Project, SourceFile } from 'ts-morph';
+import { Node, Project, SourceFile, SyntaxKind } from 'ts-morph';
 
 import { logger } from '@/shared/logger';
 import { FILE_PATTERNS } from '@/shared/constants';
@@ -33,6 +33,7 @@ import {
 	findTsConfig,
 	hasWorkspaceDependency,
 } from '../shared/parser-utils';
+import { extractBodyFromSchema } from '../shared/zod-schema-parser';
 
 /**
  * Detect if current workspace has Next.js
@@ -171,7 +172,7 @@ function parseAppRouterFile(
 	// Create handler for each exported method
 	methodSet.forEach((method) => {
 		const handler = methodHandlers.get(method) ?? sourceFile;
-		const analysis = analyzeHandler(handler);
+		const analysis = analyzeHandler(handler, debug);
 
 		handlers.push({
 			path: normalizedPath,
@@ -218,7 +219,7 @@ function parsePagesRouterFile(
 
 	// Detect HTTP methods
 	const methods = detectPagesRouterMethods(handler, debug);
-	const analysis = analyzeHandler(handler);
+	const analysis = analyzeHandler(handler, debug);
 
 	// Check for middleware
 	const middleware = hasMiddleware(sourceFile);
@@ -247,9 +248,77 @@ function parsePagesRouterFile(
 }
 
 /**
+ * Extract body example from Zod schema in handler
+ */
+function extractBodyFromHandler(handler: Node, debug: DebugLogger): string | undefined {
+	// Look for Zod schema definitions in the handler
+	// Common patterns:
+	// 1. const schema = z.object({ ... })
+	// 2. schema.parse(body) or schema.safeParse(body)
+	// 3. Inline validation: z.object({ ... }).parse(body)
+
+	// Get all variable declarations
+	const variableDecls = handler.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
+
+	for (const decl of variableDecls) {
+		const name = decl.getName();
+		const initializer = decl.getInitializer();
+
+		if (!initializer) {
+			continue;
+		}
+
+		// Check if this looks like a Zod schema (variable name contains 'schema' or 'Schema')
+		const isSchemaVariable = /schema/i.test(name);
+
+		// Check if the initializer is a Zod schema call
+		const initializerText = initializer.getText();
+		const isZodSchema = initializerText.startsWith('z.') || initializerText.includes('z.object');
+
+		if (isSchemaVariable || isZodSchema) {
+			// Try to extract body from this schema
+			const bodyExample = extractBodyFromSchema(initializer);
+			if (bodyExample && bodyExample !== '{}') {
+				debug(`Found Zod schema body example in variable: ${name}`);
+				return bodyExample;
+			}
+		}
+	}
+
+	// Look for inline schema.parse() or schema.safeParse() calls
+	const callExpressions = handler.getDescendantsOfKind(SyntaxKind.CallExpression);
+
+	for (const call of callExpressions) {
+		const expr = call.getExpression();
+
+		if (Node.isPropertyAccessExpression(expr)) {
+			const methodName = expr.getName();
+
+			// Check for .parse() or .safeParse() calls
+			if (methodName === 'parse' || methodName === 'safeParse') {
+				const base = expr.getExpression();
+
+				// Check if the base is a Zod schema
+				const baseText = base.getText();
+				if (baseText.includes('z.') || /schema/i.test(baseText)) {
+					// Try to extract body from the schema
+					const bodyExample = extractBodyFromSchema(base);
+					if (bodyExample && bodyExample !== '{}') {
+						debug(`Found Zod schema body example from .${methodName}() call`);
+						return bodyExample;
+					}
+				}
+			}
+		}
+	}
+
+	return undefined;
+}
+
+/**
  * Analyze handler implementation
  */
-function analyzeHandler(handler: Node): HandlerAnalysis {
+function analyzeHandler(handler: Node, debug: DebugLogger): HandlerAnalysis {
 	const handlerText = handler.getText();
 	let handlerLines = 0;
 
@@ -272,8 +341,8 @@ function analyzeHandler(handler: Node): HandlerAnalysis {
 	const hasErrorHandling = ERROR_PATTERNS.test(handlerText);
 	const hasValidation = VALIDATION_PATTERNS.test(handlerText);
 	const headers = extractHeaders(handlerText);
-
 	const queryParams = extractQueryParams(handlerText);
+	const bodyExample = extractBodyFromHandler(handler, debug);
 
 	return {
 		handlerLines,
@@ -282,6 +351,7 @@ function analyzeHandler(handler: Node): HandlerAnalysis {
 		hasValidation,
 		headers,
 		queryParams,
+		bodyExample,
 	};
 }
 
@@ -373,6 +443,13 @@ function extractQueryParams(handlerText: string): Record<string, string> | undef
 }
 
 /**
+ * Check if HTTP method should include body
+ */
+function shouldIncludeBody(method: HttpMethod): boolean {
+	return ['POST', 'PUT', 'PATCH'].includes(method);
+}
+
+/**
  * Convert NextJsRouteHandler to ParsedRoute
  */
 function convertToRoutes(
@@ -384,6 +461,11 @@ function convertToRoutes(
 		const type =
 			handler.type === 'app-router' ? 'nextjs-app' : 'nextjs-page';
 
+		// Only include body for POST, PUT, PATCH methods
+		const effectiveBody = handler.bodyExample && shouldIncludeBody(handler.method)
+			? handler.bodyExample
+			: undefined;
+
 		return {
 			name,
 			path: handler.path,
@@ -392,6 +474,7 @@ function convertToRoutes(
 			type,
 			headers: Object.keys(handler.headers).length > 0 ? handler.headers : undefined,
 			query: handler.queryParams,
+			body: effectiveBody,
 		};
 	});
 }

@@ -28,6 +28,7 @@ export interface NextJsRouteHandler {
 	hasValidation: boolean;
 	headers: Record<string, string>;
 	queryParams?: Record<string, string>;
+	bodyExample?: string;
 }
 
 /**
@@ -65,6 +66,7 @@ export interface HandlerAnalysis {
 	hasValidation: boolean;
 	headers: Record<string, string>;
 	queryParams?: Record<string, string>;
+	bodyExample?: string;
 }
 
 /**
