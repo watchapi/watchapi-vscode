@@ -267,8 +267,10 @@
         }
     },
     "scripts": {
-        "vscode:package": "pnpm run package && pnpm exec vsce package --no-dependencies",
-        "vscode:publish": "pnpm exec vsce publish --no-dependencies",
+        "copy:docs": "cp ../../CHANGELOG.md ../../LICENSE .",
+        "clean:docs": "rm -f CHANGELOG.md LICENSE",
+        "vscode:package": "pnpm run copy:docs && pnpm run package && pnpm exec vsce package --no-dependencies",
+        "vscode:publish": "pnpm run copy:docs && pnpm exec vsce publish --no-dependencies",
         "vscode:prepublish": "pnpm run package",
         "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
         "watch": "npm-run-all -p watch:*",
