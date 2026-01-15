@@ -6,7 +6,8 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs/promises";
-import { COMMANDS } from "@/shared/constants";
+import { constructHttpFile } from "@watchapi/parsers";
+import { COMMANDS, ENV_FILE_NAME } from "@/shared/constants";
 import { wrapCommand } from "./command-wrapper";
 import type { CollectionsService } from "@/collections";
 import type { EndpointsService } from "@/endpoints";
@@ -39,6 +40,25 @@ export function registerExportCommands(
 }
 
 /**
+ * Read REST client environment from workspace
+ */
+async function readRestClientEnv(): Promise<Record<string, string>> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) return {};
+
+  const envUri = vscode.Uri.joinPath(workspaceFolder.uri, ENV_FILE_NAME);
+
+  try {
+    const bytes = await vscode.workspace.fs.readFile(envUri);
+    const text = Buffer.from(bytes).toString("utf8");
+    return JSON.parse(text);
+  } catch {
+    // File missing or invalid JSON → silently ignore
+    return {};
+  }
+}
+
+/**
  * Export all collections to .http files
  */
 async function exportCollections(
@@ -63,13 +83,23 @@ async function exportCollections(
     return;
   }
 
+  // Read environment and settings
+  const env = await readRestClientEnv();
+  const config = vscode.workspace.getConfiguration("watchapi");
+  const includeAuthorizationHeader = config.get<boolean>(
+    "includeAuthorizationHeader",
+    true,
+  );
+
   // Export each collection
   let totalEndpoints = 0;
   for (const collection of collections) {
     const endpoints = await endpointsService.getByCollectionId(collection.id);
 
     if (endpoints.length > 0) {
-      await exportCollection(exportDir, collection, endpoints);
+      await exportCollection(exportDir, collection, endpoints, env, {
+        includeAuthorizationHeader,
+      });
       totalEndpoints += endpoints.length;
     }
   }
@@ -86,6 +116,8 @@ async function exportCollection(
   exportDir: string,
   collection: Collection,
   endpoints: ApiEndpoint[],
+  env: Record<string, string>,
+  options: { includeAuthorizationHeader: boolean },
 ): Promise<void> {
   // Sanitize collection name for filesystem
   const collectionDirName = sanitizeFilename(collection.name);
@@ -96,95 +128,12 @@ async function exportCollection(
 
   // Create .http file for each endpoint
   for (const endpoint of endpoints) {
-    const httpContent = generateHttpFileContent(endpoint);
+    const httpContent = constructHttpFile(endpoint, env, options);
     const filename = sanitizeFilename(`${endpoint.name}.http`);
     const filePath = path.join(collectionDir, filename);
 
     await fs.writeFile(filePath, httpContent, "utf-8");
   }
-}
-
-/**
- * Generate .http file content for an endpoint
- */
-function generateHttpFileContent(endpoint: ApiEndpoint): string {
-  const lines: string[] = [];
-
-  // Add comment with endpoint name
-  lines.push(`### ${endpoint.name}`);
-  lines.push("");
-
-  // Add HTTP method and URL
-  const url = endpoint.requestPath.startsWith("http")
-    ? endpoint.requestPath
-    : `{{baseUrl}}${endpoint.requestPath}`;
-  lines.push(`${endpoint.method} ${url}`);
-
-  // Add headers (merge schema and overrides)
-  const headers = mergeHeaders(endpoint);
-  if (Object.keys(headers).length > 0) {
-    for (const [key, value] of Object.entries(headers)) {
-      lines.push(`${key}: ${value}`);
-    }
-  }
-
-  // Add body if present
-  const body = getEffectiveBody(endpoint);
-  if (body) {
-    lines.push("");
-    lines.push(body);
-  }
-
-  lines.push("");
-  return lines.join("\n");
-}
-
-/**
- * Merge headers schema and overrides
- */
-function mergeHeaders(endpoint: ApiEndpoint): Record<string, string> {
-  const headers: Record<string, string> = {};
-
-  // Start with schema headers
-  if (endpoint.headersSchema) {
-    Object.assign(headers, endpoint.headersSchema);
-  }
-
-  // Apply overrides
-  if (endpoint.headersOverrides) {
-    Object.assign(headers, endpoint.headersOverrides);
-  }
-
-  // Fallback to deprecated headers field
-  if (
-    !endpoint.headersSchema &&
-    !endpoint.headersOverrides &&
-    endpoint.headers
-  ) {
-    Object.assign(headers, endpoint.headers);
-  }
-
-  return headers;
-}
-
-/**
- * Get effective body (overrides take precedence over schema)
- */
-function getEffectiveBody(endpoint: ApiEndpoint): string | undefined {
-  if (endpoint.bodyOverrides) {
-    return endpoint.bodyOverrides;
-  }
-
-  if (endpoint.bodySchema) {
-    return endpoint.bodySchema;
-  }
-
-  // Fallback to deprecated body field
-  if (endpoint.body) {
-    return endpoint.body;
-  }
-
-  return undefined;
 }
 
 /**
