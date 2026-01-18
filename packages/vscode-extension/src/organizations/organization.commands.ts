@@ -5,7 +5,7 @@
 
 import * as vscode from "vscode";
 import { COMMANDS } from "@/shared/constants";
-import { wrapCommand } from "./command-wrapper";
+import { wrapCommand } from "@/commands/command-wrapper";
 import type { AuthService } from "@/auth";
 import type { OrganizationService } from "@/organizations";
 import type { SyncService } from "@/sync";

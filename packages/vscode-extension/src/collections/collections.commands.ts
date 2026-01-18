@@ -5,7 +5,7 @@
 
 import * as vscode from "vscode";
 import { COMMANDS } from "@/shared/constants";
-import { wrapCommandWithRefresh } from "./command-wrapper";
+import { wrapCommandWithRefresh } from "@/commands/command-wrapper";
 import type { CollectionsService, CollectionNode } from "@/collections";
 import type { CollectionsTreeProvider } from "@/collections";
 

@@ -295,6 +295,7 @@
         "@types/node": "22.x",
         "@types/vscode": "^1.90.0",
         "@vitest/ui": "^2.0.0",
+        "@vscode/test-electron": "^2.5.2",
         "@vscode/vsce": "^3.2.1",
         "esbuild": "^0.27.1",
         "eslint": "^9.39.1",

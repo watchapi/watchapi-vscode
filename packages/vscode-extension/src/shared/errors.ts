@@ -53,3 +53,9 @@ export class SyncError extends WatchAPIError {
         super(message, "SYNC_ERROR", 500);
     }
 }
+
+export class ParserError extends WatchAPIError {
+    constructor(message: string) {
+        super(message, "PARSER_ERROR", 400);
+    }
+}

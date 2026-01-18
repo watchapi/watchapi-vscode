@@ -10,6 +10,7 @@ import {
     Environment,
     HttpMethod,
     logger,
+    ParserError,
 } from "@/shared";
 import { humanizeRouteName } from "@/endpoints/endpoints.editor";
 
