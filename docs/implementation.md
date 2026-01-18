@@ -1,5 +1,7 @@
 # WatchAPI Client 2 - Implementation Summary
 
+> Maintained with AI assistance and reviewed by project maintainers.
+
 **Version:** 0.1.0 (MVP)
 **Status:** ✅ Core Implementation Complete (11/12 tasks - 92%)
 **Date:** 23/12/2025
@@ -95,35 +97,35 @@ src/
 
 ✅ **Domain-Driven Design**
 
-- Each feature module is self-contained
-- Clear separation: service (business logic) → provider (UI integration)
-- Matches backend architecture for consistency
+-   Each feature module is self-contained
+-   Clear separation: service (business logic) → provider (UI integration)
+-   Matches backend architecture for consistency
 
 ✅ **Schema-First Development**
 
-- Zod schemas mirror backend exactly
-- Type inference from schemas (`z.infer<typeof schema>`)
-- Validation at API boundary
+-   Zod schemas mirror backend exactly
+-   Type inference from schemas (`z.infer<typeof schema>`)
+-   Validation at API boundary
 
 ✅ **Event-Driven Architecture**
 
-- Auth state changes trigger UI updates
-- Sync state changes update status bar
-- Reactive tree view refresh on data changes
+-   Auth state changes trigger UI updates
+-   Sync state changes update status bar
+-   Reactive tree view refresh on data changes
 
 ✅ **Hybrid Caching Strategy**
 
-- Memory cache for fast access
-- Workspace storage for persistence
-- Configurable TTL (10 min default)
-- Auto-expiration and cleanup
+-   Memory cache for fast access
+-   Workspace storage for persistence
+-   Configurable TTL (10 min default)
+-   Auto-expiration and cleanup
 
 ✅ **Error Handling Strategy**
 
-- Custom error classes with HTTP status codes
-- Comprehensive logging (debug/info/warn/error)
-- User-friendly error messages via VS Code notifications
-- Retry logic with exponential backoff
+-   Custom error classes with HTTP status codes
+-   Comprehensive logging (debug/info/warn/error)
+-   User-friendly error messages via VS Code notifications
+-   Retry logic with exponential backoff
 
 ---
 
@@ -133,41 +135,41 @@ src/
 
 **OAuth Flow:**
 
-- Opens browser for login
-- User pastes JWT token from browser
-- Secure storage in VS Code SecretStorage
-- Auto session verification on startup
+-   Opens browser for login
+-   User pastes JWT token from browser
+-   Secure storage in VS Code SecretStorage
+-   Auto session verification on startup
 
 **Session Management:**
 
-- JWT token provider for tRPC client
-- Auth state events for UI reactivity
-- Automatic logout on invalid session
+-   JWT token provider for tRPC client
+-   Auth state events for UI reactivity
+-   Automatic logout on invalid session
 
 ### 2. Collections Tree View (src/collections/)
 
 **TreeDataProvider:**
 
-- Hierarchical view: Collections → Endpoints
-- Color-coded icons by HTTP method
-- Contextual tooltips with metadata
-- Click to open .http editor
+-   Hierarchical view: Collections → Endpoints
+-   Color-coded icons by HTTP method
+-   Contextual tooltips with metadata
+-   Click to open .http editor
 
 **Service Layer:**
 
-- Full CRUD operations
-- Search functionality
-- Duplicate collections
-- Bulk operations support
+-   Full CRUD operations
+-   Search functionality
+-   Duplicate collections
+-   Bulk operations support
 
 ### 3. .http File Editor (src/endpoints/, src/parser/)
 
 **Virtual Document Provider:**
 
-- Generates .http files on-the-fly from endpoint data
-- REST Client extension compatible
-- Environment variable substitution
-- Bidirectional sync (parse on save)
+-   Generates .http files on-the-fly from endpoint data
+-   REST Client extension compatible
+-   Environment variable substitution
+-   Bidirectional sync (parse on save)
 
 **Format Example:**
 
@@ -188,21 +190,21 @@ Content-Type: application/json
 
 **Next.js App Router:**
 
-- Pattern: `app/api/**/route.{ts,js}`
-- Detects: GET, POST, PUT, PATCH, DELETE handlers
-- Extracts: route path, method, file location
+-   Pattern: `app/api/**/route.{ts,js}`
+-   Detects: GET, POST, PUT, PATCH, DELETE handlers
+-   Extracts: route path, method, file location
 
 **Next.js Pages Router:**
 
-- Pattern: `pages/api/**/*.{ts,js}`
-- Method detection from `req.method === 'POST'`
-- Handles index routes and dynamic params
+-   Pattern: `pages/api/**/*.{ts,js}`
+-   Method detection from `req.method === 'POST'`
+-   Handles index routes and dynamic params
 
 **tRPC Procedures:**
 
-- Pattern: `**/*.router.{ts,js}`
-- Detects: `.query()` (GET) and `.mutation()` (POST)
-- Extracts: procedure name, router name
+-   Pattern: `**/*.router.{ts,js}`
+-   Detects: `.query()` (GET) and `.mutation()` (POST)
+-   Extracts: procedure name, router name
 
 ### 5. Upload Wizard (src/ui/modals/)
 
@@ -214,45 +216,45 @@ Content-Type: application/json
 
 **Smart Defaults:**
 
-- All routes selected by default
-- Suggests collection name from route prefix
-- Bulk upload with progress tracking
+-   All routes selected by default
+-   Suggests collection name from route prefix
+-   Bulk upload with progress tracking
 
 ### 6. Sync Service (src/sync/)
 
 **Cloud as Source of Truth:**
 
-- Pull from cloud on startup
-- Local changes push immediately
-- Auto-sync every 5 minutes (configurable)
+-   Pull from cloud on startup
+-   Local changes push immediately
+-   Auto-sync every 5 minutes (configurable)
 
 **Retry Strategy:**
 
-- 3 retry attempts (configurable)
-- Exponential backoff (1s, 2s, 4s)
-- Graceful failure handling
+-   3 retry attempts (configurable)
+-   Exponential backoff (1s, 2s, 4s)
+-   Graceful failure handling
 
 **Cache Strategy:**
 
-- Check memory cache first (instant)
-- Fallback to workspace storage (persistent)
-- Fetch from cloud if expired
-- TTL-based expiration (10 min default)
+-   Check memory cache first (instant)
+-   Fallback to workspace storage (persistent)
+-   Fetch from cloud if expired
+-   TTL-based expiration (10 min default)
 
 ### 7. Status Bar (src/ui/)
 
 **Visual Indicators:**
 
-- ✓/✗ Auth status
-- 🔄 Sync spinner when syncing
-- ⚠️ Error highlight when sync fails
-- Time since last sync
+-   ✓/✗ Auth status
+-   🔄 Sync spinner when syncing
+-   ⚠️ Error highlight when sync fails
+-   Time since last sync
 
 **Interactive Tooltip:**
 
-- User email when authenticated
-- Last sync timestamp
-- Error details if applicable
+-   User email when authenticated
+-   Last sync timestamp
+-   Error details if applicable
 
 ---
 
@@ -274,21 +276,21 @@ Content-Type: application/json
 
 **Activity Bar:**
 
-- WatchAPI icon in sidebar
-- Badge for pending changes (future)
+-   WatchAPI icon in sidebar
+-   Badge for pending changes (future)
 
 **Sidebar View:**
 
-- Collections tree view
-- Toolbar buttons (Add, Upload, Refresh)
-- Collapsible collections
-- Click endpoints to open
+-   Collections tree view
+-   Toolbar buttons (Add, Upload, Refresh)
+-   Collapsible collections
+-   Click endpoints to open
 
 **Status Bar:**
 
-- Right-aligned item
-- Shows auth + sync status
-- Click for details
+-   Right-aligned item
+-   Shows auth + sync status
+-   Click for details
 
 ---
 
@@ -310,10 +312,10 @@ RETRY_DELAY=1000              # Initial delay
 
 ### Storage Keys
 
-- `watchapi.jwt_token` - Encrypted JWT in SecretStorage
-- `watchapi.user_info` - User data in workspace state
-- `watchapi.cache.*` - Cached collections/endpoints
-- `watchapi.last_sync` - Last sync timestamp
+-   `watchapi.jwt_token` - Encrypted JWT in SecretStorage
+-   `watchapi.user_info` - User data in workspace state
+-   `watchapi.cache.*` - Cached collections/endpoints
+-   `watchapi.last_sync` - Last sync timestamp
 
 ---
 
@@ -323,10 +325,10 @@ RETRY_DELAY=1000              # Initial delay
 
 **Setup Complete:**
 
-- `vitest.config.ts` configured
-- Test scripts in package.json
-- Test folders created per module
-- `@/` path aliases resolved
+-   `vitest.config.ts` configured
+-   Test scripts in package.json
+-   Test folders created per module
+-   `@/` path aliases resolved
 
 **Ready for Testing:**
 
@@ -363,67 +365,67 @@ src/
 
 1. **Fix tRPC Type Import**
 
-   - Issue: `src/api/trpc-client.ts:5` imports backend AppRouter type
-   - Solution: Generate types from backend or use stub type
+    - Issue: `src/api/trpc-client.ts:5` imports backend AppRouter type
+    - Solution: Generate types from backend or use stub type
 
 2. **Create Icon Asset**
 
-   - File: `assets/icon.png`
-   - Required for activity bar
+    - File: `assets/icon.png`
+    - Required for activity bar
 
 3. **Test Basic Flow**
-   - Install dependencies: `pnpm install`
-   - Compile: `pnpm compile`
-   - Press F5 to test in Extension Development Host
+    - Install dependencies: `pnpm install`
+    - Compile: `pnpm compile`
+    - Press F5 to test in Extension Development Host
 
 ### Priority 2: Enhancements
 
 4. **Write Core Tests**
 
-   - Start with parser modules (pure functions)
-   - Mock services for integration tests
-   - Aim for >80% coverage
+    - Start with parser modules (pure functions)
+    - Mock services for integration tests
+    - Aim for >80% coverage
 
 5. **Environment Variables Module**
 
-   - Implement CRUD operations
-   - Add to .http file editor
-   - UI for managing variables
+    - Implement CRUD operations
+    - Add to .http file editor
+    - UI for managing variables
 
 6. **Context Menu Actions**
-   - Right-click collection → Delete, Duplicate
-   - Right-click endpoint → Edit, Delete, Copy URL
+    - Right-click collection → Delete, Duplicate
+    - Right-click endpoint → Edit, Delete, Copy URL
 
 ### Priority 3: Polish
 
 7. **Error Recovery**
 
-   - Offline mode support
-   - Conflict resolution
-   - Queue failed operations
+    - Offline mode support
+    - Conflict resolution
+    - Queue failed operations
 
 8. **Performance**
 
-   - Lazy load tree items
-   - Debounce file system watchers
-   - Optimize sync algorithm
+    - Lazy load tree items
+    - Debounce file system watchers
+    - Optimize sync algorithm
 
 9. **Documentation**
-   - User guide
-   - Architecture diagrams
-   - API documentation
+    - User guide
+    - Architecture diagrams
+    - API documentation
 
 ---
 
 ## 📊 Metrics
 
-- **Total Files Created:** 30+
-- **Lines of Code:** ~3,500+
-- **Modules:** 9 (shared, auth, api, collections, endpoints, parser, sync, ui, extension)
-- **Services:** 6 (auth, collections, endpoints, cache, sync, status bar)
-- **Commands:** 7
-- **Custom Errors:** 8 types
-- **Code Complexity:** Moderate (well-structured, readable)
+-   **Total Files Created:** 30+
+-   **Lines of Code:** ~3,500+
+-   **Modules:** 9 (shared, auth, api, collections, endpoints, parser, sync, ui, extension)
+-   **Services:** 6 (auth, collections, endpoints, cache, sync, status bar)
+-   **Commands:** 7
+-   **Custom Errors:** 8 types
+-   **Code Complexity:** Moderate (well-structured, readable)
 
 ---
 
@@ -431,17 +433,17 @@ src/
 
 ### VS Code Extension Development
 
-- [VS Code Extension API](https://code.visualstudio.com/api)
-- [TreeDataProvider Guide](https://code.visualstudio.com/api/extension-guides/tree-view)
-- [Virtual Documents](https://code.visualstudio.com/api/extension-guides/virtual-documents)
+-   [VS Code Extension API](https://code.visualstudio.com/api)
+-   [TreeDataProvider Guide](https://code.visualstudio.com/api/extension-guides/tree-view)
+-   [Virtual Documents](https://code.visualstudio.com/api/extension-guides/virtual-documents)
 
 ### Technologies Used
 
-- **TypeScript** - Type safety
-- **tRPC** - End-to-end type safety
-- **Zod** - Runtime validation
-- **Vitest** - Fast unit testing
-- **VS Code API** - Extension integration
+-   **TypeScript** - Type safety
+-   **tRPC** - End-to-end type safety
+-   **Zod** - Runtime validation
+-   **Vitest** - Fast unit testing
+-   **VS Code API** - Extension integration
 
 ---
 
@@ -449,27 +451,27 @@ src/
 
 1. **Hybrid Cache over Pure Virtual**
 
-   - Reasoning: Offline support, faster load times
-   - Trade-off: Complexity vs performance
+    - Reasoning: Offline support, faster load times
+    - Trade-off: Complexity vs performance
 
 2. **Cloud as Source of Truth**
 
-   - Reasoning: Simplified conflict resolution
-   - Trade-off: Requires internet for full features
+    - Reasoning: Simplified conflict resolution
+    - Trade-off: Requires internet for full features
 
 3. **REST Client Compatibility**
 
-   - Reasoning: Leverage existing extension
-   - Trade-off: Format constraints
+    - Reasoning: Leverage existing extension
+    - Trade-off: Format constraints
 
 4. **Browser OAuth over In-App**
 
-   - Reasoning: Security, simplicity
-   - Trade-off: Extra step for user
+    - Reasoning: Security, simplicity
+    - Trade-off: Extra step for user
 
 5. **Domain-Driven Structure**
-   - Reasoning: Scalability, maintainability
-   - Trade-off: More boilerplate
+    - Reasoning: Scalability, maintainability
+    - Trade-off: More boilerplate
 
 ---
 
@@ -477,27 +479,27 @@ src/
 
 ✅ **Implemented:**
 
-- JWT stored in encrypted SecretStorage
-- HTTPS for API communication (configurable)
-- No secrets in logs
-- Input validation via Zod schemas
+-   JWT stored in encrypted SecretStorage
+-   HTTPS for API communication (configurable)
+-   No secrets in logs
+-   Input validation via Zod schemas
 
 ⚠️ **Future Considerations:**
 
-- Token refresh flow
-- CSRF protection for OAuth
-- Rate limiting on client side
-- Audit logging
+-   Token refresh flow
+-   CSRF protection for OAuth
+-   Rate limiting on client side
+-   Audit logging
 
 ---
 
 ## 📝 Notes
 
-- Extension follows VS Code best practices
-- Code is well-documented with TSDoc comments
-- Error handling is comprehensive
-- Architecture supports future features (webhooks, real-time sync, etc.)
-- Ready for production with minimal additions
+-   Extension follows VS Code best practices
+-   Code is well-documented with TSDoc comments
+-   Error handling is comprehensive
+-   Architecture supports future features (webhooks, real-time sync, etc.)
+-   Ready for production with minimal additions
 
 ---
 

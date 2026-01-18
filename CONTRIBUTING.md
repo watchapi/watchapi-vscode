@@ -1,5 +1,7 @@
 # Contributing to WatchAPI Client
 
+> Maintained with AI assistance and reviewed by project maintainers.
+
 Thank you for your interest in contributing to WatchAPI Client! This document provides guidelines and instructions for contributing.
 
 ## Table of Contents
