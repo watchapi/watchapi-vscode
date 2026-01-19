@@ -1,9 +1,10 @@
 /**
  * NestJS route parser with AST-based detection
  * Parses controllers and DTOs to extract routes and request body schemas
+ * Note: This module is decoupled from vscode - all functions accept rootDir as parameter
  */
 
-import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
 import {
   Decorator,
@@ -37,11 +38,12 @@ import {
 import type { DebugLogger, NestJsRouteHandler } from "./nestjs-types";
 
 /**
- * Detect if current workspace has NestJS
+ * Detect if directory has NestJS
+ * @param rootDir - The root directory to check
  */
-export async function hasNestJs(): Promise<boolean> {
+export async function hasNestJs(rootDir: string): Promise<boolean> {
   try {
-    const hasNest = await hasWorkspaceDependency([
+    const hasNest = await hasWorkspaceDependency(rootDir, [
       "@nestjs/core",
       "@nestjs/common",
     ]);
@@ -57,17 +59,16 @@ export async function hasNestJs(): Promise<boolean> {
 
 /**
  * Parse NestJS controllers using AST analysis
+ * @param rootDir - The root directory to parse routes from
  */
-export async function parseNestJsRoutes(): Promise<ParsedRoute[]> {
+export async function parseNestJsRoutes(rootDir: string): Promise<ParsedRoute[]> {
   try {
     logger.debug("Parsing NestJS routes with AST");
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      logger.warn("No workspace folders found");
+    if (!rootDir) {
+      logger.warn("No root directory provided");
       return [];
     }
 
-    const rootDir = workspaceFolders[0].uri.fsPath;
     const debug = createDebugLogger("nestjs:parser", true);
 
     const tsconfigPath = await findTsConfig(rootDir);
@@ -680,7 +681,7 @@ async function findGlobalPrefix(
 
   for (const filePath of candidates) {
     try {
-      await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+      await fs.promises.access(filePath);
     } catch {
       continue;
     }

@@ -16,10 +16,8 @@ import { EndpointsService } from "@/endpoints";
 import { CacheService, SyncService } from "@/sync";
 import { StatusBarManager, UploadModal } from "@/ui";
 import {
-    hasNextApp,
-    hasNextPages,
-    hasTRPC,
-    hasNestJs,
+    detectRoutes,
+    hasAnyProjectType,
 } from "@watchapi/parsers";
 import { REST_CLIENT } from "@/shared";
 import { EndpointsFileSystemProvider } from "./endpoints/endpoints.fs";
@@ -306,14 +304,19 @@ function setupEventListeners(
  * Check and log supported project types
  */
 async function checkProjectType(): Promise<void> {
-    const [hasNext, hasTrpc, hasNest] = await Promise.all([
-        hasNextApp(),
-        hasNextPages(),
-        hasTRPC(),
-        hasNestJs(),
-    ]);
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        await vscode.commands.executeCommand(
+            "setContext",
+            "watchapi.canUpload",
+            false,
+        );
+        return;
+    }
 
-    const canUpload = hasNext || hasTrpc || hasNest;
+    const rootDir = workspaceFolders[0].uri.fsPath;
+    const detected = await detectRoutes(rootDir);
+    const canUpload = hasAnyProjectType(detected);
 
     await vscode.commands.executeCommand(
         "setContext",
@@ -323,9 +326,10 @@ async function checkProjectType(): Promise<void> {
 
     if (canUpload) {
         const types: string[] = [];
-        if (hasNext) types.push("Next.js");
-        if (hasTrpc) types.push("tRPC");
-        if (hasNest) types.push("NestJS");
+        if (detected.nextApp) types.push("Next.js (App router)");
+        if (detected.nextPages) types.push("Next.js (Pages router)");
+        if (detected.trpc) types.push("tRPC");
+        if (detected.nestjs) types.push("NestJS");
 
         logger.info(`Detected project types: ${types.join(", ")}`);
     } else {

@@ -1,55 +1,75 @@
 /**
  * Shared parser utilities
+ * Note: This module is decoupled from vscode - all functions accept rootDir as parameter
  */
 
-import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
 
 import { logger } from "../lib/logger";
 
+/**
+ * Check if a package.json at rootDir has any of the specified dependencies
+ */
 export async function hasWorkspaceDependency(
+  rootDir: string,
   dependencyNames: string[],
 ): Promise<boolean> {
-  const workspaceFolders = vscode.workspace.workspaceFolders;
-  if (!workspaceFolders) {
+  const packageJsonPath = path.join(rootDir, "package.json");
+  try {
+    const content = await fs.promises.readFile(packageJsonPath, "utf-8");
+    const packageJson = JSON.parse(content);
+
+    const deps = packageJson.dependencies ?? {};
+    const devDeps = packageJson.devDependencies ?? {};
+
+    return dependencyNames.some(
+      (name) => deps[name] !== undefined || devDeps[name] !== undefined,
+    );
+  } catch {
     return false;
   }
-
-  for (const folder of workspaceFolders) {
-    const packageJsonUri = vscode.Uri.joinPath(folder.uri, "package.json");
-    try {
-      const content = await vscode.workspace.fs.readFile(packageJsonUri);
-      const packageJson = JSON.parse(content.toString());
-
-      const deps = packageJson.dependencies ?? {};
-      const devDeps = packageJson.devDependencies ?? {};
-
-      if (
-        dependencyNames.some(
-          (name) => deps[name] !== undefined || devDeps[name] !== undefined,
-        )
-      ) {
-        return true;
-      }
-    } catch {
-      // Continue to next workspace folder
-    }
-  }
-
-  return false;
 }
 
+/**
+ * Find tsconfig.json in rootDir
+ */
 export async function findTsConfig(rootDir: string): Promise<string | null> {
   const tsconfigPath = path.join(rootDir, "tsconfig.json");
   try {
-    const uri = vscode.Uri.file(tsconfigPath);
-    await vscode.workspace.fs.stat(uri);
+    await fs.promises.access(tsconfigPath);
     return tsconfigPath;
   } catch {
     return null;
   }
 }
 
+/**
+ * Check if a file exists
+ */
+export async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.promises.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Read file contents as string
+ */
+export async function readFile(filePath: string): Promise<string | null> {
+  try {
+    return await fs.promises.readFile(filePath, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Create a debug logger with prefix
+ */
 export function createDebugLogger(
   prefix: string,
   verbose?: boolean,

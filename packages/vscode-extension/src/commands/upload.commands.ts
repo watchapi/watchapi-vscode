@@ -7,14 +7,8 @@ import * as vscode from "vscode";
 import { COMMANDS } from "@/shared/constants";
 import { wrapCommandWithRefresh } from "./command-wrapper";
 import {
-    parseTRPCRouters,
-    hasTRPC,
-    parseNestJsRoutes,
-    hasNestJs,
-    parseNextAppRoutes,
-    hasNextApp,
-    hasNextPages,
-    parseNextPagesRoutes,
+    detectAndParseRoutes,
+    hasAnyProjectType,
 } from "@watchapi/parsers";
 import type { UploadModal } from "@/ui";
 import type { CollectionsTreeProvider } from "@/collections";
@@ -34,54 +28,33 @@ export function registerUploadCommands(
                     errorMessagePrefix: "Upload failed",
                 },
                 async () => {
-                    const [hasNextjsApp, hasNextjsPages, hasTrpc, hasNest] =
-                        await Promise.all([
-                            hasNextApp(),
-                            hasNextPages(),
-                            hasTRPC(),
-                            hasNestJs(),
-                        ]);
+                    const workspaceFolders = vscode.workspace.workspaceFolders;
+                    if (!workspaceFolders || workspaceFolders.length === 0) {
+                        vscode.window.showWarningMessage(
+                            "No workspace folder found. Please open a folder first.",
+                        );
+                        return;
+                    }
 
-                    if (
-                        !hasNextjsApp &&
-                        !hasNextjsPages &&
-                        !hasTrpc &&
-                        !hasNest
-                    ) {
+                    const rootDir = workspaceFolders[0].uri.fsPath;
+
+                    // Show progress while detecting and parsing routes
+                    const result = await vscode.window.withProgress(
+                        {
+                            location: vscode.ProgressLocation.Notification,
+                            title: "Detecting API routes...",
+                        },
+                        async () => detectAndParseRoutes(rootDir),
+                    );
+
+                    if (!hasAnyProjectType(result.detected)) {
                         vscode.window.showWarningMessage(
                             "No supported project type detected. This feature requires Next.js, tRPC, or NestJS.",
                         );
                         return;
                     }
 
-                    // Show progress while detecting routes
-                    const routes = await vscode.window.withProgress(
-                        {
-                            location: vscode.ProgressLocation.Notification,
-                            title: "Detecting API routes...",
-                        },
-                        async () => {
-                            const [
-                                nextAppRoutes,
-                                nextPagesRoutes,
-                                trpcRoutes,
-                                nestRoutes,
-                            ] = await Promise.all([
-                                hasNextjsApp ? parseNextAppRoutes() : [],
-                                hasNextjsPages ? parseNextPagesRoutes() : [],
-                                hasTrpc ? parseTRPCRouters() : [],
-                                hasNest ? parseNestJsRoutes() : [],
-                            ]);
-                            return [
-                                ...nextAppRoutes,
-                                ...nextPagesRoutes,
-                                ...trpcRoutes,
-                                ...nestRoutes,
-                            ];
-                        },
-                    );
-
-                    await uploadModal.show(routes);
+                    await uploadModal.show(result.routes);
                 },
                 () => treeProvider.refresh(),
             ),

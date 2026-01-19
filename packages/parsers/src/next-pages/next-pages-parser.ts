@@ -1,9 +1,9 @@
 /**
  * Next.js Pages Router parser with AST-based detection
  * Parses routes from the /pages/api directory
+ * Note: This module is decoupled from vscode - all functions accept rootDir as parameter
  */
 
-import * as vscode from 'vscode';
 import * as path from 'path';
 import { Node, Project, SourceFile, SyntaxKind } from 'ts-morph';
 
@@ -67,11 +67,12 @@ interface RouteDetectionResult {
 const routePathCache = new Map<string, RouteDetectionResult>();
 
 /**
- * Detect if current workspace has Next.js with Pages Router
+ * Detect if directory has Next.js with Pages Router
+ * @param rootDir - The root directory to check
  */
-export async function hasNextPages(): Promise<boolean> {
+export async function hasNextPages(rootDir: string): Promise<boolean> {
 	try {
-		const hasNext = await hasWorkspaceDependency(["next"]);
+		const hasNext = await hasWorkspaceDependency(rootDir, ["next"]);
 		if (hasNext) {
 			logger.info('Detected Next.js Pages Router project');
 		}
@@ -405,17 +406,16 @@ function convertToRoutes(
 
 /**
  * Parse all Next.js Pages Router routes using AST analysis
+ * @param rootDir - The root directory to parse routes from
  */
-export async function parseNextPagesRoutes(): Promise<ParsedRoute[]> {
+export async function parseNextPagesRoutes(rootDir: string): Promise<ParsedRoute[]> {
 	try {
 		logger.debug('Parsing Next.js Pages Router routes with AST');
-		const workspaceFolders = vscode.workspace.workspaceFolders;
-		if (!workspaceFolders || workspaceFolders.length === 0) {
-			logger.warn('No workspace folders found');
+		if (!rootDir) {
+			logger.warn('No root directory provided');
 			return [];
 		}
 
-		const rootDir = workspaceFolders[0].uri.fsPath;
 		const debug = createDebugLogger("next-pages:parser", true);
 
 		const tsconfigPath = await findTsConfig(rootDir);

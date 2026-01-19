@@ -1,9 +1,10 @@
 /**
  * tRPC procedure parser with AST-based detection
  * Provides deterministic and accurate parsing of tRPC routers
+ * Note: This module is decoupled from vscode - all functions accept rootDir as parameter
  */
 
-import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
 import {
   ArrowFunction,
@@ -42,32 +43,25 @@ import type {
 } from "./trpc-types";
 
 /**
- * Detect if current workspace has tRPC
+ * Detect if directory has tRPC
+ * @param rootDir - The root directory to check
  */
-export async function hasTRPC(): Promise<boolean> {
+export async function hasTRPC(rootDir: string): Promise<boolean> {
   try {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) {
-      return false;
-    }
+    const packageJsonPath = path.join(rootDir, "package.json");
+    try {
+      const content = await fs.promises.readFile(packageJsonPath, "utf-8");
+      const packageJson = JSON.parse(content);
 
-    // Check for package.json with @trpc/server dependency
-    for (const folder of workspaceFolders) {
-      const packageJsonUri = vscode.Uri.joinPath(folder.uri, "package.json");
-      try {
-        const content = await vscode.workspace.fs.readFile(packageJsonUri);
-        const packageJson = JSON.parse(content.toString());
-
-        if (
-          packageJson.dependencies?.["@trpc/server"] ||
-          packageJson.devDependencies?.["@trpc/server"]
-        ) {
-          logger.info("Detected tRPC project");
-          return true;
-        }
-      } catch {
-        // Continue to next workspace folder
+      if (
+        packageJson.dependencies?.["@trpc/server"] ||
+        packageJson.devDependencies?.["@trpc/server"]
+      ) {
+        logger.info("Detected tRPC project");
+        return true;
       }
+    } catch {
+      // package.json not found or invalid
     }
 
     return false;
@@ -79,17 +73,16 @@ export async function hasTRPC(): Promise<boolean> {
 
 /**
  * Parse tRPC router files using AST analysis
+ * @param rootDir - The root directory to parse routes from
  */
-export async function parseTRPCRouters(): Promise<ParsedRoute[]> {
+export async function parseTRPCRouters(rootDir: string): Promise<ParsedRoute[]> {
   try {
     logger.debug("Parsing tRPC routers with AST");
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-      logger.warn("No workspace folders found");
+    if (!rootDir) {
+      logger.warn("No root directory provided");
       return [];
     }
 
-    const rootDir = workspaceFolders[0].uri.fsPath;
     const debug = createDebugLogger(true); // Enable debug logging
 
     // Find tsconfig.json
@@ -173,13 +166,12 @@ export async function parseTRPCRouters(): Promise<ParsedRoute[]> {
 }
 
 /**
- * Find tsconfig.json in workspace
+ * Find tsconfig.json in directory
  */
 async function findTsConfig(rootDir: string): Promise<string | null> {
   const tsconfigPath = path.join(rootDir, "tsconfig.json");
   try {
-    const uri = vscode.Uri.file(tsconfigPath);
-    await vscode.workspace.fs.stat(uri);
+    await fs.promises.access(tsconfigPath);
     return tsconfigPath;
   } catch {
     return null;
@@ -693,33 +685,8 @@ function createDebugLogger(verbose?: boolean): DebugLogger {
 
 /**
  * Get tRPC base path from configuration
+ * Note: Currently returns the default tRPC base path
  */
-export async function getTRPCBasePath(): Promise<string> {
-  try {
-    // Look for tRPC endpoint configuration
-    const files = await vscode.workspace.findFiles(
-      "**/pages/api/trpc/[trpc].{ts,js}",
-      "**/node_modules/**",
-    );
-
-    if (files.length > 0) {
-      return "/api/trpc";
-    }
-
-    // Check for App Router tRPC endpoint
-    const appFiles = await vscode.workspace.findFiles(
-      "**/app/api/trpc/[...trpc]/route.{ts,js}",
-      "**/node_modules/**",
-    );
-
-    if (appFiles.length > 0) {
-      return "/api/trpc";
-    }
-
-    // Default
-    return "/api/trpc";
-  } catch (error) {
-    logger.error("Failed to get tRPC base path", error);
-    return "/api/trpc";
-  }
+export function getTRPCBasePath(): string {
+  return "/api/trpc";
 }
