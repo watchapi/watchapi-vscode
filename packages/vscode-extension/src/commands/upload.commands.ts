@@ -4,7 +4,7 @@
  */
 
 import * as vscode from "vscode";
-import { COMMANDS } from "@/shared/constants";
+import { COMMANDS, logger } from "@/shared";
 import { wrapCommandWithRefresh } from "./command-wrapper";
 import {
     detectAndParseRoutes,
@@ -39,12 +39,13 @@ export function registerUploadCommands(
                     const rootDir = workspaceFolders[0].uri.fsPath;
 
                     // Show progress while detecting and parsing routes
+                    const parserLogger = logger.createParserLogger();
                     const result = await vscode.window.withProgress(
                         {
                             location: vscode.ProgressLocation.Notification,
                             title: "Detecting API routes...",
                         },
-                        async () => detectAndParseRoutes(rootDir),
+                        async () => detectAndParseRoutes(rootDir, { logger: parserLogger }),
                     );
 
                     if (!hasAnyProjectType(result.detected)) {

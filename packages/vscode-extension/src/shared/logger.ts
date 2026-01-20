@@ -4,6 +4,7 @@
  */
 
 import * as vscode from 'vscode';
+import { Logger as ParserLogger, type LogOutput } from '@watchapi/parsers';
 import { EXTENSION_NAME } from './constants';
 
 export enum LogLevel {
@@ -47,6 +48,17 @@ class Logger {
 
 	dispose(): void {
 		this.outputChannel.dispose();
+	}
+
+	/**
+	 * Create a parser-compatible logger that outputs to the same channel
+	 * Use this when calling @watchapi/parsers functions
+	 */
+	createParserLogger(): ParserLogger {
+		const output: LogOutput = {
+			appendLine: (message: string) => this.outputChannel.appendLine(message),
+		};
+		return new ParserLogger({ output, logLevel: this.logLevel });
 	}
 
 	private log(level: LogLevel, message: string, data?: unknown): void {

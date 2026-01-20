@@ -18,9 +18,9 @@ import {
   Type,
 } from "ts-morph";
 
-import { logger } from "../lib/logger";
+import { logger as defaultLogger } from "../lib/logger";
 import { FILE_PATTERNS } from "../lib/constants";
-import type { ParsedRoute } from "../lib/types";
+import type { ParsedRoute, ParserOptions } from "../lib/types";
 import type { HttpMethod } from "../lib/constants";
 import {
   createDebugLogger,
@@ -40,8 +40,10 @@ import type { DebugLogger, NestJsRouteHandler } from "./nestjs-types";
 /**
  * Detect if directory has NestJS
  * @param rootDir - The root directory to check
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function hasNestJs(rootDir: string): Promise<boolean> {
+export async function hasNestJs(rootDir: string, options?: ParserOptions): Promise<boolean> {
+  const logger = options?.logger ?? defaultLogger;
   try {
     const hasNest = await hasWorkspaceDependency(rootDir, [
       "@nestjs/core",
@@ -60,8 +62,10 @@ export async function hasNestJs(rootDir: string): Promise<boolean> {
 /**
  * Parse NestJS controllers using AST analysis
  * @param rootDir - The root directory to parse routes from
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function parseNestJsRoutes(rootDir: string): Promise<ParsedRoute[]> {
+export async function parseNestJsRoutes(rootDir: string, options?: ParserOptions): Promise<ParsedRoute[]> {
+  const logger = options?.logger ?? defaultLogger;
   try {
     logger.debug("Parsing NestJS routes with AST");
     if (!rootDir) {
@@ -69,7 +73,7 @@ export async function parseNestJsRoutes(rootDir: string): Promise<ParsedRoute[]>
       return [];
     }
 
-    const debug = createDebugLogger("nestjs:parser", true);
+    const debug = createDebugLogger("nestjs:parser", true, options);
 
     const tsconfigPath = await findTsConfig(rootDir);
     const project = tsconfigPath

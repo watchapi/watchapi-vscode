@@ -6,7 +6,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { logger } from "../lib/logger";
+import { logger as defaultLogger } from "../lib/logger";
+import type { ParserOptions } from "../lib/types";
 
 /**
  * Check if a package.json at rootDir has any of the specified dependencies
@@ -69,11 +70,16 @@ export async function readFile(filePath: string): Promise<string | null> {
 
 /**
  * Create a debug logger with prefix
+ * @param prefix - The prefix to add to log messages
+ * @param verbose - Whether to enable verbose logging
+ * @param options - Optional parser options (e.g., custom logger)
  */
 export function createDebugLogger(
   prefix: string,
   verbose?: boolean,
+  options?: ParserOptions,
 ): (message: string) => void {
+  const logger = options?.logger ?? defaultLogger;
   return (message: string) => {
     if (!verbose) {
       return;

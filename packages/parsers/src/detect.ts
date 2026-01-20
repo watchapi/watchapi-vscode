@@ -3,7 +3,7 @@
  * Provides simplified API for detecting and parsing routes across all supported frameworks
  */
 
-import type { ParsedRoute } from "./lib/types";
+import type { ParsedRoute, ParserOptions } from "./lib/types";
 
 import { hasNextApp, parseNextAppRoutes } from "./next-app/next-app-parser";
 import { hasNextPages, parseNextPagesRoutes } from "./next-pages/next-pages-parser";
@@ -31,14 +31,15 @@ export interface DetectAndParseResult {
 /**
  * Detect which project types are present in the given directory
  * @param rootDir - The root directory to check
+ * @param options - Optional parser options (e.g., custom logger)
  * @returns Object indicating which frameworks are detected
  */
-export async function detectRoutes(rootDir: string): Promise<DetectedProjectTypes> {
+export async function detectRoutes(rootDir: string, options?: ParserOptions): Promise<DetectedProjectTypes> {
   const [nextApp, nextPages, trpc, nestjs] = await Promise.all([
-    hasNextApp(rootDir),
-    hasNextPages(rootDir),
-    hasTRPC(rootDir),
-    hasNestJs(rootDir),
+    hasNextApp(rootDir, options),
+    hasNextPages(rootDir, options),
+    hasTRPC(rootDir, options),
+    hasNestJs(rootDir, options),
   ]);
 
   return {
@@ -62,18 +63,19 @@ export function hasAnyProjectType(detected: DetectedProjectTypes): boolean {
  * Detect and parse all routes from the given directory
  * This is a convenience function that combines detection and parsing in one call
  * @param rootDir - The root directory to parse routes from
+ * @param options - Optional parser options (e.g., custom logger)
  * @returns Detection result and parsed routes
  */
-export async function detectAndParseRoutes(rootDir: string): Promise<DetectAndParseResult> {
+export async function detectAndParseRoutes(rootDir: string, options?: ParserOptions): Promise<DetectAndParseResult> {
   // First detect which frameworks are present
-  const detected = await detectRoutes(rootDir);
+  const detected = await detectRoutes(rootDir, options);
 
   // Then parse routes only for detected frameworks
   const [nextAppRoutes, nextPagesRoutes, trpcRoutes, nestRoutes] = await Promise.all([
-    detected.nextApp ? parseNextAppRoutes(rootDir) : Promise.resolve([]),
-    detected.nextPages ? parseNextPagesRoutes(rootDir) : Promise.resolve([]),
-    detected.trpc ? parseTRPCRouters(rootDir) : Promise.resolve([]),
-    detected.nestjs ? parseNestJsRoutes(rootDir) : Promise.resolve([]),
+    detected.nextApp ? parseNextAppRoutes(rootDir, options) : Promise.resolve([]),
+    detected.nextPages ? parseNextPagesRoutes(rootDir, options) : Promise.resolve([]),
+    detected.trpc ? parseTRPCRouters(rootDir, options) : Promise.resolve([]),
+    detected.nestjs ? parseNestJsRoutes(rootDir, options) : Promise.resolve([]),
   ]);
 
   const routes = [
