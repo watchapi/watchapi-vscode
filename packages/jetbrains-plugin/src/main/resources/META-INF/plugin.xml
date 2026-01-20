@@ -1,0 +1,67 @@
+<idea-plugin>
+    <id>com.watchapi.plugin</id>
+    <name>WatchAPI</name>
+    <vendor email="support@watchapi.dev" url="https://watchapi.dev">WatchAPI</vendor>
+
+    <description><![CDATA[
+    API route detection and monitoring for Next.js, tRPC, and NestJS projects.
+    <br><br>
+    Features:
+    <ul>
+        <li>Automatic API route detection</li>
+        <li>Support for Next.js App Router and Pages Router</li>
+        <li>tRPC procedure parsing</li>
+        <li>NestJS controller parsing</li>
+    </ul>
+    ]]></description>
+
+    <!-- Product compatibility -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Tool Window -->
+        <toolWindow
+            id="WatchAPI"
+            anchor="right"
+            factoryClass="com.watchapi.plugin.toolwindow.WatchApiToolWindowFactory"
+            icon="/icons/watchapi.svg"
+        />
+
+        <!-- Project Service -->
+        <projectService
+            serviceImplementation="com.watchapi.plugin.services.RouteDetectionService"
+        />
+
+        <!-- Startup Activity -->
+        <postStartupActivity
+            implementation="com.watchapi.plugin.WatchApiStartupActivity"
+        />
+
+    </extensions>
+
+    <actions>
+        <!-- Add menu group -->
+        <group id="WatchApi.Menu" text="WatchAPI" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+
+        <!-- Detect Routes Action -->
+        <action
+            id="WatchApi.DetectRoutes"
+            class="com.watchapi.plugin.actions.DetectRoutesAction"
+            text="Detect API Routes"
+            description="Scan project for API routes">
+            <add-to-group group-id="WatchApi.Menu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt W"/>
+        </action>
+
+        <!-- Refresh Action -->
+        <action
+            id="WatchApi.Refresh"
+            class="com.watchapi.plugin.actions.RefreshRoutesAction"
+            text="Refresh Routes"
+            description="Refresh detected routes">
+            <add-to-group group-id="WatchApi.Menu" anchor="after" relative-to-action="WatchApi.DetectRoutes"/>
+        </action>
+    </actions>
+</idea-plugin>

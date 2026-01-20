@@ -10,3 +10,22 @@ node_modules
 # Copied documentation files for vscode-extension publishing
 packages/vscode-extension/CHANGELOG.md
 packages/vscode-extension/LICENSE
+
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Plugin build artifacts
+*.zip
+
+.intellijPlatform
