@@ -14,4 +14,8 @@ export * from "./shared/zod-schema-parser";
 export * from "./detect";
 
 // Types
-export type { ParsedRoute } from "./lib/types";
+export type { ParsedRoute, ParserOptions } from "./lib/types";
+
+// Logger exports for custom output handlers (e.g., VSCode OutputChannel)
+export { Logger, LogLevel } from "./lib/logger";
+export type { LogOutput, LoggerConfig } from "./lib/logger";

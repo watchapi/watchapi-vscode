@@ -7,8 +7,8 @@
 import * as path from 'path';
 import { Node, Project, SourceFile } from 'ts-morph';
 
-import { logger } from '../lib/logger';
-import type { ParsedRoute } from '../lib/types';
+import { logger as defaultLogger } from '../lib/logger';
+import type { ParsedRoute, ParserOptions } from '../lib/types';
 import type { HttpMethod } from '../lib/constants';
 
 import {
@@ -71,8 +71,10 @@ const routePathCache = new Map<string, RouteDetectionResult>();
 /**
  * Detect if directory has Next.js with App Router
  * @param rootDir - The root directory to check
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function hasNextApp(rootDir: string): Promise<boolean> {
+export async function hasNextApp(rootDir: string, options?: ParserOptions): Promise<boolean> {
+	const logger = options?.logger ?? defaultLogger;
 	try {
 		const hasNext = await hasWorkspaceDependency(rootDir, ["next"]);
 		if (hasNext) {
@@ -363,8 +365,10 @@ function convertToRoutes(
 /**
  * Parse all Next.js App Router routes using AST analysis
  * @param rootDir - The root directory to parse routes from
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function parseNextAppRoutes(rootDir: string): Promise<ParsedRoute[]> {
+export async function parseNextAppRoutes(rootDir: string, options?: ParserOptions): Promise<ParsedRoute[]> {
+	const logger = options?.logger ?? defaultLogger;
 	try {
 		logger.debug('Parsing Next.js App Router routes with AST');
 		if (!rootDir) {
@@ -372,7 +376,7 @@ export async function parseNextAppRoutes(rootDir: string): Promise<ParsedRoute[]
 			return [];
 		}
 
-		const debug = createDebugLogger("next-app:parser", true);
+		const debug = createDebugLogger("next-app:parser", true, options);
 
 		const tsconfigPath = await findTsConfig(rootDir);
 		if (!tsconfigPath) {

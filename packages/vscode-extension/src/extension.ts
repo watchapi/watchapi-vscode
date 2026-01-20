@@ -315,7 +315,8 @@ async function checkProjectType(): Promise<void> {
     }
 
     const rootDir = workspaceFolders[0].uri.fsPath;
-    const detected = await detectRoutes(rootDir);
+    const parserLogger = logger.createParserLogger();
+    const detected = await detectRoutes(rootDir, { logger: parserLogger });
     const canUpload = hasAnyProjectType(detected);
 
     await vscode.commands.executeCommand(

@@ -1,6 +1,6 @@
 /**
  * Simple logger utility for parsers
- * Can be enhanced to use different logging backends
+ * Supports custom output handlers (e.g., VSCode OutputChannel)
  */
 
 export enum LogLevel {
@@ -10,11 +10,39 @@ export enum LogLevel {
 	ERROR = 3,
 }
 
-class Logger {
+/**
+ * Interface for custom log output handlers
+ * Compatible with VSCode OutputChannel and similar APIs
+ */
+export interface LogOutput {
+	appendLine(message: string): void;
+}
+
+/**
+ * Logger configuration options
+ */
+export interface LoggerConfig {
+	output?: LogOutput;
+	logLevel?: LogLevel;
+}
+
+export class Logger {
 	private logLevel: LogLevel = LogLevel.INFO;
+	private output?: LogOutput;
+
+	constructor(config?: LoggerConfig) {
+		if (config?.logLevel !== undefined) {
+			this.logLevel = config.logLevel;
+		}
+		this.output = config?.output;
+	}
 
 	setLogLevel(level: LogLevel): void {
 		this.logLevel = level;
+	}
+
+	setOutput(output: LogOutput | undefined): void {
+		this.output = output;
 	}
 
 	debug(message: string, data?: unknown): void {
@@ -54,19 +82,23 @@ class Logger {
 			}
 		}
 
-		// Use console for logging
-		const consoleFn =
-			level === LogLevel.ERROR
-				? console.error
-				: level === LogLevel.WARN
-					? console.warn
-					: level === LogLevel.DEBUG
-						? console.debug
-						: console.log;
+		// Use custom output if provided, otherwise fall back to console
+		if (this.output) {
+			this.output.appendLine(logMessage);
+		} else {
+			const consoleFn =
+				level === LogLevel.ERROR
+					? console.error
+					: level === LogLevel.WARN
+						? console.warn
+						: level === LogLevel.DEBUG
+							? console.debug
+							: console.log;
 
-		consoleFn(logMessage);
+			consoleFn(logMessage);
+		}
 	}
 }
 
-// Export singleton instance
+// Export singleton instance for backward compatibility
 export const logger = new Logger();

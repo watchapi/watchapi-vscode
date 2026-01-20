@@ -3,6 +3,15 @@
  */
 
 import { HttpMethod } from "./constants";
+import type { Logger } from "./logger";
+
+/**
+ * Options for parser functions
+ */
+export interface ParserOptions {
+	/** Custom logger instance for output (e.g., VSCode OutputChannel wrapper) */
+	logger?: Logger;
+}
 
 // API Endpoint types
 export interface ApiEndpoint {

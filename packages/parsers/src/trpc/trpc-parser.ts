@@ -18,8 +18,8 @@ import {
   SyntaxKind,
 } from "ts-morph";
 
-import { logger } from "../lib/logger";
-import type { ParsedRoute } from "../lib/types";
+import { logger as defaultLogger } from "../lib/logger";
+import type { ParsedRoute, ParserOptions } from "../lib/types";
 import { extractBodyFromSchema } from "../shared/zod-schema-parser";
 
 import { DEFAULT_TRPC_INCLUDE, SIDE_EFFECT_PATTERNS } from "./trpc-constants";
@@ -45,8 +45,10 @@ import type {
 /**
  * Detect if directory has tRPC
  * @param rootDir - The root directory to check
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function hasTRPC(rootDir: string): Promise<boolean> {
+export async function hasTRPC(rootDir: string, options?: ParserOptions): Promise<boolean> {
+  const logger = options?.logger ?? defaultLogger;
   try {
     const packageJsonPath = path.join(rootDir, "package.json");
     try {
@@ -74,8 +76,10 @@ export async function hasTRPC(rootDir: string): Promise<boolean> {
 /**
  * Parse tRPC router files using AST analysis
  * @param rootDir - The root directory to parse routes from
+ * @param options - Optional parser options (e.g., custom logger)
  */
-export async function parseTRPCRouters(rootDir: string): Promise<ParsedRoute[]> {
+export async function parseTRPCRouters(rootDir: string, options?: ParserOptions): Promise<ParsedRoute[]> {
+  const logger = options?.logger ?? defaultLogger;
   try {
     logger.debug("Parsing tRPC routers with AST");
     if (!rootDir) {
@@ -83,7 +87,7 @@ export async function parseTRPCRouters(rootDir: string): Promise<ParsedRoute[]> 
       return [];
     }
 
-    const debug = createDebugLogger(true); // Enable debug logging
+    const debug = createDebugLogger(true, options); // Enable debug logging
 
     // Find tsconfig.json
     const tsconfigPath = await findTsConfig(rootDir);
@@ -673,8 +677,11 @@ function convertToRoutes(
 
 /**
  * Create debug logger
+ * @param verbose - Whether to enable verbose logging
+ * @param options - Optional parser options (e.g., custom logger)
  */
-function createDebugLogger(verbose?: boolean): DebugLogger {
+function createDebugLogger(verbose?: boolean, options?: ParserOptions): DebugLogger {
+  const logger = options?.logger ?? defaultLogger;
   return (message: string) => {
     if (!verbose) {
       return;
