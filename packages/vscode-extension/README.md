@@ -27,7 +27,7 @@
 
 ## Supported Environments
 
-- **Next.js (App router), NestJS and tRPC** - main focus
+- **Next.js (App router), NestJS, tRPC and PayloadCMS** - main focus
 - **Next.js (Pages router)** - less accurate
 
 ![WatchAPI](./assets/readme/execute-request.gif "Execute and inspect API requests inside VS Code")
