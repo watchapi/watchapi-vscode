@@ -84,23 +84,14 @@ export function resolveEnvironmentFromEnvFile(
 
 /**
  * Create the environment file with default structure
- * @param options - Configuration options
- * @param options.silent - If true, don't show info message (default: false)
- * @param options.openFile - If true, open the file after creation (default: false)
  * @returns true if file was created, false if workspace not found or creation failed
  */
-export async function createEnvFile(
-    options: { silent?: boolean; openFile?: boolean } = {},
-): Promise<boolean> {
-    const { silent = false, openFile = false } = options;
-
+export async function createEnvFile(): Promise<boolean> {
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
-        if (!silent) {
-            vscode.window.showErrorMessage(
-                "No workspace folder found. Please open a folder first.",
-            );
-        }
+        vscode.window.showErrorMessage(
+            "No workspace folder found. Please open a folder first.",
+        );
         return false;
     }
 
@@ -123,42 +114,29 @@ export async function createEnvFile(
 
         logger.info(`Created ${ENV_FILE_NAME} file`);
 
-        if (!silent) {
-            vscode.window.showInformationMessage(
-                `${ENV_FILE_NAME} was created automatically`,
-            );
-        }
-
-        // Open the file if requested
-        if (openFile) {
-            const doc = await vscode.workspace.openTextDocument(envUri);
-            await vscode.window.showTextDocument(doc);
-        }
+        vscode.window.showInformationMessage(
+            `${ENV_FILE_NAME} was created automatically`,
+        );
 
         return true;
     } catch (error) {
         logger.error(`Failed to create ${ENV_FILE_NAME}:`, error);
-        if (!silent) {
-            vscode.window.showErrorMessage(
-                `Failed to create ${ENV_FILE_NAME}: ${String(error)}`,
-            );
-        }
+        vscode.window.showErrorMessage(
+            `Failed to create ${ENV_FILE_NAME}: ${String(error)}`,
+        );
         return false;
     }
 }
 
 /**
  * Ensure environment file exists, creating it if necessary
- * @param options - Configuration options (see createEnvFile)
  * @returns true if file was created, false if it already existed or creation failed
  */
-export async function ensureEnvFile(
-    options: { silent?: boolean; openFile?: boolean } = {},
-): Promise<boolean> {
+export async function ensureEnvFile(): Promise<boolean> {
     const exists = await checkEnvFileExists();
     if (exists) {
         return false; // File already exists
     }
 
-    return await createEnvFile(options);
+    return await createEnvFile();
 }
