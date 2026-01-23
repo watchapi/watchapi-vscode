@@ -161,11 +161,6 @@
                 "title": "WatchAPI: Sync from Code",
                 "icon": "$(sync)",
                 "when": "watchapi.canUpload"
-            },
-            {
-                "command": "watchapi.executeRequest",
-                "title": "Execute Request",
-                "icon": "$(play)"
             }
         ],
         "viewsWelcome": [
@@ -240,11 +235,6 @@
                 {
                     "command": "watchapi.addEndpoint",
                     "when": "view == watchapi.collections && viewItem == collection",
-                    "group": "inline"
-                },
-                {
-                    "command": "watchapi.executeRequest",
-                    "when": "view == watchapi.collections && viewItem == endpoint",
                     "group": "inline"
                 },
                 {

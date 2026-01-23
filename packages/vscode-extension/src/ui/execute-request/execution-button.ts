@@ -19,33 +19,6 @@ export class ExecutionButton {
     registerCommand(context: vscode.ExtensionContext): void {
         context.subscriptions.push(
             vscode.commands.registerCommand(
-                "watchapi.executeRequest",
-                async (
-                    item: ApiEndpoint | EndpointNode,
-                    itemsOrEnvironment?: EndpointNode[] | Environment,
-                    maybeEnvironment?: Environment,
-                ) => {
-                    const items = Array.isArray(itemsOrEnvironment)
-                        ? itemsOrEnvironment
-                        : [item];
-                    let environment = Array.isArray(itemsOrEnvironment)
-                        ? maybeEnvironment
-                        : itemsOrEnvironment;
-
-                    for (const target of items) {
-                        const endpoint = this.normalizeEndpoint(target);
-                        if (!endpoint) continue;
-                        if (!environment) {
-                            environment = await this.loadEnvironment();
-                        }
-                        await this.executeRequest(endpoint, { environment });
-                    }
-                },
-            ),
-        );
-
-        context.subscriptions.push(
-            vscode.commands.registerCommand(
                 "watchapi.executeFromEditor",
                 async (partialEndpoint: Partial<ApiEndpoint>) => {
                     await this.executeFromEditor(partialEndpoint);
