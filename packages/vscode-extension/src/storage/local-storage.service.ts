@@ -123,7 +123,6 @@ export class LocalStorageService {
     const endpoint: ApiEndpoint = {
       id: randomUUID(),
       ...input,
-      expectedStatus: input.expectedStatus ?? 200,
       timeout: input.timeout ?? 30000,
       interval: input.interval ?? 300000,
       isActive: input.isActive ?? false,
