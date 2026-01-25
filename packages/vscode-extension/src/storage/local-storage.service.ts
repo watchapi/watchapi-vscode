@@ -16,10 +16,11 @@ export class LocalStorageService {
   constructor(private context: vscode.ExtensionContext) {}
 
   // Collections
+  // Note: Using workspaceState for per-project scoping (data is isolated per workspace)
 
   async getCollections(): Promise<Collection[]> {
     return (
-      this.context.globalState.get<Collection[]>(STORAGE_KEYS.COLLECTIONS) || []
+      this.context.workspaceState.get<Collection[]>(STORAGE_KEYS.COLLECTIONS) || []
     );
   }
 
@@ -42,7 +43,7 @@ export class LocalStorageService {
     };
 
     collections.push(collection);
-    await this.context.globalState.update(
+    await this.context.workspaceState.update(
       STORAGE_KEYS.COLLECTIONS,
       collections,
     );
@@ -67,7 +68,7 @@ export class LocalStorageService {
       updatedAt: new Date().toISOString(),
     };
 
-    await this.context.globalState.update(
+    await this.context.workspaceState.update(
       STORAGE_KEYS.COLLECTIONS,
       collections,
     );
@@ -86,12 +87,12 @@ export class LocalStorageService {
     // Also delete all endpoints in this collection
     const endpoints = await this.getEndpoints();
     const filteredEndpoints = endpoints.filter((e) => e.collectionId !== id);
-    await this.context.globalState.update(
+    await this.context.workspaceState.update(
       STORAGE_KEYS.ENDPOINTS,
       filteredEndpoints,
     );
 
-    await this.context.globalState.update(STORAGE_KEYS.COLLECTIONS, filtered);
+    await this.context.workspaceState.update(STORAGE_KEYS.COLLECTIONS, filtered);
 
     return true;
   }
@@ -100,7 +101,7 @@ export class LocalStorageService {
 
   async getEndpoints(): Promise<ApiEndpoint[]> {
     return (
-      this.context.globalState.get<ApiEndpoint[]>(STORAGE_KEYS.ENDPOINTS) || []
+      this.context.workspaceState.get<ApiEndpoint[]>(STORAGE_KEYS.ENDPOINTS) || []
     );
   }
 
@@ -132,7 +133,7 @@ export class LocalStorageService {
     };
 
     endpoints.push(endpoint);
-    await this.context.globalState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
+    await this.context.workspaceState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
 
     return endpoint;
   }
@@ -154,7 +155,7 @@ export class LocalStorageService {
       updatedAt: new Date().toISOString(),
     };
 
-    await this.context.globalState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
+    await this.context.workspaceState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
 
     return endpoints[index];
   }
@@ -167,7 +168,7 @@ export class LocalStorageService {
       return false;
     }
 
-    await this.context.globalState.update(STORAGE_KEYS.ENDPOINTS, filtered);
+    await this.context.workspaceState.update(STORAGE_KEYS.ENDPOINTS, filtered);
 
     return true;
   }
@@ -175,18 +176,18 @@ export class LocalStorageService {
   // Bulk operations (for sync)
 
   async setCollections(collections: Collection[]): Promise<void> {
-    await this.context.globalState.update(
+    await this.context.workspaceState.update(
       STORAGE_KEYS.COLLECTIONS,
       collections,
     );
   }
 
   async setEndpoints(endpoints: ApiEndpoint[]): Promise<void> {
-    await this.context.globalState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
+    await this.context.workspaceState.update(STORAGE_KEYS.ENDPOINTS, endpoints);
   }
 
   async clearAll(): Promise<void> {
-    await this.context.globalState.update(STORAGE_KEYS.COLLECTIONS, []);
-    await this.context.globalState.update(STORAGE_KEYS.ENDPOINTS, []);
+    await this.context.workspaceState.update(STORAGE_KEYS.COLLECTIONS, []);
+    await this.context.workspaceState.update(STORAGE_KEYS.ENDPOINTS, []);
   }
 }

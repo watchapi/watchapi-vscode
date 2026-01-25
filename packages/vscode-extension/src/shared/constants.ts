@@ -44,6 +44,12 @@ export const SYNC_CONFIG = {
     RETRY_DELAY: 1000, // 1 second
 } as const;
 
+// File Watcher Configuration (real-time sync on save)
+export const FILE_WATCHER_CONFIG = {
+    DEBOUNCE_MS: 500, // Batch rapid saves
+    ENABLED_BY_DEFAULT: true,
+} as const;
+
 // HTTP Methods
 export const HTTP_METHODS = [
     "GET",

@@ -70,13 +70,13 @@
                 "command": "watchapi.deleteEndpoint",
                 "key": "delete",
                 "mac": "cmd+backspace",
-                "when": "view == watchapi.collections && viewItem == endpoint"
+                "when": "view =~ /^watchapi\\.collections/ && viewItem == endpoint"
             },
             {
                 "command": "watchapi.deleteCollection",
                 "key": "delete",
                 "mac": "cmd+backspace",
-                "when": "view == watchapi.collections && viewItem == collection"
+                "when": "view =~ /^watchapi\\.collections/ && viewItem == collection"
             }
         ],
         "uriHandlers": [
@@ -108,23 +108,18 @@
                 "command": "watchapi.deleteCollection",
                 "title": "Delete",
                 "icon": "$(bin)",
-                "enablement": "view == watchapi.collections"
+                "enablement": "view =~ /^watchapi\\.collections/"
             },
             {
                 "command": "watchapi.addEndpoint",
                 "title": "Add Endpoint",
                 "icon": "$(add)",
-                "enablement": "view == watchapi.collections"
-            },
-            {
-                "command": "watchapi.uploadEndpoints",
-                "title": "WatchAPI: Sync from Code",
-                "icon": "$(sync)"
+                "enablement": "view =~ /^watchapi\\.collections/"
             },
             {
                 "command": "watchapi.deleteEndpoint",
                 "title": "Delete",
-                "enablement": "view == watchapi.collections"
+                "enablement": "view =~ /^watchapi\\.collections/"
             },
             {
                 "command": "watchapi.login",
@@ -159,8 +154,7 @@
             {
                 "command": "watchapi.uploadEndpoints",
                 "title": "WatchAPI: Sync from Code",
-                "icon": "$(sync)",
-                "when": "watchapi.canUpload"
+                "icon": "$(sync)"
             }
         ],
         "viewsWelcome": [
@@ -170,11 +164,14 @@
             },
             {
                 "view": "watchapi.collections",
-                "contents": "[$(sync) Sync from Code](command:watchapi.uploadEndpoints)",
-                "when": "watchapi.canUpload"
+                "contents": "[$(add) New Collection](command:watchapi.addCollection)"
             },
             {
-                "view": "watchapi.collections",
+                "view": "watchapi.collectionsExplorer",
+                "contents": "No collections yet.\n\n"
+            },
+            {
+                "view": "watchapi.collectionsExplorer",
                 "contents": "[$(add) New Collection](command:watchapi.addCollection)"
             }
         ],
@@ -182,64 +179,64 @@
             "view/title": [
                 {
                     "command": "watchapi.findEndpoint",
-                    "when": "view == watchapi.collections",
+                    "when": "view =~ /^watchapi\\.collections/",
                     "group": "navigation@0"
                 },
                 {
                     "command": "watchapi.login",
-                    "when": "view == watchapi.collections && !watchapi.loggedIn",
+                    "when": "view =~ /^watchapi\\.collections/ && !watchapi.loggedIn",
                     "group": "menu@1"
                 },
                 {
                     "command": "watchapi.openSettings",
-                    "when": "view == watchapi.collections",
+                    "when": "view =~ /^watchapi\\.collections/",
                     "group": "menu@2"
                 },
                 {
                     "command": "watchapi.export",
-                    "when": "view == watchapi.collections",
+                    "when": "view =~ /^watchapi\\.collections/",
                     "group": "menu@2"
                 },
                 {
                     "command": "watchapi.logout",
-                    "when": "view == watchapi.collections && watchapi.loggedIn",
+                    "when": "view =~ /^watchapi\\.collections/ && watchapi.loggedIn",
                     "group": "menu@3"
                 },
                 {
                     "command": "watchapi.switchOrganization",
-                    "when": "view == watchapi.collections && watchapi.loggedIn",
+                    "when": "view =~ /^watchapi\\.collections/ && watchapi.loggedIn",
                     "group": "menu@4"
                 },
                 {
                     "command": "watchapi.addCollection",
-                    "when": "view == watchapi.collections",
+                    "when": "view =~ /^watchapi\\.collections/",
                     "group": "navigation@1"
                 },
                 {
                     "command": "watchapi.uploadEndpoints",
-                    "when": "view == watchapi.collections && watchapi.canUpload",
+                    "when": "view =~ /^watchapi\\.collections/ && watchapi.canUpload",
                     "group": "navigation@2"
                 },
                 {
                     "command": "watchapi.refresh",
-                    "when": "view == watchapi.collections",
+                    "when": "view =~ /^watchapi\\.collections/",
                     "group": "navigation@3"
                 }
             ],
             "view/item/context": [
                 {
                     "command": "watchapi.deleteCollection",
-                    "when": "view == watchapi.collections && (viewItem == collection || !viewItem)",
+                    "when": "view =~ /^watchapi\\.collections/ && (viewItem == collection || !viewItem)",
                     "group": "navigation@99"
                 },
                 {
                     "command": "watchapi.addEndpoint",
-                    "when": "view == watchapi.collections && viewItem == collection",
+                    "when": "view =~ /^watchapi\\.collections/ && viewItem == collection",
                     "group": "inline"
                 },
                 {
                     "command": "watchapi.deleteEndpoint",
-                    "when": "view == watchapi.collections && (viewItem == endpoint || !viewItem)",
+                    "when": "view =~ /^watchapi\\.collections/ && (viewItem == endpoint || !viewItem)",
                     "group": "navigation@99"
                 }
             ]
@@ -258,6 +255,12 @@
                 {
                     "id": "watchapi.collections",
                     "name": ""
+                }
+            ],
+            "explorer": [
+                {
+                    "id": "watchapi.collectionsExplorer",
+                    "name": "WatchAPI"
                 }
             ]
         },
@@ -281,6 +284,12 @@
                     "default": true,
                     "markdownDescription": "Automatically add an empty `Authorization` header to new endpoints. Useful for APIs that require authentication.",
                     "order": 3
+                },
+                "watchapi.autoSync.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "Automatically sync endpoints when source files (routes, controllers) are saved.",
+                    "order": 4
                 }
             }
         },

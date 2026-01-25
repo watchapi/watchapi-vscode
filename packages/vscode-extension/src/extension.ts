@@ -13,7 +13,7 @@ import {
     EndpointNode,
 } from "@/collections";
 import { EndpointsService } from "@/endpoints";
-import { CacheService, SyncService } from "@/sync";
+import { CacheService, SyncService, FileWatcherService } from "@/sync";
 import { StatusBarManager, UploadModal } from "@/ui";
 import { detectRoutes, hasAnyProjectType } from "@watchapi/parsers";
 import { EndpointsFileSystemProvider } from "./endpoints/endpoints.fs";
@@ -102,11 +102,18 @@ export async function activate(
             context,
         );
 
-        // Register tree view
+        // Register tree views (activity bar + explorer)
         const treeView = vscode.window.createTreeView("watchapi.collections", {
             treeDataProvider: treeProvider,
             canSelectMany: true,
         });
+        const explorerTreeView = vscode.window.createTreeView(
+            "watchapi.collectionsExplorer",
+            {
+                treeDataProvider: treeProvider,
+                canSelectMany: true,
+            },
+        );
 
         context.subscriptions.push(
             fsProvider.onDidChangeFile(() => {
@@ -140,6 +147,14 @@ export async function activate(
                     await authService.handleAuthCallback(uri);
                 },
             }),
+        );
+
+        // Initialize file watcher for real-time sync on save
+        new FileWatcherService(
+            collectionsService,
+            endpointsService,
+            treeProvider,
+            context,
         );
 
         // Extension works locally by default, sync only when authenticated
@@ -185,6 +200,7 @@ export async function activate(
             statusBar,
             treeProvider,
             treeView,
+            explorerTreeView,
         );
 
         logger.info("WatchAPI extension activated successfully");
