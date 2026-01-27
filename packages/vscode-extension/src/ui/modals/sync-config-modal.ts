@@ -1,6 +1,6 @@
 /**
- * Upload modal
- * Shows detected routes and allows user to select which to upload
+ * Sync config modal
+ * Shows detected routes and allows user to select which to sync
  */
 
 import * as vscode from "vscode";
@@ -11,27 +11,27 @@ import type { ParsedRoute, Collection, ApiEndpoint } from "@/shared/types";
 import { humanizeRouteName } from "@/endpoints/endpoints.editor";
 import { CollectionsTreeProvider } from "@/collections";
 
-export class UploadModal {
+export class SyncConfigModal {
     private collectionsService: CollectionsService;
     private endpointsService: EndpointsService;
 
     constructor(
         collectionsService: CollectionsService,
         endpointsService: EndpointsService,
-        private readonly context: vscode.ExtensionContext
+        private readonly context: vscode.ExtensionContext,
     ) {
         this.collectionsService = collectionsService;
         this.endpointsService = endpointsService;
     }
 
     /**
-     * Show upload modal with detected routes
+     * Show config modal with detected routes for selection
      */
     async show(routes: ParsedRoute[]): Promise<void> {
         try {
             if (routes.length === 0) {
                 vscode.window.showInformationMessage(
-                    "No API routes detected in this project"
+                    "No API routes detected in this project",
                 );
                 return;
             }
@@ -42,13 +42,13 @@ export class UploadModal {
             }));
 
             logger.info(
-                `Showing upload modal with ${routesWithNames.length} routes`
+                `Showing sync config modal with ${routesWithNames.length} routes`,
             );
 
-            // Step 1: Select routes to upload
+            // Step 1: Select routes to sync
             const selectedRoutes = await this.selectRoutes(routesWithNames);
             if (!selectedRoutes || selectedRoutes.length === 0) {
-                logger.info("Upload cancelled: no routes selected");
+                logger.info("Sync cancelled: no routes selected");
                 return;
             }
 
@@ -58,10 +58,42 @@ export class UploadModal {
             const groups = this.groupRoutesByPrefix(routesWithDomain);
 
             // Step 3: Pull endpoints (override mechanism)
-            await this.uploadGroupedEndpoints(groups);
+            await this.syncGroupedEndpoints(groups);
         } catch (error) {
-            logger.error("Upload failed", error);
-            vscode.window.showErrorMessage(`Upload failed: ${error}`);
+            logger.error("Sync failed", error);
+            vscode.window.showErrorMessage(`Sync failed: ${error}`);
+        }
+    }
+
+    /**
+     * Sync all routes without showing selection modal (one-click sync)
+     */
+    async syncAll(routes: ParsedRoute[]): Promise<void> {
+        try {
+            if (routes.length === 0) {
+                vscode.window.showInformationMessage(
+                    "No API routes detected in this project",
+                );
+                return;
+            }
+
+            const routesWithNames = routes.map((r) => ({
+                ...r,
+                name: humanizeRouteName(r),
+            }));
+
+            logger.info(`Syncing ${routesWithNames.length} routes from code`);
+
+            const routesWithDomain = this.applyDomainPrefix(routesWithNames);
+
+            // Group collections
+            const groups = this.groupRoutesByPrefix(routesWithDomain);
+
+            // Pull endpoints (override mechanism)
+            await this.syncGroupedEndpoints(groups);
+        } catch (error) {
+            logger.error("Sync failed", error);
+            vscode.window.showErrorMessage(`Sync failed: ${error}`);
         }
     }
 
@@ -76,7 +108,7 @@ export class UploadModal {
      * Show route selection quick pick
      */
     private async selectRoutes(
-        routes: ParsedRoute[]
+        routes: ParsedRoute[],
     ): Promise<ParsedRoute[] | undefined> {
         interface RouteQuickPickItem extends vscode.QuickPickItem {
             route: ParsedRoute;
@@ -88,7 +120,7 @@ export class UploadModal {
             // detail: route.filePath,
             iconPath: CollectionsTreeProvider.getMethodIconPath(
                 this.context,
-                route.method
+                route.method,
             ),
             route,
             picked: true, // Select all by default
@@ -141,8 +173,8 @@ export class UploadModal {
         },
     } as const;
 
-    private async uploadGroupedEndpoints(
-        groups: Map<string, ParsedRoute[]>
+    private async syncGroupedEndpoints(
+        groups: Map<string, ParsedRoute[]>,
     ): Promise<void> {
         const existingCollections = await this.collectionsService.getAll();
         const workspaceRoot =
@@ -150,7 +182,7 @@ export class UploadModal {
 
         const total = Array.from(groups.values()).reduce(
             (sum, routes) => sum + routes.length,
-            0
+            0,
         );
 
         const stats = { processed: 0, created: 0, updated: 0, deactivated: 0 };
@@ -165,18 +197,18 @@ export class UploadModal {
                 for (const [groupName, routes] of groups) {
                     const collection = await this.findOrCreateCollection(
                         existingCollections,
-                        groupName
+                        groupName,
                     );
                     const existingEndpoints =
                         await this.endpointsService.getByCollectionId(
-                            collection.id
+                            collection.id,
                         );
 
                     // Build merge plan
                     const plan = this.buildMergePlan(
                         routes,
                         existingEndpoints,
-                        workspaceRoot
+                        workspaceRoot,
                     );
 
                     // Execute merge plan
@@ -191,9 +223,9 @@ export class UploadModal {
                 }
 
                 logger.info(
-                    `Pull complete: ${stats.created} created, ${stats.updated} updated, ${stats.deactivated} deactivated`
+                    `Pull complete: ${stats.created} created, ${stats.updated} updated, ${stats.deactivated} deactivated`,
                 );
-            }
+            },
         );
 
         this.showMergeSummary(stats);
@@ -206,12 +238,12 @@ export class UploadModal {
     private buildMergePlan(
         sourceRoutes: ParsedRoute[],
         existingEndpoints: ApiEndpoint[],
-        workspaceRoot: string
+        workspaceRoot: string,
     ) {
         const existingByExternalId = new Map(
             existingEndpoints
                 .filter((e) => e.externalId)
-                .map((e) => [e.externalId!, e])
+                .map((e) => [e.externalId!, e]),
         );
 
         const sourceExternalIds = new Set<string>();
@@ -223,7 +255,7 @@ export class UploadModal {
         for (const route of sourceRoutes) {
             const externalId = this.endpointsService.generateExternalId(
                 route,
-                workspaceRoot
+                workspaceRoot,
             );
             sourceExternalIds.add(externalId);
 
@@ -237,7 +269,7 @@ export class UploadModal {
 
         // Find orphaned endpoints
         const toDeactivate = existingEndpoints.filter(
-            (e) => e.externalId && !sourceExternalIds.has(e.externalId)
+            (e) => e.externalId && !sourceExternalIds.has(e.externalId),
         );
 
         return { toCreate, toUpdate, toDeactivate };
@@ -249,13 +281,13 @@ export class UploadModal {
     private async executeMergePlan(
         plan: ReturnType<typeof this.buildMergePlan>,
         collectionId: string,
-        stats: { created: number; updated: number; deactivated: number }
+        stats: { created: number; updated: number; deactivated: number },
     ) {
         // Execute updates
         for (const { route, existing } of plan.toUpdate) {
             const updateFields = this.buildUpdatePayload(
                 route,
-                this.MERGE_STRATEGY.onMatch.fields
+                this.MERGE_STRATEGY.onMatch.fields,
             );
             await this.endpointsService.update(existing.id, updateFields);
             stats.updated++;
@@ -267,7 +299,7 @@ export class UploadModal {
                 route,
                 externalId,
                 collectionId,
-                this.MERGE_STRATEGY.onCreate.defaults
+                this.MERGE_STRATEGY.onCreate.defaults,
             );
             await this.endpointsService.create(createFields);
             stats.created++;
@@ -283,7 +315,7 @@ export class UploadModal {
      */
     private buildUpdatePayload(
         route: ParsedRoute,
-        fields: readonly string[]
+        fields: readonly string[],
     ): Record<string, unknown> {
         const payload: Record<string, unknown> = {};
         // Map code fields to schema layers
@@ -310,7 +342,7 @@ export class UploadModal {
         route: ParsedRoute,
         externalId: string,
         collectionId: string,
-        defaults: Record<string, unknown>
+        defaults: Record<string, unknown>,
     ) {
         return {
             externalId,
@@ -328,51 +360,11 @@ export class UploadModal {
     }
 
     /**
-     * REFERENCE IMPLEMENTATION: Apply user overrides on top of schema defaults
-     * This should be used at runtime when executing requests (e.g., in EndpointsService)
-     *
-     * @example
-     * // In monitoring/execution service:
-     * const effectiveBody = this.applyOverrides(
-     *   endpoint.bodySchema,
-     *   endpoint.bodyOverrides
-     * );
-     */
-    private applyOverrides<T extends Record<string, unknown>>(
-        schema: T | null,
-        overrides: Partial<T> | null
-    ): T | null {
-        if (!schema && !overrides) return null;
-        return {
-            ...(schema || {}),
-            ...(overrides || {}),
-        } as T;
-    }
-
-    /**
-     * REFERENCE IMPLEMENTATION: Build effective headers for request execution
-     * This should be used at runtime when executing requests (e.g., in EndpointsService)
-     *
-     * @example
-     * // In monitoring/execution service:
-     * const effectiveHeaders = this.buildEffectiveHeaders(endpoint);
-     */
-    private buildEffectiveHeaders(endpoint: {
-        headersSchema?: Record<string, string> | null;
-        headersOverrides?: Record<string, string> | null;
-    }): Record<string, string> {
-        return {
-            ...(endpoint.headersSchema || {}),
-            ...(endpoint.headersOverrides || {}),
-        };
-    }
-
-    /**
      * Find or create collection
      */
     private async findOrCreateCollection(
         existingCollections: Collection[],
-        groupName: string
+        groupName: string,
     ) {
         const existing = existingCollections.find((c) => c.name === groupName);
         if (existing) return existing;
@@ -406,7 +398,7 @@ export class UploadModal {
      * Group routes by prefix for suggested collection names
      */
     private groupRoutesByPrefix(
-        routes: ParsedRoute[]
+        routes: ParsedRoute[],
     ): Map<string, ParsedRoute[]> {
         const groups = new Map<string, ParsedRoute[]>();
 

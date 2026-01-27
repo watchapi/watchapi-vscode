@@ -3,4 +3,4 @@
  */
 
 export * from "./status-bar";
-export * from "./modals/upload-modal";
+export * from "./modals/sync-config-modal";

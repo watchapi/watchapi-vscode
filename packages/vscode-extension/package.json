@@ -152,9 +152,14 @@
                 "icon": "$(search)"
             },
             {
-                "command": "watchapi.uploadEndpoints",
+                "command": "watchapi.syncFromCode",
                 "title": "WatchAPI: Sync from Code",
                 "icon": "$(sync)"
+            },
+            {
+                "command": "watchapi.configureSync",
+                "title": "Configure Sync",
+                "icon": "$(gear)"
             }
         ],
         "viewsWelcome": [
@@ -213,9 +218,14 @@
                     "group": "navigation@1"
                 },
                 {
-                    "command": "watchapi.uploadEndpoints",
+                    "command": "watchapi.syncFromCode",
                     "when": "view =~ /^watchapi\\.collections/ && watchapi.canUpload",
                     "group": "navigation@2"
+                },
+                {
+                    "command": "watchapi.configureSync",
+                    "when": "view =~ /^watchapi\\.collections/ && watchapi.canUpload",
+                    "group": "menu@5"
                 },
                 {
                     "command": "watchapi.refresh",

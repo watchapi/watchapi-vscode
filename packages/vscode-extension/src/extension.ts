@@ -14,7 +14,7 @@ import {
 } from "@/collections";
 import { EndpointsService } from "@/endpoints";
 import { CacheService, SyncService, FileWatcherService } from "@/sync";
-import { StatusBarManager, UploadModal } from "@/ui";
+import { StatusBarManager, SyncConfigModal } from "@/ui";
 import { detectRoutes, hasAnyProjectType } from "@watchapi/parsers";
 import { EndpointsFileSystemProvider } from "./endpoints/endpoints.fs";
 import { openEndpointEditor } from "./endpoints/endpoints.editor";
@@ -26,7 +26,7 @@ import {
     registerNavigationCommands,
     registerOrganizationCommands,
     registerSyncCommands,
-    registerUploadCommands,
+    registerSyncConfigCommands,
     registerExportCommands,
 } from "@/commands";
 import { ExecutionButton } from "./ui/execute-request/execution-button";
@@ -77,7 +77,7 @@ export async function activate(
 
         // Initialize UI components
         const statusBar = new StatusBarManager();
-        const uploadModal = new UploadModal(
+        const syncConfigModal = new SyncConfigModal(
             collectionsService,
             endpointsService,
             context,
@@ -175,7 +175,7 @@ export async function activate(
             endpointsService,
             syncService,
             treeProvider,
-            uploadModal,
+            syncConfigModal,
         );
 
         // Set up event listeners
@@ -223,7 +223,7 @@ function registerCommands(
     endpointsService: EndpointsService,
     syncService: SyncService,
     treeProvider: CollectionsTreeProvider,
-    uploadModal: UploadModal,
+    syncConfigModal: SyncConfigModal,
 ): void {
     // Register all command modules
     registerAuthCommands(context, authService, syncService, treeProvider);
@@ -243,7 +243,7 @@ function registerCommands(
     );
     registerSyncCommands(context, syncService, treeProvider);
     registerNavigationCommands(context);
-    registerUploadCommands(context, uploadModal, treeProvider);
+    registerSyncConfigCommands(context, syncConfigModal, treeProvider);
     registerExportCommands(context, collectionsService, endpointsService);
 
     // Show status command (kept here as it's a simple placeholder)
