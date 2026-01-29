@@ -11,9 +11,9 @@
       "request": "launch",
       "args": [
         "--profile=Debugging (REST Client)",
-        "--extensionDevelopmentPath=${workspaceFolder}"
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-extension"
       ],
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "outFiles": ["${workspaceFolder}/packages/vscode-extension/dist/**/*.js"],
       "preLaunchTask": "${defaultBuildTask}"
     }
   ]

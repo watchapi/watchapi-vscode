@@ -4,6 +4,7 @@
     {
       "type": "npm",
       "script": "watch",
+      "path": "packages/vscode-extension",
       "isBackground": true,
       "problemMatcher": "$tsc-watch",
       "presentation": {
