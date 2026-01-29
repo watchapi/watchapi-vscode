@@ -12,6 +12,7 @@ import {
     PropertyAccessExpression,
     SourceFile,
     SyntaxKind,
+    ts,
     Type,
 } from "ts-morph";
 
@@ -430,6 +431,8 @@ export class NestJsParser extends BaseParser {
 
     /**
      * Extract body example from method parameters
+     * Type-first approach: use TypeScript type to determine structure,
+     * decorators only for enrichment (key names)
      */
     private extractBodyExample(method: MethodDeclaration): string | undefined {
         const bodyParams = method.getParameters().flatMap((param) => {
@@ -450,12 +453,18 @@ export class NestJsParser extends BaseParser {
 
         for (const entry of bodyParams) {
             const paramType = entry.param.getType();
+
+            // Type-first: determine the nature of the type BEFORE generating example
+            const typeClassification = this.classifyType(paramType);
+
             const example = this.typeToExample(
                 paramType,
                 entry.param,
                 0,
                 new Set(),
             );
+
+            // Decorator-second: only used for key enrichment
             const decoratorArg = entry.decorator
                 .getCallExpression()
                 ?.getArguments()[0];
@@ -463,25 +472,28 @@ export class NestJsParser extends BaseParser {
                 ? this.resolveStringLiteral(decoratorArg)
                 : undefined;
 
+            // If decorator provides a key, use it regardless of type
             if (bodyKey) {
                 bodyObject[bodyKey] = example;
                 hasObjectBody = true;
                 continue;
             }
 
-            if (
-                example &&
-                typeof example === "object" &&
-                !Array.isArray(example)
-            ) {
-                if (Object.keys(example).length > 0) {
+            // Use type classification (not runtime typeof) to determine handling
+            if (typeClassification === "object") {
+                // Object types: merge properties into body object
+                if (
+                    example &&
+                    typeof example === "object" &&
+                    !Array.isArray(example)
+                ) {
                     Object.assign(bodyObject, example);
                     hasObjectBody = true;
-                    continue;
                 }
+            } else {
+                // Primitives, arrays, and other types: treat as the whole body
+                primitiveBody = example;
             }
-
-            primitiveBody = example;
         }
 
         const bodyExample = hasObjectBody
@@ -499,7 +511,187 @@ export class NestJsParser extends BaseParser {
     }
 
     /**
+     * Classify a type as 'primitive', 'array', or 'object'
+     * Uses TypeScript type system, not runtime checks
+     */
+    private classifyType(
+        type: Type,
+    ): "primitive" | "array" | "object" | "unknown" {
+        // Handle union types - unwrap to find the actual type
+        if (type.isUnion()) {
+            const candidates = type
+                .getUnionTypes()
+                .filter((member) => !member.isUndefined() && !member.isNull());
+            if (candidates.length === 0) {
+                return "unknown";
+            }
+            // If all candidates are the same classification, use that
+            const classifications = candidates.map((t) => this.classifyType(t));
+            const unique = [...new Set(classifications)];
+            if (unique.length === 1) {
+                return unique[0];
+            }
+            // Mixed types - treat as unknown (will be handled as primitive body)
+            return "unknown";
+        }
+
+        // Check primitives first (before object check)
+        if (this.isPrimitiveType(type)) {
+            return "primitive";
+        }
+
+        // Check array
+        if (type.isArray()) {
+            return "array";
+        }
+
+        // Check for built-in types that serialize as primitives (Date, etc.)
+        if (type.isObject()) {
+            const typeText = type.getText();
+            if (this.isBuiltinPrimitiveType(typeText)) {
+                return "primitive";
+            }
+            return "object";
+        }
+
+        return "unknown";
+    }
+
+    /**
+     * Check if a type text represents a built-in type that serializes as a primitive
+     */
+    private isBuiltinPrimitiveType(typeText: string): boolean {
+        const normalized = typeText
+            .replace(/^import\([^)]+\)\./, "")
+            .replace(/<[^>]+>$/, "")
+            .trim();
+
+        return (
+            normalized === "Date" ||
+            normalized === "DateTime" ||
+            normalized === "RegExp" ||
+            normalized === "File" ||
+            normalized === "Blob" ||
+            normalized === "Buffer"
+        );
+    }
+
+    /**
+     * Get example value for well-known built-in types
+     * Returns undefined if the type is not a known built-in
+     */
+    private getBuiltinTypeExample(typeText: string): unknown | undefined {
+        // Normalize type text (remove import paths, generics, etc.)
+        const normalized = typeText
+            .replace(/^import\([^)]+\)\./, "") // Remove import() prefix
+            .replace(/<[^>]+>$/, "") // Remove generic params
+            .trim();
+
+        // Date types
+        if (normalized === "Date" || normalized === "DateTime") {
+            return "{{$timestamp}}";
+        }
+
+        // File/Blob types (common in upload endpoints)
+        if (
+            normalized === "File" ||
+            normalized === "Blob" ||
+            normalized === "Buffer"
+        ) {
+            return "<binary>";
+        }
+
+        // ReadableStream types
+        if (normalized.includes("ReadableStream") || normalized.includes("Stream")) {
+            return "<stream>";
+        }
+
+        // Express/NestJS specific types that shouldn't be serialized
+        if (
+            normalized === "Request" ||
+            normalized === "Response" ||
+            normalized === "Express.Request" ||
+            normalized === "Express.Response"
+        ) {
+            return undefined;
+        }
+
+        // FormData
+        if (normalized === "FormData") {
+            return { field: "<value>" };
+        }
+
+        // RegExp
+        if (normalized === "RegExp") {
+            return "/.*/";
+        }
+
+        // Map and Set
+        if (normalized === "Map" || normalized.startsWith("Map<")) {
+            return {};
+        }
+        if (normalized === "Set" || normalized.startsWith("Set<")) {
+            return [];
+        }
+
+        // Promise - unwrap (though this shouldn't normally appear in DTOs)
+        if (normalized.startsWith("Promise<")) {
+            return {};
+        }
+
+        return undefined;
+    }
+
+    /**
+     * Check if a type is a primitive type using TypeScript type system
+     * This is the source of truth for type classification
+     */
+    private isPrimitiveType(type: Type): boolean {
+        // Check for literal types first
+        if (type.getLiteralValue() !== undefined) {
+            return true;
+        }
+
+        // Check TypeScript type flags for primitives
+        const flags = type.getFlags();
+
+        // String, Number, Boolean, BigInt, Undefined, Null are primitives
+        if (
+            flags & ts.TypeFlags.String ||
+            flags & ts.TypeFlags.Number ||
+            flags & ts.TypeFlags.Boolean ||
+            flags & ts.TypeFlags.BigInt ||
+            flags & ts.TypeFlags.Undefined ||
+            flags & ts.TypeFlags.Null ||
+            flags & ts.TypeFlags.StringLiteral ||
+            flags & ts.TypeFlags.NumberLiteral ||
+            flags & ts.TypeFlags.BooleanLiteral ||
+            flags & ts.TypeFlags.BigIntLiteral
+        ) {
+            return true;
+        }
+
+        // Also check ts-morph convenience methods
+        if (
+            type.isString() ||
+            type.isNumber() ||
+            type.isBoolean() ||
+            type.isBooleanLiteral() ||
+            type.isStringLiteral() ||
+            type.isNumberLiteral() ||
+            type.isUndefined() ||
+            type.isNull()
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Extract query parameters from method
+     * Type-first approach: use TypeScript type to determine structure,
+     * decorators only for enrichment (key names)
      */
     private extractQueryExample(
         method: MethodDeclaration,
@@ -520,12 +712,18 @@ export class NestJsParser extends BaseParser {
 
         for (const entry of queryParams) {
             const paramType = entry.param.getType();
+
+            // Type-first: determine the nature of the type BEFORE generating example
+            const typeClassification = this.classifyType(paramType);
+
             const example = this.typeToExample(
                 paramType,
                 entry.param,
                 0,
                 new Set(),
             );
+
+            // Decorator-second: only used for key enrichment
             const decoratorArg = entry.decorator
                 .getCallExpression()
                 ?.getArguments()[0];
@@ -533,6 +731,7 @@ export class NestJsParser extends BaseParser {
                 ? this.resolveStringLiteral(decoratorArg)
                 : undefined;
 
+            // If decorator provides a key, use it regardless of type
             if (queryKey) {
                 const serialized = this.serializeQueryValue(example);
                 if (serialized !== "") {
@@ -541,19 +740,23 @@ export class NestJsParser extends BaseParser {
                 continue;
             }
 
-            // No key means entire query object (DTO)
-            if (
-                example &&
-                typeof example === "object" &&
-                !Array.isArray(example)
-            ) {
-                for (const [key, value] of Object.entries(example)) {
-                    const serialized = this.serializeQueryValue(value);
-                    if (serialized !== "") {
-                        queryObject[key] = serialized;
+            // Use type classification to determine handling
+            if (typeClassification === "object") {
+                // Object types (DTOs): expand properties into query object
+                if (
+                    example &&
+                    typeof example === "object" &&
+                    !Array.isArray(example)
+                ) {
+                    for (const [key, value] of Object.entries(example)) {
+                        const serialized = this.serializeQueryValue(value);
+                        if (serialized !== "") {
+                            queryObject[key] = serialized;
+                        }
                     }
                 }
             }
+            // Primitives and arrays without a key are not valid query params
         }
 
         if (Object.keys(queryObject).length === 0) {
@@ -599,6 +802,7 @@ export class NestJsParser extends BaseParser {
 
     /**
      * Convert a TypeScript type to an example value
+     * Type-first approach: always check primitives before objects
      */
     private typeToExample(
         type: Type,
@@ -610,24 +814,46 @@ export class NestJsParser extends BaseParser {
             return {};
         }
 
+        // 1. Handle literal values first (string, number, boolean literals)
         const literalValue = type.getLiteralValue();
         if (literalValue !== undefined) {
             return literalValue;
         }
 
-        if (type.isString()) {
+        // 2. Handle boolean literal types (true/false as types)
+        if (type.isBooleanLiteral()) {
+            // The text will be "true" or "false"
+            return type.getText() === "true";
+        }
+
+        // 3. Handle primitive types using type flags (most reliable method)
+        const flags = type.getFlags();
+
+        if (flags & ts.TypeFlags.String || type.isString()) {
             return "";
         }
-        if (type.isNumber()) {
+        if (flags & ts.TypeFlags.Number || type.isNumber()) {
             return 0;
         }
-        if (type.isBoolean()) {
+        if (flags & ts.TypeFlags.Boolean || type.isBoolean()) {
             return false;
         }
+        if (flags & ts.TypeFlags.BigInt) {
+            return 0;
+        }
+        if (flags & ts.TypeFlags.Undefined || type.isUndefined()) {
+            return undefined;
+        }
+        if (flags & ts.TypeFlags.Null || type.isNull()) {
+            return null;
+        }
+
+        // 4. Handle any/unknown
         if (type.isAny() || type.isUnknown()) {
             return {};
         }
 
+        // 5. Handle arrays before objects (arrays are also objects in TS)
         if (type.isArray()) {
             const element = type.getArrayElementType();
             if (!element) {
@@ -636,6 +862,7 @@ export class NestJsParser extends BaseParser {
             return [this.typeToExample(element, location, depth + 1, visited)];
         }
 
+        // 6. Handle unions - pick first non-null, non-undefined type
         if (type.isUnion()) {
             const candidates = type
                 .getUnionTypes()
@@ -648,15 +875,26 @@ export class NestJsParser extends BaseParser {
                     visited,
                 );
             }
+            return undefined;
         }
 
+        // 7. Handle enums
         if (type.isEnum() || type.isEnumLiteral()) {
             const text = type.getText(location);
             return text.split(".").pop() ?? text;
         }
 
+        // 8. Handle object types LAST (after all primitive checks)
         if (type.isObject()) {
-            const key = type.getText(location);
+            const typeText = type.getText(location);
+
+            // Handle well-known built-in types
+            const builtinExample = this.getBuiltinTypeExample(typeText);
+            if (builtinExample !== undefined) {
+                return builtinExample;
+            }
+
+            const key = typeText;
             if (visited.has(key)) {
                 return {};
             }
