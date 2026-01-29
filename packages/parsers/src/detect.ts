@@ -101,29 +101,25 @@ export async function detectAndParseRoutes(
     const detected = await detectRoutes(rootDir, options);
 
     // Then parse routes only for detected frameworks
-    const [
-        nextAppRoutes,
-        nextPagesRoutes,
-        trpcRoutes,
-        nestRoutes,
-        payloadRoutes,
-    ] = await Promise.all([
-        detected.nextApp
-            ? parseNextAppRoutes(rootDir, options)
-            : Promise.resolve([]),
-        detected.nextPages
-            ? parseNextPagesRoutes(rootDir, options)
-            : Promise.resolve([]),
-        detected.trpc
-            ? parseTRPCRouters(rootDir, options)
-            : Promise.resolve([]),
-        detected.nestjs
-            ? parseNestJsRoutes(rootDir, options)
-            : Promise.resolve([]),
-        detected.payloadCMS
-            ? parsePayloadCMSRoutes(rootDir, options)
-            : Promise.resolve([]),
-    ]);
+    const nextAppRoutes = detected.nextApp
+        ? await parseNextAppRoutes(rootDir, options)
+        : [];
+
+    const nextPagesRoutes = detected.nextPages
+        ? await parseNextPagesRoutes(rootDir, options)
+        : [];
+
+    const trpcRoutes = detected.trpc
+        ? await parseTRPCRouters(rootDir, options)
+        : [];
+
+    const nestRoutes = detected.nestjs
+        ? await parseNestJsRoutes(rootDir, options)
+        : [];
+
+    const payloadRoutes = detected.payloadCMS
+        ? await parsePayloadCMSRoutes(rootDir, options)
+        : [];
 
     const routes = [
         ...nextAppRoutes,
