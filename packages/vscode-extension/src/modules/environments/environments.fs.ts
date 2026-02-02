@@ -136,7 +136,7 @@ export async function createEnvFile(): Promise<boolean> {
 export async function ensureEnvFile(): Promise<boolean> {
     const exists = await checkEnvFileExists();
     if (exists) {
-        return false; // File already exists
+        return false;
     }
 
     return await createEnvFile();

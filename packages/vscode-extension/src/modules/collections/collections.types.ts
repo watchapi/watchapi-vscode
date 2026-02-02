@@ -1,7 +1,3 @@
-/**
- * Collection-related types
- */
-
 export interface Collection {
     id: string;
     name: string;

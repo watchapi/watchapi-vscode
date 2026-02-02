@@ -7,12 +7,7 @@ import * as vscode from "vscode";
 import { logger, LogLevel } from "@/shared";
 import { getConfig } from "@/shared/config";
 import { AuthService, StatusBarManager } from "@/modules/auth";
-import {
-    CollectionsService,
-    CollectionsTreeProvider,
-    EndpointNode,
-    registerNavigationCommands,
-} from "@/modules/collections";
+import { registerNavigationCommands } from "@/modules/navigation/navigation.commands";
 import { EndpointsService } from "@/modules/endpoints";
 import {
     CacheService,
@@ -28,7 +23,10 @@ import { openEndpointEditor } from "./modules/endpoints/endpoints.editor";
 import { OrganizationService } from "@/modules/organizations";
 import { registerAuthCommands } from "@/modules/auth/auth.commands";
 import { registerCollectionCommands } from "@/modules/collections/collections.commands";
-import { registerEndpointCommands, registerExportCommands } from "@/modules/endpoints";
+import {
+    registerEndpointCommands,
+    registerExportCommands,
+} from "@/modules/endpoints";
 import { registerOrganizationCommands } from "@/modules/organizations/organization.commands";
 import { ExecutionButton } from "./modules/endpoints/ui/execution-button";
 import { HttpFileCodeLensProvider } from "./modules/endpoints/ui/code-lens-provider";
@@ -38,6 +36,11 @@ import {
 } from "./modules/endpoints/ui/response-document-provider";
 import { HttpVariableHoverProvider } from "./modules/endpoints/ui/variable-hover-provider";
 import { registerSetDirectiveCompletionProvider } from "./modules/endpoints/ui/set-directive-completion-provider";
+import {
+    CollectionsService,
+    CollectionsTreeProvider,
+    EndpointNode,
+} from "./modules/collections";
 
 /**
  * Extension activation
@@ -56,13 +59,11 @@ export async function activate(
             await import("./infrastructure/storage/index.js")
         ).LocalStorageService(context);
 
-        const collectionsService = new CollectionsService();
-        const endpointsService = new EndpointsService(context);
-
-        // Set up local storage for offline mode
-        collectionsService.setLocalStorage(localStorage, () =>
+        const collectionsService = new CollectionsService(localStorage, () =>
             authService.isAuthenticated(),
         );
+        const endpointsService = new EndpointsService(context);
+
         endpointsService.setLocalStorage(localStorage, () =>
             authService.isAuthenticated(),
         );
