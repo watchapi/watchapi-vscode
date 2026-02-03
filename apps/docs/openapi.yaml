@@ -1,0 +1,670 @@
+openapi: 3.1.0
+info:
+  title: WatchAPI Cloud API
+  description: |
+    The WatchAPI Cloud API allows you to programmatically manage your API collections,
+    sync endpoints, and access monitoring data.
+  version: 1.0.0
+  contact:
+    name: WatchAPI Support
+    url: https://watchapi.dev
+servers:
+  - url: https://api.watchapi.dev/v1
+    description: Production server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Collections
+    description: Manage API collections
+  - name: Endpoints
+    description: Manage endpoints within collections
+  - name: Sync
+    description: Sync operations
+  - name: Monitoring
+    description: API monitoring and alerts
+
+paths:
+  /collections:
+    get:
+      operationId: listCollections
+      summary: List all collections
+      description: Returns a list of all API collections in your workspace.
+      tags:
+        - Collections
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of collections to return
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: cursor
+          in: query
+          description: Pagination cursor for fetching the next page
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of collections
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Collection'
+                  nextCursor:
+                    type: string
+                    nullable: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      operationId: createCollection
+      summary: Create a collection
+      description: Creates a new API collection in your workspace.
+      tags:
+        - Collections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Name of the collection
+                  example: My API
+                description:
+                  type: string
+                  description: Optional description
+                  example: Production API endpoints
+      responses:
+        '201':
+          description: Collection created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /collections/{collectionId}:
+    get:
+      operationId: getCollection
+      summary: Get a collection
+      description: Returns a single collection by ID.
+      tags:
+        - Collections
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '200':
+          description: Collection details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateCollection
+      summary: Update a collection
+      description: Updates an existing collection.
+      tags:
+        - Collections
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Collection updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      operationId: deleteCollection
+      summary: Delete a collection
+      description: Permanently deletes a collection and all its endpoints.
+      tags:
+        - Collections
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      responses:
+        '204':
+          description: Collection deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /collections/{collectionId}/endpoints:
+    get:
+      operationId: listEndpoints
+      summary: List endpoints
+      description: Returns all endpoints in a collection.
+      tags:
+        - Endpoints
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+        - name: method
+          in: query
+          description: Filter by HTTP method
+          schema:
+            type: string
+            enum: [GET, POST, PUT, PATCH, DELETE]
+      responses:
+        '200':
+          description: List of endpoints
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Endpoint'
+
+    post:
+      operationId: createEndpoint
+      summary: Create an endpoint
+      description: Adds a new endpoint to a collection.
+      tags:
+        - Endpoints
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointInput'
+      responses:
+        '201':
+          description: Endpoint created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Endpoint'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /collections/{collectionId}/endpoints/{endpointId}:
+    get:
+      operationId: getEndpoint
+      summary: Get an endpoint
+      description: Returns a single endpoint by ID.
+      tags:
+        - Endpoints
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+        - $ref: '#/components/parameters/EndpointId'
+      responses:
+        '200':
+          description: Endpoint details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Endpoint'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      operationId: updateEndpoint
+      summary: Update an endpoint
+      description: Updates an existing endpoint.
+      tags:
+        - Endpoints
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+        - $ref: '#/components/parameters/EndpointId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EndpointInput'
+      responses:
+        '200':
+          description: Endpoint updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Endpoint'
+
+    delete:
+      operationId: deleteEndpoint
+      summary: Delete an endpoint
+      description: Removes an endpoint from the collection.
+      tags:
+        - Endpoints
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+        - $ref: '#/components/parameters/EndpointId'
+      responses:
+        '204':
+          description: Endpoint deleted
+
+  /collections/{collectionId}/sync:
+    post:
+      operationId: syncCollection
+      summary: Sync a collection
+      description: |
+        Triggers a sync operation to import endpoints from a connected repository.
+        New endpoints are added; existing endpoints are not modified.
+      tags:
+        - Sync
+      parameters:
+        - $ref: '#/components/parameters/CollectionId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                branch:
+                  type: string
+                  description: Git branch to sync from
+                  default: main
+                paths:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific paths to scan (optional)
+      responses:
+        '202':
+          description: Sync started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /sync/{jobId}:
+    get:
+      operationId: getSyncStatus
+      summary: Get sync status
+      description: Returns the status of a sync job.
+      tags:
+        - Sync
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sync job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncJob'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /monitoring/requests:
+    get:
+      operationId: listRequests
+      summary: List request history
+      description: Returns recent API requests made through WatchAPI.
+      tags:
+        - Monitoring
+      parameters:
+        - name: collectionId
+          in: query
+          description: Filter by collection
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by response status
+          schema:
+            type: string
+            enum: [success, error, timeout]
+        - name: from
+          in: query
+          description: Start time (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          description: End time (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+      responses:
+        '200':
+          description: Request history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RequestLog'
+
+  /monitoring/alerts:
+    get:
+      operationId: listAlerts
+      summary: List alerts
+      description: Returns configured monitoring alerts.
+      tags:
+        - Monitoring
+      responses:
+        '200':
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Alert'
+
+    post:
+      operationId: createAlert
+      summary: Create an alert
+      description: Creates a new monitoring alert.
+      tags:
+        - Monitoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertInput'
+      responses:
+        '201':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        API key authentication. Get your API key from the WatchAPI Cloud dashboard.
+
+  parameters:
+    CollectionId:
+      name: collectionId
+      in: path
+      required: true
+      description: The collection ID
+      schema:
+        type: string
+
+    EndpointId:
+      name: endpointId
+      in: path
+      required: true
+      description: The endpoint ID
+      schema:
+        type: string
+
+  schemas:
+    Collection:
+      type: object
+      properties:
+        id:
+          type: string
+          example: col_abc123
+        name:
+          type: string
+          example: My API
+        description:
+          type: string
+          nullable: true
+        endpointCount:
+          type: integer
+          example: 15
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Endpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ep_xyz789
+        method:
+          type: string
+          enum: [GET, POST, PUT, PATCH, DELETE]
+        path:
+          type: string
+          example: /api/users/:id
+        name:
+          type: string
+          example: Get User
+        description:
+          type: string
+          nullable: true
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        queryParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+        body:
+          type: object
+          nullable: true
+        sourceFile:
+          type: string
+          nullable: true
+          description: Source file path if imported from code
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    EndpointInput:
+      type: object
+      required:
+        - method
+        - path
+      properties:
+        method:
+          type: string
+          enum: [GET, POST, PUT, PATCH, DELETE]
+        path:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        queryParams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Parameter'
+        body:
+          type: object
+
+    Parameter:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+        required:
+          type: boolean
+          default: false
+
+    SyncJob:
+      type: object
+      properties:
+        id:
+          type: string
+          example: sync_def456
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        collectionId:
+          type: string
+        branch:
+          type: string
+        addedEndpoints:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: string
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+
+    RequestLog:
+      type: object
+      properties:
+        id:
+          type: string
+        endpointId:
+          type: string
+        method:
+          type: string
+        url:
+          type: string
+        status:
+          type: integer
+        duration:
+          type: integer
+          description: Response time in milliseconds
+        timestamp:
+          type: string
+          format: date-time
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [error_rate, latency, availability]
+        threshold:
+          type: number
+        enabled:
+          type: boolean
+        notificationChannels:
+          type: array
+          items:
+            type: string
+            enum: [email, slack, webhook]
+        createdAt:
+          type: string
+          format: date-time
+
+    AlertInput:
+      type: object
+      required:
+        - name
+        - type
+        - threshold
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [error_rate, latency, availability]
+        threshold:
+          type: number
+        enabled:
+          type: boolean
+          default: true
+        notificationChannels:
+          type: array
+          items:
+            type: string
+            enum: [email, slack, webhook]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        code:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

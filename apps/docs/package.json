@@ -6,21 +6,25 @@
     "build": "next build",
     "dev": "next dev --port 3010",
     "start": "next start",
-    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit"
+    "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+    "generate:api": "node scripts/generate-api-docs.mjs"
   },
   "dependencies": {
-    "fumadocs-core": "16.4.8",
+    "fumadocs-core": "16.5.0",
     "fumadocs-mdx": "14.2.6",
-    "fumadocs-ui": "16.4.8",
+    "fumadocs-openapi": "^10.3.1",
+    "fumadocs-ui": "16.5.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.4",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "lightningcss-darwin-arm64": "^1.31.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/mdx": "^2.0.13",
+    "@types/node": "25.2.0",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.6",

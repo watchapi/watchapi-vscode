@@ -1,0 +1,4 @@
+{
+  "title": "API Reference",
+  "pages": ["index", "collections", "endpoints", "sync", "monitoring"]
+}

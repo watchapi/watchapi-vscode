@@ -17,7 +17,6 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
     if (!page) notFound();
 
     const MDX = page.data.body;
-    console.log("hello");
 
     return (
         <DocsPage

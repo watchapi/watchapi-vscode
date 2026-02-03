@@ -1,0 +1,4 @@
+{
+  "title": "Collections",
+  "pages": ["listCollections", "createCollection", "getCollection", "updateCollection", "deleteCollection"]
+}
