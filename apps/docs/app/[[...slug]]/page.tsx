@@ -9,7 +9,6 @@ import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/mdx-components";
 import type { Metadata } from "next";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import { LLMCopyButton, ViewOptions } from "@/components/ai/page-actions";
 
 export default async function Page(props: PageProps<"/[[...slug]]">) {
     const params = await props.params;
@@ -24,8 +23,8 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
             full={page.data.full}
             breadcrumb={{ enabled: false }}
         >
-            <DocsTitle>{page.data.title}</DocsTitle>
-            <DocsDescription>{page.data.description}</DocsDescription>
+            {/* <DocsTitle>{page.data.title}</DocsTitle>
+            <DocsDescription>{page.data.description}</DocsDescription> */}
             {/* <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
                 <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
                 <ViewOptions

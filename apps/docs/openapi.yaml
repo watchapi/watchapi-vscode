@@ -100,7 +100,7 @@ paths:
         - bearerAuth: []
       parameters:
         - in: query
-          name: collectionId
+          name: id
           schema:
             type: string
             minLength: 1
@@ -317,11 +317,11 @@ paths:
             schema:
               type: object
               properties:
-                collectionId:
+                id:
                   type: string
                   minLength: 1
               required:
-                - collectionId
+                - id
       responses:
         "200":
           description: Successful response
@@ -380,11 +380,11 @@ paths:
             schema:
               type: object
               properties:
-                collectionId:
+                id:
                   type: string
                   minLength: 1
               required:
-                - collectionId
+                - id
       responses:
         "200":
           description: Successful response
@@ -683,6 +683,7 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  monitoringChecks: {}
                   createdAt:
                     type: string
                   updatedAt:
@@ -818,6 +819,7 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  monitoringChecks: {}
                   createdAt:
                     type: string
                   updatedAt:
@@ -949,6 +951,7 @@ paths:
                       anyOf:
                         - type: string
                         - type: "null"
+                    monitoringChecks: {}
                     createdAt:
                       type: string
                     updatedAt:
@@ -1144,6 +1147,7 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  monitoringChecks: {}
                   createdAt:
                     type: string
                   updatedAt:
@@ -1293,6 +1297,7 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  monitoringChecks: {}
                   createdAt:
                     type: string
                   updatedAt:
@@ -1479,6 +1484,7 @@ paths:
                     anyOf:
                       - type: string
                       - type: "null"
+                  monitoringChecks: {}
                   createdAt:
                     type: string
                   updatedAt:
@@ -1638,6 +1644,7 @@ paths:
                       anyOf:
                         - type: string
                         - type: "null"
+                    monitoringChecks: {}
                     createdAt:
                       type: string
                     updatedAt:
@@ -2147,19 +2154,19 @@ paths:
                       type: string
                     url:
                       type: string
-                    checkCount:
-                      type: number
                     avgResponseTime:
                       type: number
-                    uptimePercentage:
+                    totalChecks:
+                      type: number
+                    errorRate:
                       type: number
                   required:
                     - id
                     - name
                     - url
-                    - checkCount
                     - avgResponseTime
-                    - uptimePercentage
+                    - totalChecks
+                    - errorRate
                   additionalProperties: false
         "400": *a1
         "401": *a2
@@ -2192,13 +2199,10 @@ paths:
                 items:
                   type: object
                   properties:
-                    date:
+                    checkedAt:
                       type: string
-                    avgResponseTime:
-                      type: number
                   required:
-                    - date
-                    - avgResponseTime
+                    - checkedAt
                   additionalProperties: false
         "400": *a1
         "401": *a2
@@ -2231,19 +2235,13 @@ paths:
                 items:
                   type: object
                   properties:
-                    date:
+                    status:
                       type: string
-                    total:
-                      type: number
-                    successful:
-                      type: number
-                    uptimePercentage:
-                      type: number
+                    checkedAt:
+                      type: string
                   required:
-                    - date
-                    - total
-                    - successful
-                    - uptimePercentage
+                    - status
+                    - checkedAt
                   additionalProperties: false
         "400": *a1
         "401": *a2
@@ -2279,39 +2277,7 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    endpointId:
-                      type: string
-                    endpointName:
-                      type: string
-                    endpointUrl:
-                      type: string
-                    status:
-                      type: string
-                    statusCode:
-                      anyOf:
-                        - type: number
-                        - type: "null"
-                    errorMessage:
-                      anyOf:
-                        - type: string
-                        - type: "null"
-                    checkedAt:
-                      type: string
-                  required:
-                    - id
-                    - endpointId
-                    - endpointName
-                    - endpointUrl
-                    - status
-                    - statusCode
-                    - errorMessage
-                    - checkedAt
-                  additionalProperties: false
+                items: {}
         "400": *a1
         "401": *a2
         "403": *a3
