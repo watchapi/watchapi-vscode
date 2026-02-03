@@ -1,4 +1,0 @@
-{
-  "title": "Monitoring",
-  "pages": ["listRequests", "listAlerts", "createAlert"]
-}

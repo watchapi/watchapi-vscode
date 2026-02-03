@@ -1,4 +1,0 @@
-{
-  "title": "Endpoints",
-  "pages": ["listEndpoints", "createEndpoint", "getEndpoint", "updateEndpoint", "deleteEndpoint"]
-}

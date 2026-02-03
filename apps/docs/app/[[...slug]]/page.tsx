@@ -26,13 +26,13 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
         >
             <DocsTitle>{page.data.title}</DocsTitle>
             <DocsDescription>{page.data.description}</DocsDescription>
-            <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
+            {/* <div className="flex flex-row gap-2 items-center border-b pt-2 pb-6">
                 <LLMCopyButton markdownUrl={`${page.url}.mdx`} />
                 <ViewOptions
                     markdownUrl={`${page.url}.mdx`}
                     githubUrl={`https://github.com/watchapi/watchapi/blob/dev/apps/docs/content/docs/${page.path}`}
                 />
-            </div>
+            </div> */}
             <DocsBody>
                 <MDX
                     components={getMDXComponents({
