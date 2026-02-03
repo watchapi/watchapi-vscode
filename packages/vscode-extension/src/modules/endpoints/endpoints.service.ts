@@ -1,9 +1,3 @@
-/**
- * Endpoints service
- * Handles business logic for API endpoint CRUD operations
- * Supports both local storage (offline) and cloud sync (when authenticated)
- */
-
 import * as vscode from "vscode";
 import { trpc } from "@/infrastructure/api/trpc-client";
 import { logger } from "@/shared/logger";
@@ -13,24 +7,23 @@ import type { LocalStorageService } from "@/infrastructure/storage";
 import type {
     ApiEndpoint,
     CreateApiEndpointInput,
+    PickedEndpoint,
     UpdateApiEndpointInput,
 } from "./endpoints.types";
 import type { ParsedRoute } from "@/modules/sync/sync.types";
 import { humanizeRouteName } from "./endpoints.editor";
-import { CollectionsTreeProvider } from "@/modules/collections";
+import {
+    CollectionsService,
+    CollectionsTreeProvider,
+} from "@/modules/collections";
 
 export class EndpointsService {
-    private localStorage?: LocalStorageService;
-    private isAuthenticatedFn?: () => Promise<boolean>;
-    constructor(private readonly context: vscode.ExtensionContext) {}
-
-    /**
-     * Set local storage for offline mode
-     */
-    setLocalStorage(
-        localStorage: LocalStorageService,
-        isAuthenticatedFn: () => Promise<boolean>,
-    ): void {
+    constructor(
+        private readonly context: vscode.ExtensionContext,
+        private localStorage: LocalStorageService,
+        private isAuthenticatedFn: () => Promise<boolean>,
+        private collectionsService: CollectionsService,
+    ) {
         this.localStorage = localStorage;
         this.isAuthenticatedFn = isAuthenticatedFn;
     }
@@ -42,9 +35,6 @@ export class EndpointsService {
         return await this.isAuthenticatedFn();
     }
 
-    /**
-     * Get all endpoints (from cloud or local storage)
-     */
     async getAll(): Promise<ApiEndpoint[]> {
         try {
             const isCloud = await this.isCloudMode();
@@ -56,7 +46,7 @@ export class EndpointsService {
                 return endpoints;
             } else {
                 logger.debug("Fetching endpoints from local storage");
-                const endpoints = await this.localStorage!.getEndpoints();
+                const endpoints = await this.localStorage.getEndpoints();
                 logger.info(`Fetched ${endpoints.length} endpoints from local`);
                 return endpoints;
             }
@@ -66,9 +56,6 @@ export class EndpointsService {
         }
     }
 
-    /**
-     * Get a single endpoint by ID
-     */
     async getById(id: string): Promise<ApiEndpoint> {
         try {
             const isCloud = await this.isCloudMode();
@@ -84,7 +71,7 @@ export class EndpointsService {
                 return endpoint as ApiEndpoint;
             } else {
                 logger.debug(`Fetching endpoint from local: ${id}`);
-                const endpoint = await this.localStorage!.getEndpoint(id);
+                const endpoint = await this.localStorage.getEndpoint(id);
 
                 if (!endpoint) {
                     throw new NotFoundError("Endpoint", id);
@@ -123,9 +110,6 @@ export class EndpointsService {
         return `${relativePath}#${route.method}#${route.path}`;
     }
 
-    /**
-     * Get all endpoints for a specific collection
-     */
     async getByCollectionId(collectionId: string): Promise<ApiEndpoint[]> {
         try {
             const isCloud = await this.isCloudMode();
@@ -147,7 +131,7 @@ export class EndpointsService {
                     `Fetching endpoints for collection locally: ${collectionId}`,
                 );
                 const endpoints =
-                    await this.localStorage!.getEndpointsByCollection(
+                    await this.localStorage.getEndpointsByCollection(
                         collectionId,
                     );
                 logger.info(
@@ -164,9 +148,6 @@ export class EndpointsService {
         }
     }
 
-    /**
-     * Create a new endpoint
-     */
     async create(input: CreateApiEndpointInput): Promise<ApiEndpoint> {
         try {
             // Validate input
@@ -193,7 +174,7 @@ export class EndpointsService {
                 return endpoint;
             } else {
                 logger.debug("Creating endpoint locally", input);
-                const endpoint = await this.localStorage!.createEndpoint(input);
+                const endpoint = await this.localStorage.createEndpoint(input);
                 logger.info(
                     `Created endpoint locally: ${endpoint.name} (${endpoint.id})`,
                 );
@@ -205,9 +186,6 @@ export class EndpointsService {
         }
     }
 
-    /**
-     * Update an existing endpoint
-     */
     async update(
         id: string,
         input: UpdateApiEndpointInput,
@@ -224,7 +202,7 @@ export class EndpointsService {
                 return endpoint;
             } else {
                 logger.debug(`Updating endpoint locally: ${id}`, input);
-                const endpoint = await this.localStorage!.updateEndpoint(
+                const endpoint = await this.localStorage.updateEndpoint(
                     id,
                     input,
                 );
@@ -244,9 +222,6 @@ export class EndpointsService {
         }
     }
 
-    /**
-     * Delete an endpoint
-     */
     async delete(id: string): Promise<void> {
         try {
             const isCloud = await this.isCloudMode();
@@ -257,7 +232,7 @@ export class EndpointsService {
                 logger.info(`Deleted endpoint from cloud: ${id}`);
             } else {
                 logger.debug(`Deleting endpoint locally: ${id}`);
-                const deleted = await this.localStorage!.deleteEndpoint(id);
+                const deleted = await this.localStorage.deleteEndpoint(id);
 
                 if (!deleted) {
                     throw new NotFoundError("Endpoint", id);
@@ -271,20 +246,15 @@ export class EndpointsService {
         }
     }
 
-    /**
-     * Bulk create endpoints (for upload feature)
-     */
     async bulkCreate(
         endpoints: CreateApiEndpointInput[],
     ): Promise<ApiEndpoint[]> {
         try {
             logger.debug(`Bulk creating ${endpoints.length} endpoints`);
-            const created: ApiEndpoint[] = [];
 
-            for (const input of endpoints) {
-                const endpoint = await this.create(input);
-                created.push(endpoint);
-            }
+            const created = await Promise.all(
+                endpoints.map((input) => this.create(input)),
+            );
 
             logger.info(`Bulk created ${created.length} endpoints`);
             return created;
@@ -309,9 +279,6 @@ export class EndpointsService {
         return method as HttpMethod | undefined;
     }
 
-    /**
-     * Get endpoint URL from user via input box
-     */
     async promptEndpointUrl(): Promise<string | undefined> {
         const url = await vscode.window.showInputBox({
             title: "Endpoint path",
@@ -340,29 +307,19 @@ export class EndpointsService {
         return name;
     }
 
-    /**
-     * Interactive endpoint creation flow
-     * Shows input dialogs for method, path, and name
-     *
-     * @param collectionId - Collection to add endpoint to
-     * @returns Created endpoint, or undefined if cancelled
-     */
     async createInteractive(
         collectionId: string,
     ): Promise<ApiEndpoint | undefined> {
-        // 1️⃣ Ask for HTTP method
         const method = await this.promptHttpMethod();
         if (!method) {
             return undefined;
         }
 
-        // 2️⃣ Ask for endpoint path
         const url = await this.promptEndpointUrl();
         if (!url) {
             return undefined;
         }
 
-        // 3️⃣ Ask for name (with smart default)
         const defaultName = humanizeRouteName({ path: url, method });
         const name = await this.promptEndpointName(defaultName);
         if (!name) {
@@ -398,20 +355,12 @@ export class EndpointsService {
         return confirm === "Delete";
     }
 
-    /**
-     * Delete multiple endpoints with progress indicator
-     *
-     * @param endpointIds - Array of endpoint IDs to delete
-     */
     async bulkDelete(endpointIds: string[]): Promise<void> {
         for (const id of endpointIds) {
             await this.delete(id);
         }
     }
 
-    /**
-     * Get endpoint quick pick items for search
-     */
     async getEndpointPickItems(): Promise<EndpointQuickPickItem[]> {
         const endpoints = await this.getAll();
 
@@ -424,6 +373,68 @@ export class EndpointsService {
             description: e.pathTemplate,
             endpoint: e,
         }));
+    }
+
+    async pickEndpoint(): Promise<PickedEndpoint | undefined> {
+        const items = await this.getEndpointPickItems();
+
+        if (!items.length) {
+            vscode.window.showInformationMessage("No endpoints found");
+            return;
+        }
+
+        const selected = await vscode.window.showQuickPick(items, {
+            placeHolder: "Search endpoints",
+            matchOnDescription: true,
+            matchOnDetail: true,
+        });
+
+        if (!selected) {
+            return;
+        }
+
+        const endpoint = selected.endpoint;
+
+        let collectionName: string | undefined;
+        let duplicateIndex: number | undefined;
+
+        if (endpoint.collectionId) {
+            try {
+                const collection = await this.collectionsService.getById(
+                    endpoint.collectionId,
+                );
+                collectionName = collection.name;
+
+                // Calculate duplicate index within the same collection
+                const allEndpoints = await this.getAll();
+                const collectionEndpoints = allEndpoints.filter(
+                    (e) => e.collectionId === endpoint.collectionId,
+                );
+
+                const nameKey = endpoint.name.toLowerCase();
+                let count = 0;
+
+                for (const ep of collectionEndpoints) {
+                    if (ep.name.toLowerCase() === nameKey) {
+                        count++;
+                        if (ep.id === endpoint.id) {
+                            if (count > 1) {
+                                duplicateIndex = count;
+                            }
+                            break;
+                        }
+                    }
+                }
+            } catch {
+                // Collection lookup failure should not block opening the endpoint
+            }
+        }
+
+        return {
+            endpoint,
+            collectionName,
+            duplicateIndex,
+        };
     }
 }
 

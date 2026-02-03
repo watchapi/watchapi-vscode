@@ -62,10 +62,11 @@ export async function activate(
         const collectionsService = new CollectionsService(localStorage, () =>
             authService.isAuthenticated(),
         );
-        const endpointsService = new EndpointsService(context);
-
-        endpointsService.setLocalStorage(localStorage, () =>
-            authService.isAuthenticated(),
+        const endpointsService = new EndpointsService(
+            context,
+            localStorage,
+            () => authService.isAuthenticated(),
+            collectionsService,
         );
 
         const cacheService = new CacheService(context);
@@ -237,12 +238,7 @@ function registerCommands(
         treeProvider,
     );
     registerCollectionCommands(context, collectionsService, treeProvider);
-    registerEndpointCommands(
-        context,
-        endpointsService,
-        treeProvider,
-        collectionsService,
-    );
+    registerEndpointCommands(context, endpointsService, treeProvider);
     registerSyncCommands(context, syncService, treeProvider);
     registerNavigationCommands(context);
     registerSyncConfigCommands(context, syncConfigModal, treeProvider);

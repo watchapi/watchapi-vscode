@@ -14,17 +14,11 @@ export class ResponseDocumentProvider
         return this.content;
     }
 
-    /**
-     * Update document content
-     */
     update(content: string): void {
         this.content = content;
         this.emitter.fire(this.getUri());
     }
 
-    /**
-     * Generate URI for the response document
-     */
     getUri(): vscode.Uri {
         return vscode.Uri.parse(`${RESPONSE_DOCUMENT_SCHEME}:Response.http`);
     }

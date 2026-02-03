@@ -23,9 +23,6 @@ export interface ExecutionContext {
 export class RequestExecutor {
     private currentRequest: HttpRequest | null = null;
 
-    /**
-     * Execute an API endpoint with variable substitution
-     */
     async execute(
         endpoint: ApiEndpoint,
         context?: ExecutionContext,
