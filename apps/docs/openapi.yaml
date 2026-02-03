@@ -1,0 +1,2827 @@
+openapi: 3.1.0
+info:
+  title: WatchAPI Cloud API
+  description: |-
+    The WatchAPI Cloud API allows you to programmatically manage your API collections,
+    sync endpoints, and access monitoring data.
+  version: 1.0.0
+servers:
+  - url: https://watchapi.dev/api/trpc
+tags:
+  - name: Collections
+  - name: Endpoints
+  - name: Sync
+  - name: Monitoring
+paths:
+  /collection.createCollection:
+    post:
+      operationId: collection-createCollection
+      summary: Create Collection
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                description:
+                  type: string
+              required:
+                - name
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  organizationId:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - organizationId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": &a1
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.BAD_REQUEST"
+        "401": &a2
+          description: Authorization not provided
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.UNAUTHORIZED"
+        "403": &a3
+          description: Insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.FORBIDDEN"
+        "500": &a4
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.INTERNAL_SERVER_ERROR"
+  /collection.getCollection:
+    get:
+      operationId: collection-getCollection
+      summary: Get Collection
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: collectionId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      description:
+                        anyOf:
+                          - type: string
+                          - type: "null"
+                      organizationId:
+                        type: string
+                      createdAt:
+                        type: string
+                      updatedAt:
+                        type: string
+                    required:
+                      - id
+                      - name
+                      - description
+                      - organizationId
+                      - createdAt
+                      - updatedAt
+                    additionalProperties: false
+                  - type: "null"
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": &a5
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.NOT_FOUND"
+        "500": *a4
+  /collection.getMyCollections:
+    get:
+      operationId: collection-getMyCollections
+      summary: Get My Collections
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    organizationId:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    apiEndpoints:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          url:
+                            type: string
+                          method:
+                            type: string
+                          isActive:
+                            type: boolean
+                          expectedStatus:
+                            type: number
+                          timeout:
+                            type: number
+                          interval:
+                            type: number
+                          collectionId:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          createdAt:
+                            type: string
+                          updatedAt:
+                            type: string
+                        required:
+                          - id
+                          - name
+                          - url
+                          - method
+                          - isActive
+                          - expectedStatus
+                          - timeout
+                          - interval
+                          - collectionId
+                          - createdAt
+                          - updatedAt
+                        additionalProperties: false
+                    requestCount:
+                      type: number
+                    lastModified:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - description
+                    - organizationId
+                    - createdAt
+                    - updatedAt
+                    - apiEndpoints
+                    - requestCount
+                    - lastModified
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /collection.updateCollection:
+    post:
+      operationId: collection-updateCollection
+      summary: Update Collection
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectionId:
+                  type: string
+                  minLength: 1
+                name:
+                  type: string
+                  minLength: 1
+                description:
+                  type: string
+              required:
+                - collectionId
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  organizationId:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - organizationId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /collection.deleteCollection:
+    post:
+      operationId: collection-deleteCollection
+      summary: Delete Collection
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectionId:
+                  type: string
+                  minLength: 1
+              required:
+                - collectionId
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema: {}
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /collection.getCollectionStats:
+    get:
+      operationId: collection-getCollectionStats
+      summary: Get Collection Stats
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                  totalRequests:
+                    type: number
+                  averageRequestsPerCollection:
+                    type: number
+                required:
+                  - total
+                  - totalRequests
+                  - averageRequestsPerCollection
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /collection.duplicateCollection:
+    post:
+      operationId: collection-duplicateCollection
+      summary: Duplicate Collection
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collectionId:
+                  type: string
+                  minLength: 1
+              required:
+                - collectionId
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  organizationId:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - organizationId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /collection.searchCollections:
+    get:
+      operationId: collection-searchCollections
+      summary: Search Collections
+      tags:
+        - Collection
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+            minLength: 1
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    organizationId:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    apiEndpoints:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          url:
+                            type: string
+                          method:
+                            type: string
+                          isActive:
+                            type: boolean
+                          expectedStatus:
+                            type: number
+                          timeout:
+                            type: number
+                          interval:
+                            type: number
+                          collectionId:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          createdAt:
+                            type: string
+                          updatedAt:
+                            type: string
+                        required:
+                          - id
+                          - name
+                          - url
+                          - method
+                          - isActive
+                          - expectedStatus
+                          - timeout
+                          - interval
+                          - collectionId
+                          - createdAt
+                          - updatedAt
+                        additionalProperties: false
+                    requestCount:
+                      type: number
+                    lastModified:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - description
+                    - organizationId
+                    - createdAt
+                    - updatedAt
+                    - apiEndpoints
+                    - requestCount
+                    - lastModified
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /apiEndpoint.create:
+    post:
+      operationId: apiEndpoint-create
+      summary: Create
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                url:
+                  type: string
+                method:
+                  default: GET
+                  type: string
+                  enum:
+                    - GET
+                    - POST
+                    - PUT
+                    - PATCH
+                    - DELETE
+                    - HEAD
+                    - OPTIONS
+                bodySchema:
+                  type: string
+                bodyOverrides:
+                  type: string
+                headersSchema:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                headersOverrides:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                headers:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                body:
+                  type: string
+                expectedStatus:
+                  default: 200
+                  type: integer
+                  minimum: 100
+                  maximum: 599
+                timeout:
+                  default: 30000
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                interval:
+                  default: 300000
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                collectionId:
+                  type: string
+                isActive:
+                  default: false
+                  type: boolean
+              required:
+                - name
+                - url
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  method:
+                    type: string
+                  sourceKey:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodySchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodyOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersSchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headers:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  expectedStatus:
+                    type: number
+                  timeout:
+                    type: number
+                  interval:
+                    type: number
+                  lastCheckedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isActive:
+                    type: boolean
+                  verifiedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verifiedBy:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationSource:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationCommit:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationEnvironment:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  collectionId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - url
+                  - method
+                  - sourceKey
+                  - bodySchema
+                  - bodyOverrides
+                  - headersSchema
+                  - headersOverrides
+                  - headers
+                  - body
+                  - expectedStatus
+                  - timeout
+                  - interval
+                  - lastCheckedAt
+                  - isActive
+                  - verifiedAt
+                  - verifiedBy
+                  - verificationSource
+                  - verificationCommit
+                  - verificationEnvironment
+                  - userId
+                  - organizationId
+                  - collectionId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /apiEndpoint.get:
+    get:
+      operationId: apiEndpoint-get
+      summary: Get
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: id
+          schema:
+            type: string
+            minLength: 1
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  method:
+                    type: string
+                  sourceKey:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodySchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodyOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersSchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headers:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  expectedStatus:
+                    type: number
+                  timeout:
+                    type: number
+                  interval:
+                    type: number
+                  lastCheckedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isActive:
+                    type: boolean
+                  verifiedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verifiedBy:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationSource:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationCommit:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationEnvironment:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  collectionId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - url
+                  - method
+                  - sourceKey
+                  - bodySchema
+                  - bodyOverrides
+                  - headersSchema
+                  - headersOverrides
+                  - headers
+                  - body
+                  - expectedStatus
+                  - timeout
+                  - interval
+                  - lastCheckedAt
+                  - isActive
+                  - verifiedAt
+                  - verifiedBy
+                  - verificationSource
+                  - verificationCommit
+                  - verificationEnvironment
+                  - userId
+                  - organizationId
+                  - collectionId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /apiEndpoint.getEndpoints:
+    get:
+      operationId: apiEndpoint-getEndpoints
+      summary: Get Endpoints
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    url:
+                      type: string
+                    method:
+                      type: string
+                    sourceKey:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    bodySchema:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    bodyOverrides:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headersSchema:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headersOverrides:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headers:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    body:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    expectedStatus:
+                      type: number
+                    timeout:
+                      type: number
+                    interval:
+                      type: number
+                    lastCheckedAt:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    isActive:
+                      type: boolean
+                    verifiedAt:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verifiedBy:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationSource:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationCommit:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationEnvironment:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    userId:
+                      type: string
+                    organizationId:
+                      type: string
+                    collectionId:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - url
+                    - method
+                    - sourceKey
+                    - bodySchema
+                    - bodyOverrides
+                    - headersSchema
+                    - headersOverrides
+                    - headers
+                    - body
+                    - expectedStatus
+                    - timeout
+                    - interval
+                    - lastCheckedAt
+                    - isActive
+                    - verifiedAt
+                    - verifiedBy
+                    - verificationSource
+                    - verificationCommit
+                    - verificationEnvironment
+                    - userId
+                    - organizationId
+                    - collectionId
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /apiEndpoint.update:
+    post:
+      operationId: apiEndpoint-update
+      summary: Update
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                name:
+                  type: string
+                  minLength: 1
+                url:
+                  type: string
+                method:
+                  type: string
+                  enum:
+                    - GET
+                    - POST
+                    - PUT
+                    - PATCH
+                    - DELETE
+                    - HEAD
+                    - OPTIONS
+                bodySchema:
+                  type: string
+                bodyOverrides:
+                  type: string
+                headersSchema:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                headersOverrides:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                headers:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                body:
+                  type: string
+                expectedStatus:
+                  type: integer
+                  minimum: 100
+                  maximum: 599
+                timeout:
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                interval:
+                  type: integer
+                  exclusiveMinimum: 0
+                  maximum: 9007199254740991
+                isActive:
+                  type: boolean
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  method:
+                    type: string
+                  sourceKey:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodySchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodyOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersSchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headers:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  expectedStatus:
+                    type: number
+                  timeout:
+                    type: number
+                  interval:
+                    type: number
+                  lastCheckedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isActive:
+                    type: boolean
+                  verifiedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verifiedBy:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationSource:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationCommit:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationEnvironment:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  collectionId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - url
+                  - method
+                  - sourceKey
+                  - bodySchema
+                  - bodyOverrides
+                  - headersSchema
+                  - headersOverrides
+                  - headers
+                  - body
+                  - expectedStatus
+                  - timeout
+                  - interval
+                  - lastCheckedAt
+                  - isActive
+                  - verifiedAt
+                  - verifiedBy
+                  - verificationSource
+                  - verificationCommit
+                  - verificationEnvironment
+                  - userId
+                  - organizationId
+                  - collectionId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /apiEndpoint.updateOverrides:
+    post:
+      operationId: apiEndpoint-updateOverrides
+      summary: Update Overrides
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                bodyOverrides:
+                  type: string
+                headersOverrides:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  method:
+                    type: string
+                  sourceKey:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodySchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodyOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersSchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headers:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  expectedStatus:
+                    type: number
+                  timeout:
+                    type: number
+                  interval:
+                    type: number
+                  lastCheckedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isActive:
+                    type: boolean
+                  verifiedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verifiedBy:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationSource:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationCommit:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationEnvironment:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  collectionId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - url
+                  - method
+                  - sourceKey
+                  - bodySchema
+                  - bodyOverrides
+                  - headersSchema
+                  - headersOverrides
+                  - headers
+                  - body
+                  - expectedStatus
+                  - timeout
+                  - interval
+                  - lastCheckedAt
+                  - isActive
+                  - verifiedAt
+                  - verifiedBy
+                  - verificationSource
+                  - verificationCommit
+                  - verificationEnvironment
+                  - userId
+                  - organizationId
+                  - collectionId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /apiEndpoint.delete:
+    post:
+      operationId: apiEndpoint-delete
+      summary: Delete
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema: {}
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /apiEndpoint.verify:
+    post:
+      operationId: apiEndpoint-verify
+      summary: Verify
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+                source:
+                  default: MANUAL
+                  type: string
+                  enum:
+                    - CD
+                    - CLI
+                    - MANUAL
+                    - API
+                commit:
+                  type: string
+                  maxLength: 40
+                environment:
+                  type: string
+                  maxLength: 50
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  url:
+                    type: string
+                  method:
+                    type: string
+                  sourceKey:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodySchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  bodyOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersSchema:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headersOverrides:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  headers:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  expectedStatus:
+                    type: number
+                  timeout:
+                    type: number
+                  interval:
+                    type: number
+                  lastCheckedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  isActive:
+                    type: boolean
+                  verifiedAt:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verifiedBy:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationSource:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationCommit:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  verificationEnvironment:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  collectionId:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - url
+                  - method
+                  - sourceKey
+                  - bodySchema
+                  - bodyOverrides
+                  - headersSchema
+                  - headersOverrides
+                  - headers
+                  - body
+                  - expectedStatus
+                  - timeout
+                  - interval
+                  - lastCheckedAt
+                  - isActive
+                  - verifiedAt
+                  - verifiedBy
+                  - verificationSource
+                  - verificationCommit
+                  - verificationEnvironment
+                  - userId
+                  - organizationId
+                  - collectionId
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /apiEndpoint.bulkVerify:
+    post:
+      operationId: apiEndpoint-bulkVerify
+      summary: Bulk Verify
+      tags:
+        - Api Endpoint
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                endpointIds:
+                  minItems: 1
+                  type: array
+                  items:
+                    type: string
+                source:
+                  default: MANUAL
+                  type: string
+                  enum:
+                    - CD
+                    - CLI
+                    - MANUAL
+                    - API
+                commit:
+                  type: string
+                  maxLength: 40
+                environment:
+                  type: string
+                  maxLength: 50
+              required:
+                - endpointIds
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    url:
+                      type: string
+                    method:
+                      type: string
+                    sourceKey:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    bodySchema:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    bodyOverrides:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headersSchema:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headersOverrides:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    headers:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    body:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    expectedStatus:
+                      type: number
+                    timeout:
+                      type: number
+                    interval:
+                      type: number
+                    lastCheckedAt:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    isActive:
+                      type: boolean
+                    verifiedAt:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verifiedBy:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationSource:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationCommit:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    verificationEnvironment:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    userId:
+                      type: string
+                    organizationId:
+                      type: string
+                    collectionId:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - url
+                    - method
+                    - sourceKey
+                    - bodySchema
+                    - bodyOverrides
+                    - headersSchema
+                    - headersOverrides
+                    - headers
+                    - body
+                    - expectedStatus
+                    - timeout
+                    - interval
+                    - lastCheckedAt
+                    - isActive
+                    - verifiedAt
+                    - verifiedBy
+                    - verificationSource
+                    - verificationCommit
+                    - verificationEnvironment
+                    - userId
+                    - organizationId
+                    - collectionId
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /monitoring.checkEndpoint:
+    post:
+      operationId: monitoring-checkEndpoint
+      summary: Check Endpoint
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  minLength: 1
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  responseTime:
+                    anyOf:
+                      - type: number
+                      - type: "null"
+                  statusCode:
+                    anyOf:
+                      - type: number
+                      - type: "null"
+                  errorMessage:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                required:
+                  - status
+                  - responseTime
+                  - statusCode
+                  - errorMessage
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /monitoring.sendRequest:
+    post:
+      operationId: monitoring-sendRequest
+      summary: Send Request
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  minLength: 1
+                  format: uri
+                method:
+                  type: string
+                  enum:
+                    - GET
+                    - POST
+                    - PUT
+                    - PATCH
+                    - DELETE
+                    - HEAD
+                    - OPTIONS
+                headers:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                body:
+                  type: string
+              required:
+                - url
+                - method
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: number
+                  statusText:
+                    type: string
+                  headers:
+                    type: object
+                    propertyNames:
+                      type: string
+                    additionalProperties:
+                      type: string
+                  body:
+                    type: string
+                  responseTime:
+                    type: number
+                required:
+                  - status
+                  - statusText
+                  - headers
+                  - body
+                  - responseTime
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /monitoring.getHistory:
+    get:
+      operationId: monitoring-getHistory
+      summary: Get History
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: endpointId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+        - in: query
+          name: skip
+          schema:
+            default: 0
+            type: number
+            minimum: 0
+        - in: query
+          name: take
+          schema:
+            default: 50
+            type: number
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    apiEndpointId:
+                      type: string
+                    userId:
+                      type: string
+                    status:
+                      type: string
+                    responseTime:
+                      anyOf:
+                        - type: number
+                        - type: "null"
+                    statusCode:
+                      anyOf:
+                        - type: number
+                        - type: "null"
+                    errorMessage:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    responseSize:
+                      anyOf:
+                        - type: number
+                        - type: "null"
+                    checkedAt:
+                      type: string
+                  required:
+                    - id
+                    - apiEndpointId
+                    - userId
+                    - status
+                    - responseTime
+                    - statusCode
+                    - errorMessage
+                    - responseSize
+                    - checkedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getUptimeStats:
+    get:
+      operationId: monitoring-getUptimeStats
+      summary: Get Uptime Stats
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: endpointId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+        - in: query
+          name: days
+          schema:
+            default: 30
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                  successful:
+                    type: number
+                  failed:
+                    type: number
+                  uptimePercentage:
+                    type: number
+                required:
+                  - total
+                  - successful
+                  - failed
+                  - uptimePercentage
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getAverageResponseTime:
+    get:
+      operationId: monitoring-getAverageResponseTime
+      summary: Get Average Response Time
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: endpointId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+        - in: query
+          name: days
+          schema:
+            default: 30
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: number
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getResponseTimeHistory:
+    get:
+      operationId: monitoring-getResponseTimeHistory
+      summary: Get Response Time History
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: endpointId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+        - in: query
+          name: days
+          schema:
+            default: 7
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    responseTime:
+                      anyOf:
+                        - type: number
+                        - type: "null"
+                    checkedAt:
+                      type: string
+                  required:
+                    - responseTime
+                    - checkedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getAnalytics:
+    get:
+      operationId: monitoring-getAnalytics
+      summary: Get Analytics
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            default: 7
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current:
+                    type: object
+                    properties:
+                      totalChecks:
+                        type: number
+                      successfulChecks:
+                        type: number
+                      failedChecks:
+                        type: number
+                      errorRate:
+                        type: number
+                      uptimePercentage:
+                        type: number
+                      avgResponseTime:
+                        type: number
+                    required:
+                      - totalChecks
+                      - successfulChecks
+                      - failedChecks
+                      - errorRate
+                      - uptimePercentage
+                      - avgResponseTime
+                    additionalProperties: false
+                  previous:
+                    type: object
+                    properties:
+                      totalChecks:
+                        type: number
+                      successfulChecks:
+                        type: number
+                      failedChecks:
+                        type: number
+                      errorRate:
+                        type: number
+                      uptimePercentage:
+                        type: number
+                      avgResponseTime:
+                        type: number
+                    required:
+                      - totalChecks
+                      - successfulChecks
+                      - failedChecks
+                      - errorRate
+                      - uptimePercentage
+                      - avgResponseTime
+                    additionalProperties: false
+                  changes:
+                    type: object
+                    properties:
+                      totalChecks:
+                        type: number
+                      avgResponseTime:
+                        type: number
+                      errorRate:
+                        type: number
+                      uptimePercentage:
+                        type: number
+                    required:
+                      - totalChecks
+                      - avgResponseTime
+                      - errorRate
+                      - uptimePercentage
+                    additionalProperties: false
+                required:
+                  - current
+                  - previous
+                  - changes
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getTopEndpoints:
+    get:
+      operationId: monitoring-getTopEndpoints
+      summary: Get Top Endpoints
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            default: 7
+            type: number
+            minimum: 1
+            maximum: 365
+        - in: query
+          name: limit
+          schema:
+            default: 5
+            type: number
+            minimum: 1
+            maximum: 50
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    url:
+                      type: string
+                    checkCount:
+                      type: number
+                    avgResponseTime:
+                      type: number
+                    uptimePercentage:
+                      type: number
+                  required:
+                    - id
+                    - name
+                    - url
+                    - checkCount
+                    - avgResponseTime
+                    - uptimePercentage
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getResponseTimeChart:
+    get:
+      operationId: monitoring-getResponseTimeChart
+      summary: Get Response Time Chart
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            default: 7
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                    avgResponseTime:
+                      type: number
+                  required:
+                    - date
+                    - avgResponseTime
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getUptimeChart:
+    get:
+      operationId: monitoring-getUptimeChart
+      summary: Get Uptime Chart
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema:
+            default: 7
+            type: number
+            minimum: 1
+            maximum: 365
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: string
+                    total:
+                      type: number
+                    successful:
+                      type: number
+                    uptimePercentage:
+                      type: number
+                  required:
+                    - date
+                    - total
+                    - successful
+                    - uptimePercentage
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /monitoring.getRecentFailures:
+    get:
+      operationId: monitoring-getRecentFailures
+      summary: Get Recent Failures
+      tags:
+        - Monitoring
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: organizationId
+          schema:
+            type: string
+            minLength: 1
+          required: true
+        - in: query
+          name: limit
+          schema:
+            default: 50
+            type: number
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    endpointId:
+                      type: string
+                    endpointName:
+                      type: string
+                    endpointUrl:
+                      type: string
+                    status:
+                      type: string
+                    statusCode:
+                      anyOf:
+                        - type: number
+                        - type: "null"
+                    errorMessage:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    checkedAt:
+                      type: string
+                  required:
+                    - id
+                    - endpointId
+                    - endpointName
+                    - endpointUrl
+                    - status
+                    - statusCode
+                    - errorMessage
+                    - checkedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /alert.create:
+    post:
+      operationId: alert-create
+      summary: Create
+      tags:
+        - Alert
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                description:
+                  type: string
+                apiEndpointId:
+                  type: string
+                condition:
+                  type: string
+                  enum:
+                    - RESPONSE_TIME_ABOVE
+                    - RESPONSE_TIME_BELOW
+                    - STATUS_CODE_NOT
+                    - UPTIME_BELOW
+                    - ERROR_RATE_ABOVE
+                threshold:
+                  type: number
+                  exclusiveMinimum: 0
+                isActive:
+                  default: true
+                  type: boolean
+              required:
+                - name
+                - apiEndpointId
+                - condition
+                - threshold
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  apiEndpointId:
+                    type: string
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  condition:
+                    type: string
+                  threshold:
+                    type: number
+                  isActive:
+                    type: boolean
+                  lastTriggered:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - apiEndpointId
+                  - userId
+                  - organizationId
+                  - condition
+                  - threshold
+                  - isActive
+                  - lastTriggered
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /alert.getByEndpoint:
+    get:
+      operationId: alert-getByEndpoint
+      summary: Get By Endpoint
+      tags:
+        - Alert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: apiEndpointId
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    description:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    apiEndpointId:
+                      type: string
+                    userId:
+                      type: string
+                    organizationId:
+                      type: string
+                    condition:
+                      type: string
+                    threshold:
+                      type: number
+                    isActive:
+                      type: boolean
+                    lastTriggered:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - description
+                    - apiEndpointId
+                    - userId
+                    - organizationId
+                    - condition
+                    - threshold
+                    - isActive
+                    - lastTriggered
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /alert.update:
+    post:
+      operationId: alert-update
+      summary: Update
+      tags:
+        - Alert
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                description:
+                  type: string
+                condition:
+                  type: string
+                  enum:
+                    - RESPONSE_TIME_ABOVE
+                    - RESPONSE_TIME_BELOW
+                    - STATUS_CODE_NOT
+                    - UPTIME_BELOW
+                    - ERROR_RATE_ABOVE
+                threshold:
+                  type: number
+                  exclusiveMinimum: 0
+                isActive:
+                  type: boolean
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  apiEndpointId:
+                    type: string
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  condition:
+                    type: string
+                  threshold:
+                    type: number
+                  isActive:
+                    type: boolean
+                  lastTriggered:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - apiEndpointId
+                  - userId
+                  - organizationId
+                  - condition
+                  - threshold
+                  - isActive
+                  - lastTriggered
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+  /alert.delete:
+    post:
+      operationId: alert-delete
+      summary: Delete
+      tags:
+        - Alert
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  apiEndpointId:
+                    type: string
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  condition:
+                    type: string
+                  threshold:
+                    type: number
+                  isActive:
+                    type: boolean
+                  lastTriggered:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                required:
+                  - id
+                  - name
+                  - description
+                  - apiEndpointId
+                  - userId
+                  - organizationId
+                  - condition
+                  - threshold
+                  - isActive
+                  - lastTriggered
+                  - createdAt
+                  - updatedAt
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
+components:
+  schemas:
+    error.BAD_REQUEST:
+      title: Invalid input data error (400)
+      description: The error information
+      example:
+        code: BAD_REQUEST
+        message: Invalid input data
+        issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Invalid input data
+          type: string
+        code:
+          description: The error code
+          example: BAD_REQUEST
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+    error.UNAUTHORIZED:
+      title: Authorization not provided error (401)
+      description: The error information
+      example:
+        code: UNAUTHORIZED
+        message: Authorization not provided
+        issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Authorization not provided
+          type: string
+        code:
+          description: The error code
+          example: UNAUTHORIZED
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+    error.FORBIDDEN:
+      title: Insufficient access error (403)
+      description: The error information
+      example:
+        code: FORBIDDEN
+        message: Insufficient access
+        issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Insufficient access
+          type: string
+        code:
+          description: The error code
+          example: FORBIDDEN
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+    error.INTERNAL_SERVER_ERROR:
+      title: Internal server error error (500)
+      description: The error information
+      example:
+        code: INTERNAL_SERVER_ERROR
+        message: Internal server error
+        issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Internal server error
+          type: string
+        code:
+          description: The error code
+          example: INTERNAL_SERVER_ERROR
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+    error.NOT_FOUND:
+      title: Not found error (404)
+      description: The error information
+      example:
+        code: NOT_FOUND
+        message: Not found
+        issues: []
+      type: object
+      properties:
+        message:
+          description: The error message
+          example: Not found
+          type: string
+        code:
+          description: The error code
+          example: NOT_FOUND
+          type: string
+        issues:
+          description: An array of issues that were responsible for the error
+          example: []
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+            additionalProperties: false
+      required:
+        - message
+        - code
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: API key authentication. Get your API key from the WatchAPI Cloud dashboard.

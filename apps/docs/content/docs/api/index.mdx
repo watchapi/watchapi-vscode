@@ -1,0 +1,30 @@
+---
+title: API Reference
+description: Complete reference for the WatchAPI Cloud API
+---
+
+# API Reference
+
+The WatchAPI Cloud API allows you to programmatically manage your API collections, sync endpoints, and access monitoring data.
+
+## Base URL
+
+```
+https://watchapi.dev/api
+```
+
+## Authentication
+
+All API requests require authentication using a Bearer token. Get your API key from the [WatchAPI Cloud dashboard](https://cloud.watchapi.dev).
+
+```bash
+curl -H "Authorization: Bearer YOUR_API_KEY" \
+  https://watchapi.dev/api/collections
+```
+
+## Resources
+
+- **Collections** - Create and manage API collections
+- **Endpoints** - Add, update, and remove endpoints within collections
+- **Sync** - Trigger sync operations to import endpoints from your codebase
+- **Monitoring** - Access request history and configure alerts
