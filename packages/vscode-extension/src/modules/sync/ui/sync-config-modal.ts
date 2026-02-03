@@ -225,7 +225,7 @@ export class SyncConfigModal {
                 }
 
                 logger.info(
-                    `Pull complete: ${stats.created} created, ${stats.updated} updated, ${stats.deactivated} deactivated`,
+                    `Sync complete: ${stats.created} created, ${stats.updated} updated, ${stats.deactivated} deactivated`,
                 );
             },
         );
@@ -393,7 +393,7 @@ export class SyncConfigModal {
 
         const summary =
             parts.length > 0 ? parts.join(", ") : "No changes needed";
-        vscode.window.showInformationMessage(`Pull complete: ${summary}`);
+        vscode.window.showInformationMessage(`Sync complete: ${summary}`);
     }
 
     /**
