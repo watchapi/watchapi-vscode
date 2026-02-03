@@ -1,8 +1,3 @@
-/**
- * Export command handlers
- * Commands: EXPORT
- */
-
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs/promises";
@@ -14,10 +9,8 @@ import type { EndpointsService } from "@/modules/endpoints";
 import type { ApiEndpoint } from "./endpoints.types";
 import type { Collection } from "@/modules/collections/collections.types";
 import { constructHttpFile } from "@/infrastructure/parsers";
+import { getConfig } from "@/shared";
 
-/**
- * Register export commands
- */
 export function registerExportCommands(
     context: vscode.ExtensionContext,
     collectionsService: CollectionsService,
@@ -44,27 +37,18 @@ export function registerExportCommands(
     );
 }
 
-/**
- * Read REST client environment from workspace
- */
-/**
- * Export all collections to .http files
- */
 async function exportCollections(
     collectionsService: CollectionsService,
     endpointsService: EndpointsService,
 ): Promise<void> {
-    // Get workspace folder
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
         throw new Error("No workspace folder found");
     }
 
-    // Create export directory
     const exportDir = path.join(workspaceFolder.uri.fsPath, "watchapi-export");
     await fs.mkdir(exportDir, { recursive: true });
 
-    // Get all collections
     const collections = await collectionsService.getAll();
 
     if (collections.length === 0) {
@@ -72,19 +56,10 @@ async function exportCollections(
         return;
     }
 
-    // Read environment and settings
     const env = await readRestClientEnvFile(workspaceFolder);
-    const config = vscode.workspace.getConfiguration("watchapi");
-    const includeAuthorizationHeader = config.get<boolean>(
-        "includeAuthorizationHeader",
-        true,
-    );
-    const includeDefaultSetDirective = config.get<boolean>(
-        "includeDefaultSetDirective",
-        true,
-    );
+    const { includeAuthorizationHeader, includeDefaultSetDirective } =
+        getConfig();
 
-    // Export each collection
     let totalEndpoints = 0;
     for (const collection of collections) {
         const endpoints = await endpointsService.getByCollectionId(
@@ -105,9 +80,6 @@ async function exportCollections(
     );
 }
 
-/**
- * Export a single collection with its endpoints
- */
 async function exportCollection(
     exportDir: string,
     collection: Collection,
@@ -118,14 +90,11 @@ async function exportCollection(
         includeDefaultSetDirective: boolean;
     },
 ): Promise<void> {
-    // Sanitize collection name for filesystem
     const collectionDirName = sanitizeFilename(collection.name);
     const collectionDir = path.join(exportDir, collectionDirName);
 
-    // Create collection directory
     await fs.mkdir(collectionDir, { recursive: true });
 
-    // Create .http file for each endpoint
     for (const endpoint of endpoints) {
         const httpContent = constructHttpFile(endpoint, env, options);
         const filename = sanitizeFilename(`${endpoint.name}.http`);
@@ -135,11 +104,7 @@ async function exportCollection(
     }
 }
 
-/**
- * Sanitize filename for filesystem
- */
 function sanitizeFilename(filename: string): string {
-    // Replace invalid characters with underscores
     return filename
         .replace(/[<>:"/\\|?*]/g, "_")
         .replace(/\s+/g, "_")

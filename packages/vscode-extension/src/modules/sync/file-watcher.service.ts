@@ -5,7 +5,10 @@
 
 import * as vscode from "vscode";
 import { detectAndParseRoutes, hasAnyProjectType } from "@watchapi/parsers";
-import { CollectionsService, CollectionsTreeProvider } from "@/modules/collections";
+import {
+    CollectionsService,
+    CollectionsTreeProvider,
+} from "@/modules/collections";
 import { EndpointsService } from "@/modules/endpoints";
 import { logger } from "@/shared/logger";
 import { FILE_WATCHER_CONFIG } from "@/shared/constants";
@@ -331,9 +334,8 @@ export class FileWatcherService implements vscode.Disposable {
             stats.updated++;
         }
 
-        // Execute creates
-        for (const { route, externalId } of plan.toCreate) {
-            await this.endpointsService.create({
+        const createdEndpoints = await this.endpointsService.bulkCreate(
+            plan.toCreate.map(({ route, externalId }) => ({
                 externalId,
                 name: route.name,
                 pathTemplate: route.path,
@@ -345,9 +347,10 @@ export class FileWatcherService implements vscode.Disposable {
                 collectionId,
                 bodyOverrides: undefined,
                 headersOverrides: undefined,
-            });
-            stats.created++;
-        }
+            })),
+        );
+
+        stats.created += createdEndpoints.length;
     }
 
     /**
