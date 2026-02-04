@@ -3,6 +3,7 @@ import { EndpointsService } from "./endpoints.service";
 import { constructHttpFile, parseHttpFile } from "@/infrastructure/parsers";
 import { readRestClientEnvFile } from "@/modules/environments";
 import { getEndpointIdFromUri } from "./endpoints.editor";
+import { getConfig } from "@/shared";
 
 export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
     private readonly emitter = new vscode.EventEmitter<
@@ -44,16 +45,8 @@ export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
 
         const env = await readRestClientEnvFile();
 
-        // Read settings
-        const config = vscode.workspace.getConfiguration("watchapi");
-        const includeAuthorizationHeader = config.get<boolean>(
-            "includeAuthorizationHeader",
-            true,
-        );
-        const includeDefaultSetDirective = config.get<boolean>(
-            "includeDefaultSetDirective",
-            true,
-        );
+        const { includeAuthorizationHeader, includeDefaultSetDirective } =
+            getConfig();
 
         const content = constructHttpFile(endpoint, env, {
             includeAuthorizationHeader,

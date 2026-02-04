@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { parseHttpFile } from "@/infrastructure/parsers";
+import { buildFullUrl } from "@/shared/url-utils";
 
 export class HttpFileCodeLensProvider implements vscode.CodeLensProvider {
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> =
@@ -9,124 +10,41 @@ export class HttpFileCodeLensProvider implements vscode.CodeLensProvider {
 
     provideCodeLenses(
         document: vscode.TextDocument,
-        // token: vscode.CancellationToken,
     ): vscode.CodeLens[] | Thenable<vscode.CodeLens[]> {
-        // Only activate for .http/.rest files (even if language is plaintext)
-        if (!this.isHttpLikeDocument(document)) {
-            return [];
-        }
+        if (!this.isHttpDocument(document)) return [];
 
-        const codeLenses: vscode.CodeLens[] = [];
         const text = document.getText();
-        const lines = text.split("\n");
+        const match = text.match(
+            /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+/im,
+        );
 
-        // Find all request lines (GET, POST, etc.)
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
+        if (!match) return [];
 
-            if (line.match(/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+/i)) {
-                const range = new vscode.Range(i, 0, i, 0);
+        const lineNumber = text.slice(0, match.index!).split("\n").length - 1;
+        const range = new vscode.Range(lineNumber, 0, lineNumber, 0);
 
-                // Parse the current request block
-                const requestBlock = this.extractRequestBlock(lines, i);
-                const endpoint = parseHttpFile(requestBlock);
+        const endpoint = parseHttpFile(document.getText());
 
-                // Add CodeLens alongside other request actions
-                codeLenses.push(
-                    new vscode.CodeLens(range, {
-                        title: "▶ Run Request",
-                        command: "watchapi.executeFromEditor",
-                        arguments: [endpoint, document.uri],
-                        tooltip: `Execute ${endpoint.method} ${endpoint.requestPath}`,
-                    }),
-                );
-            }
-        }
-
-        return codeLenses;
-    }
-
-    /**
-     * Extract the full request block starting from the request line
-     */
-    private extractRequestBlock(lines: string[], startIndex: number): string {
-        const block: string[] = [];
-
-        // Go backwards to capture comments and @ variables
-        let i = startIndex;
-        while (i >= 0) {
-            const line = lines[i].trim();
-            if (
-                line === "" ||
-                line.startsWith("#") ||
-                line.startsWith("//") ||
-                line.startsWith("@")
-            ) {
-                block.unshift(lines[i]);
-                i--;
-            } else if (i === startIndex) {
-                // This is the request line itself
-                block.push(lines[i]);
-                break;
-            } else {
-                break;
-            }
-        }
-
-        // Go forward to capture headers and body
-        i = startIndex + 1;
-        let inBody = false;
-        while (i < lines.length) {
-            const line = lines[i].trim();
-
-            // Stop at next request (### or new HTTP method)
-            if (
-                line.startsWith("###") ||
-                line.match(/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+/i)
-            ) {
-                break;
-            }
-
-            // Empty line after headers = body starts
-            if (line === "" && !inBody) {
-                inBody = true;
-            }
-
-            block.push(lines[i]);
-
-            // If we're in the body and hit another empty line, might be end
-            if (inBody && line === "" && i + 1 < lines.length) {
-                const nextLine = lines[i + 1].trim();
-                if (
-                    nextLine.startsWith("###") ||
-                    nextLine.match(
-                        /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+/i,
-                    )
-                ) {
-                    break;
-                }
-            }
-
-            i++;
-        }
-
-        return block.join("\n");
+        return [
+            new vscode.CodeLens(range, {
+                title: "▶ Run Request",
+                command: "watchapi.executeFromEditor",
+                arguments: [endpoint, document.uri],
+                tooltip: `Execute ${endpoint.method} ${buildFullUrl(endpoint.requestPath || endpoint.pathTemplate!, endpoint.queryOverrides!)}`,
+            }),
+        ];
     }
 
     public refresh(): void {
         this._onDidChangeCodeLenses.fire();
     }
 
-    private isHttpLikeDocument(document: vscode.TextDocument): boolean {
-        if (
-            document.languageId === "http" ||
-            document.languageId === "rest" ||
-            document.uri.scheme === "watchapi"
-        ) {
+    private isHttpDocument(document: vscode.TextDocument): boolean {
+        const filename = document.fileName.toLowerCase();
+        if (document.languageId === "http" || filename.endsWith(".http")) {
             return true;
         }
 
-        const filename = document.fileName.toLowerCase();
-        return filename.endsWith(".http") || filename.endsWith(".rest");
+        return false;
     }
 }

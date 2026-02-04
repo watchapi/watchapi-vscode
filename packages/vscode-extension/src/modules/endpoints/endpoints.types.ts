@@ -1,16 +1,10 @@
-/**
- * Endpoint-related types
- */
-
 import { HttpMethod } from "@/shared/constants";
 
-// Set directive for extracting response values
 export interface SetDirective {
     varName: string;
     responsePath: string;
 }
 
-// API Endpoint types
 export interface ApiEndpoint {
     id: string;
     externalId?: string; // Stable identifier from source (file path + handler)
@@ -76,3 +70,9 @@ export interface UpdateApiEndpointInput {
     interval?: number;
     isActive?: boolean;
 }
+
+export type PickedEndpoint = {
+    endpoint: ApiEndpoint;
+    collectionName?: string;
+    duplicateIndex?: number;
+};

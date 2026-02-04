@@ -1,7 +1,3 @@
-/**
- * Endpoints UI components barrel export
- */
-
 export * from "./code-lens-provider";
 export * from "./execution-button";
 export * from "./request-executor";
