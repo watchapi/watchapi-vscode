@@ -12,7 +12,6 @@ import {
 import { RequestExecutor, ExecutionContext } from "./request-executor";
 import { showResponsePanel } from "./response-panel";
 import { processSetDirectives } from "./response-variable-handler";
-import { buildFullUrl } from "@/shared/url-utils";
 
 export class ExecutionButton {
     private executor: RequestExecutor;
@@ -94,7 +93,7 @@ export class ExecutionButton {
         await vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Notification,
-                title: `Executing ${endpoint.method} ${buildFullUrl(endpoint.requestPath, endpoint.querySchema || endpoint.queryOverrides!)}`,
+                title: `Executing ${endpoint.method} ${endpoint.requestPath}`,
                 cancellable: false,
             },
             async () => {

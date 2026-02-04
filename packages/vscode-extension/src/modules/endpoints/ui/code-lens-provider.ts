@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { parseHttpFile } from "@/infrastructure/parsers";
-import { buildFullUrl } from "@/shared/url-utils";
 
 export class HttpFileCodeLensProvider implements vscode.CodeLensProvider {
     private _onDidChangeCodeLenses: vscode.EventEmitter<void> =
@@ -30,7 +29,7 @@ export class HttpFileCodeLensProvider implements vscode.CodeLensProvider {
                 title: "▶ Run Request",
                 command: "watchapi.executeFromEditor",
                 arguments: [endpoint, document.uri],
-                tooltip: `Execute ${endpoint.method} ${buildFullUrl(endpoint.requestPath || endpoint.pathTemplate!, endpoint.queryOverrides!)}`,
+                tooltip: `Execute ${endpoint.method} ${endpoint.requestPath}`,
             }),
         ];
     }
