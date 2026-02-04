@@ -1,15 +1,9 @@
-/**
- * Endpoint command handlers
- * Commands: ADD_ENDPOINT, DELETE_ENDPOINT, watchapi.findEndpoint, watchapi.openEndpoint
- */
-
 import * as vscode from "vscode";
 import { COMMANDS } from "@/shared/constants";
 import { wrapCommand, wrapCommandWithRefresh } from "@/shared/command-wrapper";
 import type { EndpointsService } from "@/modules/endpoints";
 import type { CollectionNode, EndpointNode } from "@/modules/collections";
 import type { CollectionsTreeProvider } from "@/modules/collections";
-import type { CollectionsService } from "@/modules/collections";
 import type { ApiEndpoint } from "./endpoints.types";
 import { openEndpointEditor } from "./endpoints.editor";
 
