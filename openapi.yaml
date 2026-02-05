@@ -520,6 +520,131 @@ paths:
         "403": *a3
         "404": *a5
         "500": *a4
+  /auth.refreshToken:
+    post:
+      operationId: auth-refreshToken
+      summary: Refresh Token
+      tags:
+        - Auth
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  minLength: 1
+              required:
+                - refreshToken
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                required:
+                  - accessToken
+                  - refreshToken
+                additionalProperties: false
+        "400": *a1
+        "500": *a4
+  /auth.verifyToken:
+    get:
+      operationId: auth-verifyToken
+      summary: Verify Token
+      tags:
+        - Auth
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+            minLength: 1
+          required: true
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                      name:
+                        anyOf:
+                          - type: string
+                          - type: "null"
+                      avatar:
+                        anyOf:
+                          - type: string
+                          - type: "null"
+                      role:
+                        type: string
+                    required:
+                      - id
+                      - email
+                      - name
+                      - avatar
+                      - role
+                    additionalProperties: false
+                  - type: "null"
+        "400": *a1
+        "404": *a5
+        "500": *a4
+  /auth.switchOrganization:
+    post:
+      operationId: auth-switchOrganization
+      summary: Switch Organization
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organizationId:
+                  type: string
+                  minLength: 1
+              required:
+                - organizationId
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                required:
+                  - accessToken
+                  - refreshToken
+                additionalProperties: false
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "500": *a4
   /apiEndpoint.create:
     post:
       operationId: apiEndpoint-create
@@ -539,7 +664,9 @@ paths:
                 name:
                   type: string
                   minLength: 1
-                url:
+                pathTemplate:
+                  type: string
+                requestPath:
                   type: string
                 method:
                   default: GET
@@ -552,6 +679,8 @@ paths:
                     - DELETE
                     - HEAD
                     - OPTIONS
+                externalId:
+                  type: string
                 bodySchema:
                   type: string
                 bodyOverrides:
@@ -568,6 +697,42 @@ paths:
                     type: string
                   additionalProperties:
                     type: string
+                querySchema:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                queryOverrides:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                setDirectives:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      varName:
+                        type: string
+                      responsePath:
+                        type: string
+                    required:
+                      - varName
+                      - responsePath
+                setDirectivesOverrides:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      varName:
+                        type: string
+                      responsePath:
+                        type: string
+                    required:
+                      - varName
+                      - responsePath
                 headers:
                   type: object
                   propertyNames:
@@ -575,6 +740,8 @@ paths:
                   additionalProperties:
                     type: string
                 body:
+                  type: string
+                url:
                   type: string
                 expectedStatus:
                   default: 200
@@ -598,7 +765,10 @@ paths:
                   type: boolean
               required:
                 - name
-                - url
+                - pathTemplate
+                - requestPath
+                - setDirectives
+                - setDirectivesOverrides
       responses:
         "200":
           description: Successful response
@@ -611,11 +781,13 @@ paths:
                     type: string
                   name:
                     type: string
-                  url:
+                  pathTemplate:
+                    type: string
+                  requestPath:
                     type: string
                   method:
                     type: string
-                  sourceKey:
+                  externalId:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -629,17 +801,75 @@ paths:
                       - type: "null"
                   headersSchema:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
                       - type: "null"
                   headersOverrides:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  querySchema:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  queryOverrides:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  setDirectives:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
+                      - type: "null"
+                  setDirectivesOverrides:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
                       - type: "null"
                   headers:
                     anyOf:
                       - type: string
                       - type: "null"
                   body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  url:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -691,15 +921,16 @@ paths:
                 required:
                   - id
                   - name
-                  - url
+                  - pathTemplate
+                  - requestPath
                   - method
-                  - sourceKey
-                  - bodySchema
+                  - externalId
                   - bodyOverrides
-                  - headersSchema
-                  - headersOverrides
+                  - setDirectives
+                  - setDirectivesOverrides
                   - headers
                   - body
+                  - url
                   - expectedStatus
                   - timeout
                   - interval
@@ -747,11 +978,13 @@ paths:
                     type: string
                   name:
                     type: string
-                  url:
+                  pathTemplate:
+                    type: string
+                  requestPath:
                     type: string
                   method:
                     type: string
-                  sourceKey:
+                  externalId:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -765,17 +998,75 @@ paths:
                       - type: "null"
                   headersSchema:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
                       - type: "null"
                   headersOverrides:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  querySchema:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  queryOverrides:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  setDirectives:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
+                      - type: "null"
+                  setDirectivesOverrides:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
                       - type: "null"
                   headers:
                     anyOf:
                       - type: string
                       - type: "null"
                   body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  url:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -827,15 +1118,16 @@ paths:
                 required:
                   - id
                   - name
-                  - url
+                  - pathTemplate
+                  - requestPath
                   - method
-                  - sourceKey
-                  - bodySchema
+                  - externalId
                   - bodyOverrides
-                  - headersSchema
-                  - headersOverrides
+                  - setDirectives
+                  - setDirectivesOverrides
                   - headers
                   - body
+                  - url
                   - expectedStatus
                   - timeout
                   - interval
@@ -879,11 +1171,13 @@ paths:
                       type: string
                     name:
                       type: string
-                    url:
+                    pathTemplate:
+                      type: string
+                    requestPath:
                       type: string
                     method:
                       type: string
-                    sourceKey:
+                    externalId:
                       anyOf:
                         - type: string
                         - type: "null"
@@ -897,17 +1191,75 @@ paths:
                         - type: "null"
                     headersSchema:
                       anyOf:
-                        - type: string
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
                         - type: "null"
                     headersOverrides:
                       anyOf:
-                        - type: string
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    querySchema:
+                      anyOf:
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    queryOverrides:
+                      anyOf:
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    setDirectives:
+                      anyOf:
+                        - type: array
+                          items:
+                            type: object
+                            properties:
+                              varName:
+                                type: string
+                              responsePath:
+                                type: string
+                            required:
+                              - varName
+                              - responsePath
+                            additionalProperties: false
+                        - type: "null"
+                    setDirectivesOverrides:
+                      anyOf:
+                        - type: array
+                          items:
+                            type: object
+                            properties:
+                              varName:
+                                type: string
+                              responsePath:
+                                type: string
+                            required:
+                              - varName
+                              - responsePath
+                            additionalProperties: false
                         - type: "null"
                     headers:
                       anyOf:
                         - type: string
                         - type: "null"
                     body:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    url:
                       anyOf:
                         - type: string
                         - type: "null"
@@ -959,15 +1311,16 @@ paths:
                   required:
                     - id
                     - name
-                    - url
+                    - pathTemplate
+                    - requestPath
                     - method
-                    - sourceKey
-                    - bodySchema
+                    - externalId
                     - bodyOverrides
-                    - headersSchema
-                    - headersOverrides
+                    - setDirectives
+                    - setDirectivesOverrides
                     - headers
                     - body
+                    - url
                     - expectedStatus
                     - timeout
                     - interval
@@ -1011,7 +1364,9 @@ paths:
                 name:
                   type: string
                   minLength: 1
-                url:
+                pathTemplate:
+                  type: string
+                requestPath:
                   type: string
                 method:
                   type: string
@@ -1023,6 +1378,8 @@ paths:
                     - DELETE
                     - HEAD
                     - OPTIONS
+                externalId:
+                  type: string
                 bodySchema:
                   type: string
                 bodyOverrides:
@@ -1039,6 +1396,42 @@ paths:
                     type: string
                   additionalProperties:
                     type: string
+                querySchema:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                queryOverrides:
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
+                setDirectives:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      varName:
+                        type: string
+                      responsePath:
+                        type: string
+                    required:
+                      - varName
+                      - responsePath
+                setDirectivesOverrides:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      varName:
+                        type: string
+                      responsePath:
+                        type: string
+                    required:
+                      - varName
+                      - responsePath
                 headers:
                   type: object
                   propertyNames:
@@ -1046,6 +1439,8 @@ paths:
                   additionalProperties:
                     type: string
                 body:
+                  type: string
+                url:
                   type: string
                 expectedStatus:
                   type: integer
@@ -1061,8 +1456,12 @@ paths:
                   maximum: 9007199254740991
                 isActive:
                   type: boolean
+                collectionId:
+                  type: string
               required:
                 - id
+                - setDirectives
+                - setDirectivesOverrides
       responses:
         "200":
           description: Successful response
@@ -1075,11 +1474,13 @@ paths:
                     type: string
                   name:
                     type: string
-                  url:
+                  pathTemplate:
+                    type: string
+                  requestPath:
                     type: string
                   method:
                     type: string
-                  sourceKey:
+                  externalId:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1093,17 +1494,75 @@ paths:
                       - type: "null"
                   headersSchema:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
                       - type: "null"
                   headersOverrides:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  querySchema:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  queryOverrides:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  setDirectives:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
+                      - type: "null"
+                  setDirectivesOverrides:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
                       - type: "null"
                   headers:
                     anyOf:
                       - type: string
                       - type: "null"
                   body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  url:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1155,15 +1614,16 @@ paths:
                 required:
                   - id
                   - name
-                  - url
+                  - pathTemplate
+                  - requestPath
                   - method
-                  - sourceKey
-                  - bodySchema
+                  - externalId
                   - bodyOverrides
-                  - headersSchema
-                  - headersOverrides
+                  - setDirectives
+                  - setDirectivesOverrides
                   - headers
                   - body
+                  - url
                   - expectedStatus
                   - timeout
                   - interval
@@ -1206,11 +1666,11 @@ paths:
                 bodyOverrides:
                   type: string
                 headersOverrides:
-                  type: object
-                  propertyNames:
-                    type: string
-                  additionalProperties:
-                    type: string
+                  type: string
+                queryOverrides:
+                  type: string
+                setDirectivesOverrides:
+                  type: string
               required:
                 - id
       responses:
@@ -1225,11 +1685,13 @@ paths:
                     type: string
                   name:
                     type: string
-                  url:
+                  pathTemplate:
+                    type: string
+                  requestPath:
                     type: string
                   method:
                     type: string
-                  sourceKey:
+                  externalId:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1243,17 +1705,75 @@ paths:
                       - type: "null"
                   headersSchema:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
                       - type: "null"
                   headersOverrides:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  querySchema:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  queryOverrides:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  setDirectives:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
+                      - type: "null"
+                  setDirectivesOverrides:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
                       - type: "null"
                   headers:
                     anyOf:
                       - type: string
                       - type: "null"
                   body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  url:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1305,15 +1825,16 @@ paths:
                 required:
                   - id
                   - name
-                  - url
+                  - pathTemplate
+                  - requestPath
                   - method
-                  - sourceKey
-                  - bodySchema
+                  - externalId
                   - bodyOverrides
-                  - headersSchema
-                  - headersOverrides
+                  - setDirectives
+                  - setDirectivesOverrides
                   - headers
                   - body
+                  - url
                   - expectedStatus
                   - timeout
                   - interval
@@ -1412,11 +1933,13 @@ paths:
                     type: string
                   name:
                     type: string
-                  url:
+                  pathTemplate:
+                    type: string
+                  requestPath:
                     type: string
                   method:
                     type: string
-                  sourceKey:
+                  externalId:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1430,17 +1953,75 @@ paths:
                       - type: "null"
                   headersSchema:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
                       - type: "null"
                   headersOverrides:
                     anyOf:
-                      - type: string
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  querySchema:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  queryOverrides:
+                    anyOf:
+                      - type: object
+                        propertyNames:
+                          type: string
+                        additionalProperties:
+                          type: string
+                      - type: "null"
+                  setDirectives:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
+                      - type: "null"
+                  setDirectivesOverrides:
+                    anyOf:
+                      - type: array
+                        items:
+                          type: object
+                          properties:
+                            varName:
+                              type: string
+                            responsePath:
+                              type: string
+                          required:
+                            - varName
+                            - responsePath
+                          additionalProperties: false
                       - type: "null"
                   headers:
                     anyOf:
                       - type: string
                       - type: "null"
                   body:
+                    anyOf:
+                      - type: string
+                      - type: "null"
+                  url:
                     anyOf:
                       - type: string
                       - type: "null"
@@ -1492,15 +2073,16 @@ paths:
                 required:
                   - id
                   - name
-                  - url
+                  - pathTemplate
+                  - requestPath
                   - method
-                  - sourceKey
-                  - bodySchema
+                  - externalId
                   - bodyOverrides
-                  - headersSchema
-                  - headersOverrides
+                  - setDirectives
+                  - setDirectivesOverrides
                   - headers
                   - body
+                  - url
                   - expectedStatus
                   - timeout
                   - interval
@@ -1572,11 +2154,13 @@ paths:
                       type: string
                     name:
                       type: string
-                    url:
+                    pathTemplate:
+                      type: string
+                    requestPath:
                       type: string
                     method:
                       type: string
-                    sourceKey:
+                    externalId:
                       anyOf:
                         - type: string
                         - type: "null"
@@ -1590,17 +2174,75 @@ paths:
                         - type: "null"
                     headersSchema:
                       anyOf:
-                        - type: string
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
                         - type: "null"
                     headersOverrides:
                       anyOf:
-                        - type: string
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    querySchema:
+                      anyOf:
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    queryOverrides:
+                      anyOf:
+                        - type: object
+                          propertyNames:
+                            type: string
+                          additionalProperties:
+                            type: string
+                        - type: "null"
+                    setDirectives:
+                      anyOf:
+                        - type: array
+                          items:
+                            type: object
+                            properties:
+                              varName:
+                                type: string
+                              responsePath:
+                                type: string
+                            required:
+                              - varName
+                              - responsePath
+                            additionalProperties: false
+                        - type: "null"
+                    setDirectivesOverrides:
+                      anyOf:
+                        - type: array
+                          items:
+                            type: object
+                            properties:
+                              varName:
+                                type: string
+                              responsePath:
+                                type: string
+                            required:
+                              - varName
+                              - responsePath
+                            additionalProperties: false
                         - type: "null"
                     headers:
                       anyOf:
                         - type: string
                         - type: "null"
                     body:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    url:
                       anyOf:
                         - type: string
                         - type: "null"
@@ -1652,15 +2294,16 @@ paths:
                   required:
                     - id
                     - name
-                    - url
+                    - pathTemplate
+                    - requestPath
                     - method
-                    - sourceKey
-                    - bodySchema
+                    - externalId
                     - bodyOverrides
-                    - headersSchema
-                    - headersOverrides
+                    - setDirectives
+                    - setDirectivesOverrides
                     - headers
                     - body
+                    - url
                     - expectedStatus
                     - timeout
                     - interval
@@ -2278,6 +2921,63 @@ paths:
               schema:
                 type: array
                 items: {}
+        "400": *a1
+        "401": *a2
+        "403": *a3
+        "404": *a5
+        "500": *a4
+  /organization.getMyOrganizations:
+    get:
+      operationId: organization-getMyOrganizations
+      summary: Get My Organizations
+      tags:
+        - Organization
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    slug:
+                      type: string
+                    description:
+                      anyOf:
+                        - type: string
+                        - type: "null"
+                    plan:
+                      type: string
+                    role:
+                      type: string
+                    status:
+                      type: string
+                    joinedAt:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - slug
+                    - description
+                    - plan
+                    - role
+                    - status
+                    - joinedAt
+                    - createdAt
+                    - updatedAt
+                  additionalProperties: false
         "400": *a1
         "401": *a2
         "403": *a3
