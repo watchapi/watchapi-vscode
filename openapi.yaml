@@ -188,22 +188,139 @@ paths:
                             type: string
                           name:
                             type: string
-                          url:
+                          pathTemplate:
+                            type: string
+                          requestPath:
                             type: string
                           method:
                             type: string
-                          isActive:
-                            type: boolean
+                          externalId:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          bodySchema:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          bodyOverrides:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          headersSchema:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          headersOverrides:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          querySchema:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          queryOverrides:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          setDirectives:
+                            anyOf:
+                              - type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    varName:
+                                      type: string
+                                    responsePath:
+                                      type: string
+                                  required:
+                                    - varName
+                                    - responsePath
+                                  additionalProperties: false
+                              - type: "null"
+                          setDirectivesOverrides:
+                            anyOf:
+                              - type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    varName:
+                                      type: string
+                                    responsePath:
+                                      type: string
+                                  required:
+                                    - varName
+                                    - responsePath
+                                  additionalProperties: false
+                              - type: "null"
+                          headers:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          body:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          url:
+                            anyOf:
+                              - type: string
+                              - type: "null"
                           expectedStatus:
                             type: number
                           timeout:
                             type: number
                           interval:
                             type: number
+                          lastCheckedAt:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          isActive:
+                            type: boolean
+                          verifiedAt:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verifiedBy:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationSource:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationCommit:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationEnvironment:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          userId:
+                            type: string
+                          organizationId:
+                            type: string
                           collectionId:
                             anyOf:
                               - type: string
                               - type: "null"
+                          monitoringChecks: {}
                           createdAt:
                             type: string
                           updatedAt:
@@ -211,12 +328,28 @@ paths:
                         required:
                           - id
                           - name
-                          - url
+                          - pathTemplate
+                          - requestPath
                           - method
-                          - isActive
+                          - externalId
+                          - bodyOverrides
+                          - setDirectives
+                          - setDirectivesOverrides
+                          - headers
+                          - body
+                          - url
                           - expectedStatus
                           - timeout
                           - interval
+                          - lastCheckedAt
+                          - isActive
+                          - verifiedAt
+                          - verifiedBy
+                          - verificationSource
+                          - verificationCommit
+                          - verificationEnvironment
+                          - userId
+                          - organizationId
                           - collectionId
                           - createdAt
                           - updatedAt
@@ -257,7 +390,7 @@ paths:
             schema:
               type: object
               properties:
-                collectionId:
+                id:
                   type: string
                   minLength: 1
                 name:
@@ -266,7 +399,7 @@ paths:
                 description:
                   type: string
               required:
-                - collectionId
+                - id
       responses:
         "200":
           description: Successful response
@@ -467,22 +600,139 @@ paths:
                             type: string
                           name:
                             type: string
-                          url:
+                          pathTemplate:
+                            type: string
+                          requestPath:
                             type: string
                           method:
                             type: string
-                          isActive:
-                            type: boolean
+                          externalId:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          bodySchema:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          bodyOverrides:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          headersSchema:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          headersOverrides:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          querySchema:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          queryOverrides:
+                            anyOf:
+                              - type: object
+                                propertyNames:
+                                  type: string
+                                additionalProperties:
+                                  type: string
+                              - type: "null"
+                          setDirectives:
+                            anyOf:
+                              - type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    varName:
+                                      type: string
+                                    responsePath:
+                                      type: string
+                                  required:
+                                    - varName
+                                    - responsePath
+                                  additionalProperties: false
+                              - type: "null"
+                          setDirectivesOverrides:
+                            anyOf:
+                              - type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    varName:
+                                      type: string
+                                    responsePath:
+                                      type: string
+                                  required:
+                                    - varName
+                                    - responsePath
+                                  additionalProperties: false
+                              - type: "null"
+                          headers:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          body:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          url:
+                            anyOf:
+                              - type: string
+                              - type: "null"
                           expectedStatus:
                             type: number
                           timeout:
                             type: number
                           interval:
                             type: number
+                          lastCheckedAt:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          isActive:
+                            type: boolean
+                          verifiedAt:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verifiedBy:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationSource:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationCommit:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          verificationEnvironment:
+                            anyOf:
+                              - type: string
+                              - type: "null"
+                          userId:
+                            type: string
+                          organizationId:
+                            type: string
                           collectionId:
                             anyOf:
                               - type: string
                               - type: "null"
+                          monitoringChecks: {}
                           createdAt:
                             type: string
                           updatedAt:
@@ -490,12 +740,28 @@ paths:
                         required:
                           - id
                           - name
-                          - url
+                          - pathTemplate
+                          - requestPath
                           - method
-                          - isActive
+                          - externalId
+                          - bodyOverrides
+                          - setDirectives
+                          - setDirectivesOverrides
+                          - headers
+                          - body
+                          - url
                           - expectedStatus
                           - timeout
                           - interval
+                          - lastCheckedAt
+                          - isActive
+                          - verifiedAt
+                          - verifiedBy
+                          - verificationSource
+                          - verificationCommit
+                          - verificationEnvironment
+                          - userId
+                          - organizationId
                           - collectionId
                           - createdAt
                           - updatedAt
@@ -767,8 +1033,6 @@ paths:
                 - name
                 - pathTemplate
                 - requestPath
-                - setDirectives
-                - setDirectivesOverrides
       responses:
         "200":
           description: Successful response
@@ -1460,8 +1724,6 @@ paths:
                   type: string
               required:
                 - id
-                - setDirectives
-                - setDirectivesOverrides
       responses:
         "200":
           description: Successful response
@@ -1666,11 +1928,29 @@ paths:
                 bodyOverrides:
                   type: string
                 headersOverrides:
-                  type: string
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
                 queryOverrides:
-                  type: string
+                  type: object
+                  propertyNames:
+                    type: string
+                  additionalProperties:
+                    type: string
                 setDirectivesOverrides:
-                  type: string
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      varName:
+                        type: string
+                      responsePath:
+                        type: string
+                    required:
+                      - varName
+                      - responsePath
               required:
                 - id
       responses:
@@ -2795,7 +3075,7 @@ paths:
                       type: string
                     name:
                       type: string
-                    url:
+                    requestPath:
                       type: string
                     avgResponseTime:
                       type: number
@@ -2806,7 +3086,7 @@ paths:
                   required:
                     - id
                     - name
-                    - url
+                    - requestPath
                     - avgResponseTime
                     - totalChecks
                     - errorRate
@@ -2966,6 +3246,52 @@ paths:
                       type: string
                     updatedAt:
                       type: string
+                    subscription:
+                      anyOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: string
+                            organizationId:
+                              type: string
+                            plan:
+                              type: string
+                            status:
+                              type: string
+                            currentPeriodStart:
+                              type: string
+                            currentPeriodEnd:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                            cancelAtPeriodEnd:
+                              type: boolean
+                            polarCustomerId:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                            polarSubscriptionId:
+                              anyOf:
+                                - type: string
+                                - type: "null"
+                            createdAt:
+                              type: string
+                            updatedAt:
+                              type: string
+                          required:
+                            - id
+                            - organizationId
+                            - plan
+                            - status
+                            - currentPeriodStart
+                            - currentPeriodEnd
+                            - cancelAtPeriodEnd
+                            - polarCustomerId
+                            - polarSubscriptionId
+                            - createdAt
+                            - updatedAt
+                          additionalProperties: false
+                        - type: "null"
                   required:
                     - id
                     - name
