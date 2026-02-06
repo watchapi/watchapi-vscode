@@ -329,6 +329,8 @@ export class FileWatcherService implements vscode.Disposable {
                 bodySchema: route.body,
                 headersSchema: route.headers,
                 querySchema: route.query,
+                setDirectives: existing.setDirectives ?? [],
+                setDirectivesOverrides: existing.setDirectivesOverrides ?? [],
             };
             await this.endpointsService.update(existing.id, updateFields);
             stats.updated++;
@@ -344,6 +346,8 @@ export class FileWatcherService implements vscode.Disposable {
                 bodySchema: route.body,
                 headersSchema: route.headers,
                 querySchema: route.query,
+                setDirectives: route.directives ?? [],
+                setDirectivesOverrides: route.directives ?? [],
                 collectionId,
                 bodyOverrides: undefined,
                 headersOverrides: undefined,

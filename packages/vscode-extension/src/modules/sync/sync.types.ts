@@ -14,6 +14,7 @@ export interface ParsedRoute {
     type: "nextjs-app" | "nextjs-page" | "trpc" | "nestjs" | "payload-cms";
     headers?: Record<string, string>;
     query?: Record<string, string>;
+    directives?: { varName: string; responsePath: string }[];
     body?: string;
 }
 

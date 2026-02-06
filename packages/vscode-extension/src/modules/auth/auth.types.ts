@@ -18,6 +18,7 @@ export interface UserInfo {
   email: string;
   role: "MEMBER" | "ADMIN";
   name?: string;
+  avatar?: string;
   organizationId?: string;
   organizations?: Array<{
     organizationId: string;

@@ -4,7 +4,7 @@
  */
 
 import * as vscode from "vscode";
-import { trpc } from "@/infrastructure/api/trpc-client";
+import { api } from "@/infrastructure/api";
 import { STORAGE_KEYS } from "@/shared/constants";
 import { logger } from "@/shared/logger";
 import type { UserOrganization } from "./organization.types";
@@ -47,14 +47,15 @@ export class OrganizationService {
   async getUserOrganizations(): Promise<UserOrganization[]> {
     try {
       // Fetch organizations directly from backend
-      const organizations = await trpc.getMyOrganizations();
+      const { data, error } = await api.GET("/organization.getMyOrganizations");
+      if (error) throw error;
 
-      if (!organizations || organizations.length === 0) {
+      if (!data || data.length === 0) {
         logger.warn("No organizations found for user");
         return [];
       }
 
-      return organizations as UserOrganization[];
+      return data as UserOrganization[];
     } catch (error) {
       logger.error("Failed to fetch user organizations", error);
       throw error;
@@ -70,7 +71,11 @@ export class OrganizationService {
       logger.info(`Switching to organization: ${organizationId}`);
 
       // Call backend to switch organization and get new tokens
-      const tokens = await trpc.switchOrganization({ organizationId });
+      const { data: tokens, error } = await api.POST("/auth.switchOrganization", {
+        body: { organizationId },
+      });
+      if (error) throw error;
+      if (!tokens) throw new Error("No response from switch organization endpoint");
 
       // Update stored token
       await this.context.secrets.store(

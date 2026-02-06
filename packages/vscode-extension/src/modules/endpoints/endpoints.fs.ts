@@ -62,6 +62,12 @@ export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
 
         try {
             const parsed = parseHttpFile(text);
+            const existing = await this.endpointsService.getById(endpointId);
+            const setDirectives = existing.setDirectives ?? [];
+            const setDirectivesOverrides =
+                parsed.setDirectivesOverrides ??
+                existing.setDirectivesOverrides ??
+                [];
 
             await this.endpointsService.update(endpointId, {
                 name: parsed.name,
@@ -71,7 +77,8 @@ export class EndpointsFileSystemProvider implements vscode.FileSystemProvider {
                 headersOverrides: parsed.headersOverrides,
                 queryOverrides: parsed.queryOverrides,
                 bodyOverrides: parsed.bodyOverrides,
-                setDirectivesOverrides: parsed.setDirectivesOverrides,
+                setDirectives,
+                setDirectivesOverrides,
             });
 
             this.emitter.fire([{ type: vscode.FileChangeType.Changed, uri }]);

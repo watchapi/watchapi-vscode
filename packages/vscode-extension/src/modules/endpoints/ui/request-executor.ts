@@ -2,7 +2,7 @@ import got, { Method, OptionsOfBufferResponseBody } from "got";
 import { replaceEnvironmentVariables } from "@/infrastructure/parsers";
 import type { ApiEndpoint } from "../endpoints.types";
 import type { Environment } from "@/modules/environments/environments.types";
-import type { HttpMethod } from "@/shared/constants";
+import { HTTP_METHODS, HttpMethod } from "@/shared/constants";
 import { HttpRequest } from "@/shared/http-request";
 import { HttpResponse } from "@/shared/http-response";
 import { RequestHeaders } from "@/shared/base";
@@ -151,11 +151,22 @@ export class RequestExecutor {
             effectiveHeaders["Content-Type"] = "application/json";
         }
 
+        const method = this.normalizeMethod(endpoint.method);
+        effectiveBody = effectiveBody ?? undefined;
+
         return {
-            method: endpoint.method,
+            method,
             url,
             headers: effectiveHeaders,
             body: effectiveBody,
         };
+    }
+
+    private normalizeMethod(method: string): HttpMethod {
+        const normalized = method.toUpperCase();
+        if ((HTTP_METHODS as readonly string[]).includes(normalized)) {
+            return normalized as HttpMethod;
+        }
+        return "GET";
     }
 }

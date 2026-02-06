@@ -5,10 +5,10 @@
 
 import * as vscode from "vscode";
 import {
-  trpc,
+  api,
   setAuthTokenProvider,
   setRefreshTokenHandler,
-} from "@/infrastructure/api/trpc-client";
+} from "@/infrastructure/api";
 import { STORAGE_KEYS } from "@/shared/constants";
 import { getDashboardUrl } from "@/shared/config";
 
@@ -136,12 +136,16 @@ export class AuthService {
       }
 
       logger.info("Attempting to refresh access token");
-      const response = await trpc.refreshToken({ refreshToken });
+      const { data, error } = await api.POST("/auth.refreshToken", {
+        body: { refreshToken },
+      });
+      if (error) throw error;
+      if (!data) throw new Error("No response from refresh token endpoint");
 
       // Store new tokens
-      await this.storeToken(response.accessToken);
-      if (response.refreshToken) {
-        await this.storeRefreshToken(response.refreshToken);
+      await this.storeToken(data.accessToken);
+      if (data.refreshToken) {
+        await this.storeRefreshToken(data.refreshToken);
       }
 
       logger.info("Access token refreshed successfully");
@@ -214,16 +218,33 @@ export class AuthService {
    * Verify current session and get user info
    */
   private async verifySession(): Promise<void> {
-    const user = await trpc.getMe();
+    const token = await this.getToken();
+    if (!token) {
+      throw new AuthenticationError("No access token available");
+    }
+
+    const { data: user, error } = await api.GET("/auth.verifyToken", {
+      params: { query: { token } },
+    });
+    if (error) throw error;
     if (!user) {
       throw new AuthenticationError("Session is invalid or expired");
     }
 
-    await this.context.globalState.update(STORAGE_KEYS.USER_INFO, user);
+    // Map API user to UserInfo (role type coercion)
+    const userInfo: UserInfo = {
+      id: user.id,
+      email: user.email,
+      name: user.name ?? undefined,
+      avatar: user.avatar ?? undefined,
+      role: user.role as "ADMIN" | "MEMBER",
+    };
+
+    await this.context.globalState.update(STORAGE_KEYS.USER_INFO, userInfo);
 
     this._onDidChangeAuthState.fire({
       isAuthenticated: true,
-      user,
+      user: userInfo,
     });
   }
 

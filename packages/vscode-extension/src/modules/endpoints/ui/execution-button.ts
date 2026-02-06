@@ -54,6 +54,8 @@ export class ExecutionButton {
         const documentContent = editor.document.getText();
 
         const setDirectives = extractSetDirectives(documentContent);
+        const setDirectivesOverrides =
+            setDirectives.length > 0 ? setDirectives : null;
 
         const endpoint: ApiEndpoint = {
             id: "temp-" + Date.now(),
@@ -65,14 +67,30 @@ export class ExecutionButton {
                 partialEndpoint.pathTemplate ||
                 partialEndpoint.requestPath ||
                 "",
+            externalId: null,
+            bodySchema: partialEndpoint.bodySchema ?? null,
             headersOverrides: partialEndpoint.headersOverrides,
             queryOverrides: partialEndpoint.queryOverrides,
-            bodyOverrides: partialEndpoint.bodyOverrides,
-            setDirectivesOverrides:
-                setDirectives.length > 0 ? setDirectives : undefined,
-            timeout: partialEndpoint.timeout!,
-            interval: partialEndpoint.interval!,
-            isActive: partialEndpoint.isActive!,
+            bodyOverrides: partialEndpoint.bodyOverrides ?? null,
+            headersSchema: partialEndpoint.headersSchema ?? null,
+            querySchema: partialEndpoint.querySchema ?? null,
+            setDirectives: partialEndpoint.setDirectives ?? setDirectivesOverrides ?? [],
+            setDirectivesOverrides,
+            headers: null,
+            body: null,
+            url: null,
+            expectedStatus: partialEndpoint.expectedStatus ?? 200,
+            timeout: partialEndpoint.timeout ?? 30000,
+            interval: partialEndpoint.interval ?? 300000,
+            isActive: partialEndpoint.isActive ?? false,
+            lastCheckedAt: null,
+            verifiedAt: null,
+            verifiedBy: null,
+            verificationSource: null,
+            verificationCommit: null,
+            verificationEnvironment: null,
+            userId: "editor",
+            organizationId: "editor",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };
