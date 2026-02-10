@@ -9,9 +9,19 @@ import { EndpointsService } from "@/modules/endpoints/endpoints.service";
 import { logger } from "@/shared/logger";
 import type { ParsedRoute } from "../sync.types";
 import type { Collection } from "@/modules/collections/collections.types";
-import type { ApiEndpoint } from "@/modules/endpoints/endpoints.types";
+import type {
+    ApiEndpoint,
+    UpdateApiEndpointInput,
+} from "@/modules/endpoints/endpoints.types";
 import { humanizeRouteName } from "@/modules/endpoints/endpoints.editor";
 import { CollectionsTreeProvider } from "@/modules/collections";
+
+type UpdateField =
+    | "pathTemplate"
+    | "method"
+    | "name"
+    | "bodySchema"
+    | "headersSchema";
 
 export class SyncConfigModal {
     private collectionsService: CollectionsService;
@@ -166,6 +176,8 @@ export class SyncConfigModal {
             defaults: {
                 bodyOverrides: null,
                 headersOverrides: null,
+                setDirectives: [],
+                setDirectivesOverrides: [],
             },
         },
         // When endpoint exists in destination but not source
@@ -289,6 +301,7 @@ export class SyncConfigModal {
         for (const { route, existing } of plan.toUpdate) {
             const updateFields = this.buildUpdatePayload(
                 route,
+                existing,
                 this.MERGE_STRATEGY.onMatch.fields,
             );
             await this.endpointsService.update(existing.id, updateFields);
@@ -317,21 +330,31 @@ export class SyncConfigModal {
      */
     private buildUpdatePayload(
         route: ParsedRoute,
-        fields: readonly string[],
-    ): Record<string, unknown> {
-        const payload: Record<string, unknown> = {};
-        // Map code fields to schema layers
-        const routeMap: Record<string, unknown> = {
-            pathTemplate: route.path,
-            method: route.method,
-            name: route.name,
-            bodySchema: route.body, // Code-inferred body schema
-            headersSchema: route.headers, // Code-inferred headers schema
-            querySchema: route.query, // Code-inferred query schema
+        existing: ApiEndpoint,
+        fields: readonly UpdateField[],
+    ): Omit<UpdateApiEndpointInput, "id"> {
+        const payload: Omit<UpdateApiEndpointInput, "id"> = {
+            setDirectives: existing.setDirectives ?? [],
+            setDirectivesOverrides: existing.setDirectivesOverrides ?? [],
         };
-
         for (const field of fields) {
-            payload[field] = routeMap[field];
+            switch (field) {
+                case "pathTemplate":
+                    payload.pathTemplate = route.path;
+                    break;
+                case "method":
+                    payload.method = route.method;
+                    break;
+                case "name":
+                    payload.name = route.name;
+                    break;
+                case "bodySchema":
+                    payload.bodySchema = route.body;
+                    break;
+                case "headersSchema":
+                    payload.headersSchema = route.headers;
+                    break;
+            }
         }
         return payload;
     }
@@ -346,6 +369,7 @@ export class SyncConfigModal {
         collectionId: string,
         defaults: Record<string, unknown>,
     ) {
+        const directives = route.directives ?? [];
         return {
             externalId,
             name: route.name,
@@ -356,8 +380,10 @@ export class SyncConfigModal {
             bodySchema: route.body,
             headersSchema: route.headers,
             querySchema: route.query,
+            setDirectives: directives,
+            setDirectivesOverrides: directives,
             collectionId,
-            ...defaults, // Includes bodyOverrides: null, headersOverrides: null, queryOverrides: null
+            ...defaults,
         };
     }
 
