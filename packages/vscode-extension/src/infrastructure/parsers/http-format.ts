@@ -6,7 +6,11 @@
 import * as crypto from "crypto";
 import { logger, ParserError } from "@/shared";
 import type { HttpMethod } from "@/shared/constants";
-import type { ApiEndpoint, CreateApiEndpointInput, SetDirective } from "@/modules/endpoints/endpoints.types";
+import type {
+    ApiEndpoint,
+    CreateApiEndpointInput,
+    SetDirective,
+} from "@/modules/endpoints/endpoints.types";
 import type { Environment } from "@/modules/environments/environments.types";
 import { humanizeRouteName } from "@/modules/endpoints/endpoints.editor";
 

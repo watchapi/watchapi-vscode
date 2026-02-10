@@ -9,7 +9,12 @@ import { EndpointsService } from "@/modules/endpoints/endpoints.service";
 import { CacheService } from "./cache.service";
 import { logger } from "@/shared/logger";
 import { SyncError } from "@/shared/errors";
-import { STORAGE_KEYS, SYNC_CONFIG } from "@/shared/constants";
+import {
+    HTTP_METHODS,
+    STORAGE_KEYS,
+    SYNC_CONFIG,
+    HttpMethod,
+} from "@/shared/constants";
 import type { Collection } from "@/modules/collections/collections.types";
 import type { ApiEndpoint } from "@/modules/endpoints/endpoints.types";
 import type { SyncState } from "./sync.types";
@@ -103,13 +108,33 @@ export class SyncService {
 
             // Upload endpoints with updated collection IDs
             const endpointsToCreate = localEndpoints.map((localEndpoint) => {
-                const { collectionId, ...input } = localEndpoint;
+                const { collectionId } = localEndpoint;
                 const cloudCollectionId = collectionId
                     ? collectionIdMap.get(collectionId)
                     : undefined;
 
                 return {
-                    ...input,
+                    name: localEndpoint.name,
+                    pathTemplate: localEndpoint.pathTemplate,
+                    requestPath: localEndpoint.requestPath,
+                    method: this.normalizeMethod(localEndpoint.method),
+                    externalId: localEndpoint.externalId ?? undefined,
+                    bodySchema: localEndpoint.bodySchema ?? undefined,
+                    bodyOverrides: localEndpoint.bodyOverrides ?? undefined,
+                    headersSchema: localEndpoint.headersSchema ?? undefined,
+                    headersOverrides:
+                        localEndpoint.headersOverrides ?? undefined,
+                    querySchema: localEndpoint.querySchema ?? undefined,
+                    queryOverrides: localEndpoint.queryOverrides ?? undefined,
+                    setDirectives: localEndpoint.setDirectives ?? [],
+                    setDirectivesOverrides:
+                        localEndpoint.setDirectivesOverrides ?? [],
+                    body: localEndpoint.body ?? undefined,
+                    url: localEndpoint.url ?? undefined,
+                    expectedStatus: localEndpoint.expectedStatus ?? undefined,
+                    timeout: localEndpoint.timeout ?? undefined,
+                    interval: localEndpoint.interval ?? undefined,
+                    isActive: localEndpoint.isActive ?? undefined,
                     collectionId: cloudCollectionId,
                 };
             });
@@ -304,6 +329,14 @@ export class SyncService {
     private updateState(update: Partial<SyncState>): void {
         this.syncState = { ...this.syncState, ...update };
         this._onDidChangeState.fire(this.syncState);
+    }
+
+    private normalizeMethod(method: string): HttpMethod | undefined {
+        const normalized = method.toUpperCase();
+        if ((HTTP_METHODS as readonly string[]).includes(normalized)) {
+            return normalized as HttpMethod;
+        }
+        return undefined;
     }
 
     /**
