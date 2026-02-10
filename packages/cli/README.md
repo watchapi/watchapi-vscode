@@ -67,8 +67,8 @@ watchapi check [options]
 - `--api-url <url>` - Platform API URL (default: flag → `WATCHAPI_URL` → saved login → production URL)
 - `--api-token <token>` - API authentication token (default: flag → `WATCHAPI_TOKEN` → saved login)
 - `--fail-on <mode>` - When to fail the CI/CD pipeline:
-  - `regressions` (default) - Fail only if regressions detected
-  - `any` - Fail if any check fails
+    - `regressions` (default) - Fail only if regressions detected
+    - `any` - Fail if any check fails
 
 **Examples:**
 
@@ -128,36 +128,36 @@ If you omit `--target`, the CLI inspects `package.json` in your project root to 
 name: Deploy
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      # Your deployment steps here
-      - name: Deploy to production
-        run: ./deploy.sh
+            # Your deployment steps here
+            - name: Deploy to production
+              run: ./deploy.sh
 
-      # Run API health checks
-      - name: API Health Check
-        run: npx @watchapi/cli check --collection ${{ secrets.COLLECTION_ID }} --env production
-        env:
-          WATCHAPI_TOKEN: ${{ secrets.WATCHAPI_TOKEN }}
+            # Run API health checks
+            - name: API Health Check
+              run: npx @watchapi/cli check --collection ${{ secrets.COLLECTION_ID }} --env production
+              env:
+                  WATCHAPI_TOKEN: ${{ secrets.WATCHAPI_TOKEN }}
 ```
 
 ### GitLab CI
 
 ```yaml
 deploy:
-  stage: deploy
-  script:
-    - ./deploy.sh
-    - npx @watchapi/cli check --collection $COLLECTION_ID --env production
-  variables:
-    WATCHAPI_TOKEN: $WATCHAPI_TOKEN
+    stage: deploy
+    script:
+        - ./deploy.sh
+        - npx @watchapi/cli check --collection $COLLECTION_ID --env production
+    variables:
+        WATCHAPI_TOKEN: $WATCHAPI_TOKEN
 ```
 
 ### CircleCI
@@ -166,17 +166,17 @@ deploy:
 version: 2.1
 
 jobs:
-  deploy:
-    docker:
-      - image: node:20
-    steps:
-      - checkout
-      - run: ./deploy.sh
-      - run:
-          name: API Health Check
-          command: npx @watchapi/cli check --collection $COLLECTION_ID --env production
-          environment:
-            WATCHAPI_TOKEN: $WATCHAPI_TOKEN
+    deploy:
+        docker:
+            - image: node:20
+        steps:
+            - checkout
+            - run: ./deploy.sh
+            - run:
+                  name: API Health Check
+                  command: npx @watchapi/cli check --collection $COLLECTION_ID --env production
+                  environment:
+                      WATCHAPI_TOKEN: $WATCHAPI_TOKEN
 ```
 
 ### Jenkins
@@ -210,9 +210,9 @@ pipeline {
 1. **Fetch Collection**: CLI fetches your collection definition from the platform (endpoints, expected responses, etc.)
 2. **Run Checks**: Executes HTTP requests to all endpoints in your environment
 3. **Analyze Results**: Compares results with historical data to detect:
-   - Status code changes (passing → failing)
-   - Performance regressions (2x slower than average)
-   - Response body changes
+    - Status code changes (passing → failing)
+    - Performance regressions (2x slower than average)
+    - Response body changes
 4. **Report**: Sends results back to platform for tracking
 5. **Exit**: Returns appropriate exit code for CI/CD (0 = pass, 1 = fail)
 
@@ -319,10 +319,10 @@ Programmatic API:
 
 ```ts
 import {
-  detectTargets,
-  getNextAppRoutes,
-  getNextTrpcProcedures,
-  getNestOperations,
+    detectTargets,
+    getNextAppRoutes,
+    getNextTrpcProcedures,
+    getNestOperations,
 } from "@watchapi/cli";
 
 // Detect frameworks present in a repo
@@ -335,6 +335,7 @@ const nestOperations = await getNestOperations({ include: ["openapi.yaml"] });
 ```
 
 **What `analyze` shows you (so you can spot issues early):**
+
 - Every detected API (method + path/procedure) for a quick surface audit.
 - Missing `operationId` values in OpenAPI specs to keep endpoint identity stable.
 - OpenAPI summaries, descriptions, and tags to validate documentation coverage.
@@ -361,4 +362,4 @@ See `CONTRIBUTING.md` for a minimal setup and workflow guide.
 - Documentation: https://watchapi.dev/docs
 - Issues: https://github.com/watchapi/watchapi-cli/issues
 - Email: support@watchapi.dev
-- Discord: https://discord.gg/5bANxHbfNx
+- Discord: https://discord.gg/5JPCwzASbs

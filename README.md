@@ -5,7 +5,7 @@
 [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/watchapi/watchapi-client)](https://open-vsx.org/extension/watchapi/watchapi-client)
 ![Contributions](https://img.shields.io/badge/contributions-welcome-brightgreen)
 ![Last Commit](https://img.shields.io/github/last-commit/watchapi/watchapi)
-<a href="https://discord.gg/5bANxHbfNx">
+<a href="https://discord.gg/5JPCwzASbs">
 <img src="https://img.shields.io/badge/chat-on%20discord-7289DA.svg" alt="Discord Chat" />
 </a>
 
