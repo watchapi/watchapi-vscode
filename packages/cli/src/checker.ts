@@ -5,6 +5,16 @@ export class EndpointChecker {
   async checkEndpoint(endpoint: EndpointDefinition): Promise<CheckResult> {
     const startTime = Date.now();
 
+    if (!endpoint.url) {
+      return {
+        endpointId: endpoint.id,
+        status: "ERROR",
+        responseTime: 0,
+        error: "Endpoint has no URL configured",
+        timestamp: new Date().toISOString(),
+      };
+    }
+
     try {
       const response = await axios({
         method: endpoint.method,
@@ -17,21 +27,13 @@ export class EndpointChecker {
 
       const responseTime = Date.now() - startTime;
 
-      // Run assertions
       const assertions = {
         statusCode: response.status === endpoint.expectedStatus,
         responseTime: endpoint.maxResponseTime
           ? responseTime <= endpoint.maxResponseTime
           : undefined,
-        bodyContains: endpoint.assertions?.bodyContains
-          ? this.checkBodyContains(response.data, endpoint.assertions.bodyContains)
-          : undefined,
-        bodySchema: endpoint.assertions?.bodySchema
-          ? this.validateSchema(response.data, endpoint.assertions.bodySchema)
-          : undefined,
       };
 
-      // Determine overall status
       const allPassed = Object.values(assertions).every((v) => v === true || v === undefined);
 
       return {
@@ -59,21 +61,7 @@ export class EndpointChecker {
     }
   }
 
-  private checkBodyContains(body: unknown, patterns: string[]): boolean {
-    const bodyStr = typeof body === "string" ? body : JSON.stringify(body);
-    return patterns.every((pattern) => bodyStr.includes(pattern));
-  }
-
-  private validateSchema(body: unknown, schema: Record<string, unknown>): boolean {
-    // Simple schema validation - check if all required keys exist
-    if (typeof body !== "object" || body === null) return false;
-
-    const bodyObj = body as Record<string, unknown>;
-    return Object.keys(schema).every((key) => key in bodyObj);
-  }
-
   async checkAll(endpoints: EndpointDefinition[]): Promise<CheckResult[]> {
-    // Run checks in parallel
     return Promise.all(endpoints.map((endpoint) => this.checkEndpoint(endpoint)));
   }
 }

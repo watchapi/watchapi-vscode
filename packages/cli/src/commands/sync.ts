@@ -2,41 +2,25 @@ import path from "node:path";
 
 import chalk from "chalk";
 import ora from "ora";
+import { detectAndParseRoutes, type ParsedRoute, type DetectedProjectTypes } from "@watchapi/parsers";
 
-import { ApiClient } from "../api-client.js";
+import { ApiClient, type SyncApiDefinition } from "../api-client.js";
 import { DEFAULT_API_URL, loadAuthConfig } from "../auth-config.js";
-import { runAnalyzer } from "../analyzer/index.js";
-import { detectTarget } from "../detect-target.js";
-import type {
-  AnalyzerNode,
-  AnalyzerTarget,
-  NextRouteNode,
-  OpenApiOperationNode,
-  TrpcProcedureNode,
-} from "../analyzer/types.js";
-import type { SyncApiDefinition } from "../types.js";
 
 const WATCHAPI_DASHBOARD_URL = "https://watchapi.dev/app/profile";
 
 export interface SyncCommandOptions {
-  target?: AnalyzerTarget;
   root?: string;
-  tsconfig?: string;
-  include?: string[];
   prefix?: string;
   domain?: string;
   apiUrl?: string;
   apiToken?: string;
   dryRun?: boolean;
   verbose?: boolean;
-  routerFactory?: string[];
-  routerIdentifierPattern?: string;
 }
 
 export async function syncCommand(options: SyncCommandOptions): Promise<void> {
   const rootDir = path.resolve(options.root ?? process.cwd());
-  const detected = options.target ? null : await detectTarget(rootDir);
-  const target: AnalyzerTarget = options.target ?? detected!.target;
   const storedAuth = loadAuthConfig();
   const apiUrl =
     options.apiUrl ||
@@ -64,28 +48,36 @@ export async function syncCommand(options: SyncCommandOptions): Promise<void> {
   }
 
   const spinner = options.verbose ? null : ora("Discovering APIs...").start();
-  if (options.verbose && detected) {
-    console.log(
-      chalk.gray(`Auto-detected target: ${target} (${detected.reason})`),
-    );
-  }
 
   try {
-  const analysis = await runAnalyzer({
-      rootDir,
-      target,
-      tsconfigPath: options.tsconfig,
-      include: options.include,
-      format: "json",
-      verbose: options.verbose,
-      routerFactories: options.routerFactory,
-      routerIdentifierPattern: options.routerIdentifierPattern,
-    });
+    const { routes, detected, debug } = await detectAndParseRoutes(rootDir);
 
-    const apis = buildApiDefinitions(target, analysis.nodes, options.prefix, options.domain ?? "");
-    const foundMsg = `Found ${apis.length} API${
-      apis.length === 1 ? "" : "s"
-    } from ${target}`;
+    if (options.verbose && debug) {
+      const detectedFrameworks = Object.entries(detected)
+        .filter(([, v]) => v)
+        .map(([k]) => k);
+      console.log(
+        chalk.gray(`Detected frameworks: ${detectedFrameworks.join(", ")}`),
+      );
+      console.log(chalk.gray(`Routes found: ${JSON.stringify(debug)}`));
+    }
+
+    if (routes.length === 0) {
+      const msg = "No APIs found. Make sure your project uses a supported framework (Next.js, tRPC, NestJS, Payload CMS).";
+      if (spinner) {
+        spinner.fail(msg);
+      } else {
+        console.log(chalk.yellow(msg));
+      }
+      return;
+    }
+
+    const apis = routes.map((route) =>
+      toSyncApiDefinition(route, options.prefix, options.domain ?? ""),
+    );
+
+    const target = inferTarget(detected);
+    const foundMsg = `Found ${apis.length} API${apis.length === 1 ? "" : "s"}`;
 
     if (spinner) {
       spinner.succeed(foundMsg);
@@ -99,7 +91,7 @@ export async function syncCommand(options: SyncCommandOptions): Promise<void> {
         apis.map((api) => ({
           id: api.id,
           method: api.method,
-          path: api.path ?? `${api.router}.${api.procedure}`,
+          path: api.path ?? api.id,
           file: api.file,
         })),
       );
@@ -146,121 +138,40 @@ export async function syncCommand(options: SyncCommandOptions): Promise<void> {
   }
 }
 
-function buildApiDefinitions(
-  target: AnalyzerTarget,
-  nodes: AnalyzerNode[],
+function toSyncApiDefinition(
+  route: ParsedRoute,
   prefix: string | undefined,
-  domain: string | undefined,
-): SyncApiDefinition[] {
-  if (target === "next-trpc") {
-    return buildTrpcApiDefinitions(nodes as TrpcProcedureNode[], prefix, domain);
-  }
+  domain: string,
+): SyncApiDefinition {
+  const fullPath = buildFullPath(route.path, prefix, domain);
+  const sourceKey = `${route.type}:${route.name}`;
 
-  if (target === "next-app-router") {
-    return buildNextAppDefinitions(nodes as NextRouteNode[], prefix, domain);
-  }
-
-  if (target === "nest") {
-    return buildNestApiDefinitions(nodes as OpenApiOperationNode[], prefix, domain);
-  }
-
-  throw new Error(`Unsupported sync target: ${target}`);
+  return {
+    id: route.name,
+    name: route.name,
+    sourceKey,
+    method: route.method,
+    path: fullPath,
+    file: route.filePath,
+  };
 }
 
-function buildTrpcApiDefinitions(
-  nodes: TrpcProcedureNode[],
-  prefix: string | undefined,
-  domain: string | undefined,
-): SyncApiDefinition[] {
-  return nodes.map((node) => {
-    const operationId = `${node.router}.${node.procedure}`;
-    const path = buildFullPath(operationId, prefix, domain);
-    return {
-      id: operationId,
-      name: operationId,
-      sourceKey: `next-trpc:${operationId}`,
-      method: node.method === "query" ? "GET" : "POST",
-      router: node.router,
-      procedure: node.procedure,
-      path,
-      visibility: node.procedureType,
-      file: node.file,
-      line: node.line,
-      metadata: {
-        resolverLines: node.resolverLines,
-        usesDb: node.usesDb,
-        hasErrorHandling: node.hasErrorHandling,
-        hasSideEffects: node.hasSideEffects,
-      },
-    };
-  });
-}
-
-function buildNestApiDefinitions(
-  nodes: OpenApiOperationNode[],
-  prefix: string | undefined,
-  domain: string | undefined,
-): SyncApiDefinition[] {
-  return nodes.map((node) => {
-    const path = buildFullPath(node.path, prefix, domain);
-    return {
-      id: node.operationId,
-      name: node.summary ?? node.operationId,
-      sourceKey: `nest:${node.operationId}`,
-      method: node.method,
-      router: node.tags?.[0],
-      procedure: node.operationId,
-      path,
-      file: node.file,
-      line: node.line,
-      metadata: {
-        tags: node.tags,
-        summary: node.summary,
-        description: node.description,
-      },
-    } satisfies SyncApiDefinition;
-  });
-}
-
-function buildNextAppDefinitions(
-  nodes: NextRouteNode[],
-  prefix: string | undefined,
-  domain: string | undefined,
-): SyncApiDefinition[] {
-  return nodes.map((node) => {
-    const operationId = `${node.method} ${node.path}`;
-    const path = buildFullPath(node.path, prefix, domain);
-    return {
-      id: operationId,
-      name: operationId,
-      sourceKey: `next-app-router:${operationId}`,
-      method: node.method,
-      router: node.path,
-      procedure: node.method,
-      path,
-      file: node.file,
-      line: node.line,
-      metadata: {
-        handler: node.handlerName,
-        handlerLines: node.handlerLines,
-        usesDb: node.usesDb,
-        hasErrorHandling: node.hasErrorHandling,
-        hasSideEffects: node.hasSideEffects,
-        returnsJson: node.returnsJson,
-        analyzed: node.analyzed,
-      },
-    } satisfies SyncApiDefinition;
-  });
+function inferTarget(detected: DetectedProjectTypes): string {
+  if (detected.trpc) return "next-trpc";
+  if (detected.nextApp || detected.nextPages) return "next-app-router";
+  if (detected.nestjs) return "nest";
+  if (detected.payloadCMS) return "payload-cms";
+  return "unknown";
 }
 
 function buildFullPath(
-  path: string,
+  routePath: string,
   prefix: string | undefined,
-  domain: string | undefined,
+  domain: string,
 ) {
-  const cleanDomain = (domain ?? "").replace(/\/+$/, "");
+  const cleanDomain = domain.replace(/\/+$/, "");
   const cleanPrefix = prefix ? prefix.replace(/^\/+|\/+$/g, "") : "";
-  const cleanPath = path.replace(/^\/+/, "");
+  const cleanPath = routePath.replace(/^\/+/, "");
   const segments = [cleanDomain];
   if (cleanPrefix) segments.push(cleanPrefix);
   segments.push(cleanPath);

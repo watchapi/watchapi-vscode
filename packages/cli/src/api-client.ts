@@ -1,65 +1,87 @@
-import { createTRPCUntypedClient, httpBatchLink } from "@trpc/client";
-import type { Collection, Report, SyncPayload } from "./types.js";
+import createClient from "openapi-fetch";
+import type { paths, operations } from "./generated.js";
 
-type TrpcClient = {
-  query: (path: string, input?: unknown) => Promise<any>;
-  mutation: (path: string, input?: unknown) => Promise<any>;
-};
+type SuccessBody<T> = T extends { content: { "application/json": infer B } }
+  ? B
+  : never;
+
+export type CliCollection = SuccessBody<
+  operations["cli-getCollection"]["responses"]["200"]
+>;
+
+export type CliEndpoint = CliCollection["endpoints"][number];
+
+export type SubmitReportBody =
+  operations["cli-submitReport"]["requestBody"]["content"]["application/json"];
+
+export type SubmitReportResult = SuccessBody<
+  operations["cli-submitReport"]["responses"]["200"]
+>;
+
+export type SyncApisBody =
+  operations["cli-syncApis"]["requestBody"]["content"]["application/json"];
+
+export type SyncApisResult = SuccessBody<
+  operations["cli-syncApis"]["responses"]["200"]
+>;
+
+export type SyncApiDefinition = SyncApisBody["apis"][number];
+
+export type VerifyBody =
+  operations["apiEndpoint-verify"]["requestBody"]["content"]["application/json"];
+
+export type BulkVerifyBody =
+  operations["apiEndpoint-bulkVerify"]["requestBody"]["content"]["application/json"];
 
 export class ApiClient {
-  private client: TrpcClient;
+  private client: ReturnType<typeof createClient<paths>>;
 
   constructor(apiUrl: string, apiToken: string) {
-    const url = new URL("/api/trpc", apiUrl).toString();
-
-    this.client = createTRPCUntypedClient({
-      links: [
-        httpBatchLink({
-          url,
-          headers: () => ({
-            authorization: `Bearer ${apiToken}`,
-          }),
-        }),
-      ],
-    }) as unknown as TrpcClient;
+    this.client = createClient<paths>({
+      baseUrl: apiUrl,
+      headers: {
+        authorization: `Bearer ${apiToken}`,
+      },
+    });
   }
 
-  async getCollection(collectionId: string): Promise<Collection> {
-    return this.client.query("cli.getCollection", { collectionId });
+  async getCollection(collectionId: string): Promise<CliCollection> {
+    const { data, error } = await this.client.GET("/cli.getCollection", {
+      params: { query: { collectionId } },
+    });
+    if (error) throw new Error(`Failed to fetch collection: ${JSON.stringify(error)}`);
+    return data!;
   }
 
-  async submitReport(report: Report): Promise<{ success: boolean; regressions: string[] }> {
-    return this.client.mutation("cli.submitReport", report);
+  async submitReport(report: SubmitReportBody): Promise<SubmitReportResult> {
+    const { data, error } = await this.client.POST("/cli.submitReport", {
+      body: report,
+    });
+    if (error) throw new Error(`Failed to submit report: ${JSON.stringify(error)}`);
+    return data!;
   }
 
-  async syncApis(
-    payload: SyncPayload,
-  ): Promise<{
-    success: boolean;
-    created: number;
-    updated: number;
-    deactivated: number;
-    unchanged: number;
-    message?: string;
-  }> {
-    return this.client.mutation("cli.syncApis", payload);
+  async syncApis(payload: SyncApisBody): Promise<SyncApisResult> {
+    const { data, error } = await this.client.POST("/cli.syncApis", {
+      body: payload,
+    });
+    if (error) throw new Error(`Failed to sync APIs: ${JSON.stringify(error)}`);
+    return data!;
   }
 
-  async verifyEndpoint(payload: {
-    id: string;
-    source?: "CD" | "CLI" | "MANUAL" | "API";
-    environment?: string;
-    commit?: string;
-  }): Promise<unknown> {
-    return this.client.mutation("apiEndpoint.verify", payload);
+  async verifyEndpoint(payload: VerifyBody): Promise<unknown> {
+    const { data, error } = await this.client.POST("/apiEndpoint.verify", {
+      body: payload,
+    });
+    if (error) throw new Error(`Failed to verify endpoint: ${JSON.stringify(error)}`);
+    return data;
   }
 
-  async bulkVerifyEndpoints(payload: {
-    endpointIds: string[];
-    source?: "CD" | "CLI" | "MANUAL" | "API";
-    environment?: string;
-    commit?: string;
-  }): Promise<unknown> {
-    return this.client.mutation("apiEndpoint.bulkVerify", payload);
+  async bulkVerifyEndpoints(payload: BulkVerifyBody): Promise<unknown> {
+    const { data, error } = await this.client.POST("/apiEndpoint.bulkVerify", {
+      body: payload,
+    });
+    if (error) throw new Error(`Failed to bulk verify: ${JSON.stringify(error)}`);
+    return data;
   }
 }
