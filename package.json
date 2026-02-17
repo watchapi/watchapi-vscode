@@ -4,6 +4,7 @@
   "description": "WatchAPI monorepo - REST API client and CLI tools",
   "private": true,
   "scripts": {
+    "generate:api": "bash scripts/generate-api.sh",
     "check-types": "pnpm -r --parallel run check-types",
     "lint": "pnpm -r --parallel run lint",
     "package": "pnpm -r run package",
@@ -16,5 +17,8 @@
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.18.3",
+  "devDependencies": {
+    "openapi-typescript": "^7.10.1"
+  },
   "dependencies": {}
 }

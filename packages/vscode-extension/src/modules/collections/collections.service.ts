@@ -107,7 +107,7 @@ export class CollectionsService {
             if (isCloud) {
                 logger.debug(`Updating collection in cloud: ${id}`, input);
                 const { data, error } = await api.POST("/collection.updateCollection", {
-                    body: { collectionId: id, ...input },
+                    body: { id, ...input },
                 });
                 if (error) throw error;
                 logger.info(`Updated collection in cloud: ${data!.name} (${data!.id})`);
